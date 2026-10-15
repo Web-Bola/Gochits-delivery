@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Gochit's",
+    "slug": "gochits-customer",
+    "scheme": "gochits",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/logo.png",
+    "plugins": ["expo-router", "expo-secure-store", ["expo-location", { "locationWhenInUsePermission": "მისამართის დასადგენად გვჭირდება შენი მდებარეობა" }]],
+    "ios": { "bundleIdentifier": "ge.gochits.customer" },
+    "android": { "package": "ge.gochits.customer" }
+  }
+}

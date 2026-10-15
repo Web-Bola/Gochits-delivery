@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>პრომო კოდები</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif;background:#FFF8E1}
+a{text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+@keyframes up{0%{transform:translateY(14px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes sel{0%{transform:scale(.96)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
+.k{animation:up .45s ease-out both}
+.pick{animation:sel .3s ease-out}
+.fld:focus-within{border-color:#1A0D0B;box-shadow:0 0 0 4px rgba(255,204,2,.6)}
+@media (prefers-reduced-motion:reduce){.k,.pick{animation:none}}
+</style>
+</helmet>
+<div style="width:100%;min-height:800px;box-sizing:border-box;display:flex;flex-wrap:wrap;background:#FFF8E1;color:#1A0D0B">
+<aside style="flex:1 0 240px;max-width:100%;background:#1A0D0B;padding:24px 18px;display:flex;flex-direction:column;gap:22px;box-sizing:border-box">
+<img src="/_blob/503cabd4940cb54d2a25bf4fdd509bb8" alt="Gochit's" style="width:150px;height:auto">
+<span style="font-size:12px;font-weight:800;color:#1A0D0B;background:#FFCC02;border-radius:12px;padding:4px 10px;align-self:flex-start">სუპერადმინი</span>
+<nav style="display:flex;flex-direction:column;gap:4px">
+<a href="Admin.dc.html" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;color:#f1e4d4;font-weight:600;font-size:15px">მიმოხილვა</a>
+<a href="AdminBranches.dc.html" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;color:#f1e4d4;font-weight:600;font-size:15px">ფილიალები</a>
+<a href="AdminZones.dc.html" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;color:#f1e4d4;font-weight:600;font-size:15px">მიტანის ზონები და ტარიფები</a>
+<a href="AdminPromos.dc.html" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;background:#FFCC02;color:#1A0D0B;font-weight:800;font-size:15px">პრომო კოდები</a>
+<a href="#" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;color:#f1e4d4;font-weight:600;font-size:15px">გადახდები და დაბრუნებები</a>
+</nav>
+</aside>
+<main style="flex:999 1 620px;min-width:0;padding:24px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px">
+<h1 style="margin:0;font-weight:800;font-size:28px">პრომო კოდები</h1>
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+<section class="k" style="flex:1 1 340px;min-width:0;background:#fff;border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 12px rgba(26,13,11,.06)">
+<h2 style="margin:0;font-weight:800;font-size:18px">ახალი კოდი</h2>
+<label for="pcode" style="font-weight:600;font-size:13px">კოდი</label>
+<div class="fld" style="border:2px solid #E8DDB8;border-radius:16px;padding:0 14px;min-height:50px;display:flex;align-items:center"><input id="pcode" type="text" placeholder="[კოდი]" style="border:0;outline:0;width:100%;min-width:0;font-family:inherit;font-weight:800;font-size:16px;letter-spacing:1px;color:#1A0D0B;background:transparent"></div>
+<span style="font-weight:600;font-size:13px">ტიპი</span>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<sc-for list="{{types}}" as="t" hint-placeholder-count="3"><button role="radio" aria-checked="{{t.on}}" onClick="{{t.pick}}" class="{{t.cls}}" style="{{t.style}}">{{t.label}}</button></sc-for>
+</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<div style="flex:1 1 140px;display:flex;flex-direction:column;gap:6px"><label for="pv" style="font-weight:600;font-size:13px">მნიშვნელობა</label><div class="fld" style="border:2px solid #E8DDB8;border-radius:16px;padding:0 14px;min-height:50px;display:flex;align-items:center"><input id="pv" type="text" inputmode="decimal" placeholder="[რაოდენობა]" style="border:0;outline:0;width:100%;min-width:0;font-family:inherit;font-weight:600;font-size:15px;color:#1A0D0B;background:transparent"></div></div>
+<div style="flex:1 1 140px;display:flex;flex-direction:column;gap:6px"><label for="pm" style="font-weight:600;font-size:13px">მინიმალური შეკვეთა</label><div class="fld" style="border:2px solid #E8DDB8;border-radius:16px;padding:0 14px;min-height:50px;display:flex;align-items:center"><input id="pm" type="text" inputmode="decimal" placeholder="[თანხა]" style="border:0;outline:0;width:100%;min-width:0;font-family:inherit;font-weight:600;font-size:15px;color:#1A0D0B;background:transparent"></div></div>
+</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<div style="flex:1 1 140px;display:flex;flex-direction:column;gap:6px"><label for="pu" style="font-weight:600;font-size:13px">მაქს. გამოყენება სულ</label><div class="fld" style="border:2px solid #E8DDB8;border-radius:16px;padding:0 14px;min-height:50px;display:flex;align-items:center"><input id="pu" type="text" inputmode="numeric" placeholder="[რაოდენობა]" style="border:0;outline:0;width:100%;min-width:0;font-family:inherit;font-weight:600;font-size:15px;color:#1A0D0B;background:transparent"></div></div>
+<div style="flex:1 1 140px;display:flex;flex-direction:column;gap:6px"><label for="pc2" style="font-weight:600;font-size:13px">ერთ მომხმარებელზე</label><div class="fld" style="border:2px solid #E8DDB8;border-radius:16px;padding:0 14px;min-height:50px;display:flex;align-items:center"><input id="pc2" type="text" inputmode="numeric" placeholder="[რაოდენობა]" style="border:0;outline:0;width:100%;min-width:0;font-family:inherit;font-weight:600;font-size:15px;color:#1A0D0B;background:transparent"></div></div>
+</div>
+<span style="min-height:52px;border-radius:26px;background:#D8141C;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;margin-top:4px">კოდის შექმნა</span>
+<span style="font-size:12px;color:#6b5a52;line-height:1.5">კოდის წესებს ამოწმებს სერვერი შეკვეთის გაფორმებისას</span>
+</section>
+<section style="flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:12px">
+<div class="k" style="animation-delay:.1s;background:#fff;border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:8px;box-shadow:0 4px 12px rgba(26,13,11,.06)">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:800;font-size:17px;letter-spacing:1px">[კოდი 1]</span><span style="font-size:12px;font-weight:800;background:#FFCC02;border-radius:10px;padding:3px 10px">აქტიური</span></div>
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#6b5a52"><span>[ტიპი და მნიშვნელობა]</span><span>გამოყენებულია: —</span></div>
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#6b5a52"><span>ვადა: [თარიღიდან თარიღამდე]</span><span>[ფილიალი]</span></div>
+</div>
+<div class="k" style="animation-delay:.2s;background:#fff;border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:8px;box-shadow:0 4px 12px rgba(26,13,11,.06)">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:800;font-size:17px;letter-spacing:1px">[კოდი 2]</span><span style="font-size:12px;font-weight:800;color:#fff;background:#6b5a52;border-radius:10px;padding:3px 10px">ვადაგასული</span></div>
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#6b5a52"><span>[ტიპი და მნიშვნელობა]</span><span>გამოყენებულია: —</span></div>
+</div>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { t: 0 };
+}
+renderVals() {
+const labels = ['პროცენტი', 'ფიქსირებული თანხა', 'უფასო მიტანა'];
+return {
+types: labels.map((label, i) => {
+const on = this.state.t === i;
+return {
+label,
+on,
+cls: on ? 'pick' : '',
+pick: () => this.setState({ t: i }),
+style: 'min-height:44px;padding:0 16px;border-radius:22px;font-weight:800;font-size:13px;border:2px solid #1A0D0B;' + (on ? 'background:#1A0D0B;color:#FFCC02;' : 'background:#fff;color:#1A0D0B;')
+};
+})
+};
+}
+}
+</script>
+</body>
+</html>

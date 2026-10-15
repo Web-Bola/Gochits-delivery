@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>რეგისტრაცია</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+@keyframes up{0%{transform:translateY(20px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes check{0%{transform:scale(.3)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes badge{0%{transform:scale(.4);opacity:0}100%{transform:scale(1);opacity:1}}
+.in{animation:up .5s ease-out both}
+.ck{animation:check .3s ease-out}
+.bd{animation:badge .6s cubic-bezier(.2,.9,.3,1.3) both}
+.fld:focus-within{border-color:#1A0D0B;box-shadow:0 0 0 4px rgba(255,204,2,.6)}
+@media (prefers-reduced-motion:reduce){.in,.ck,.bd{animation:none}}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;box-sizing:border-box;overflow:hidden;background:#FFF8E1;display:flex;flex-direction:column;padding:24px 22px 30px;gap:18px">
+<div style="display:flex;align-items:center;gap:12px">
+<a href="Otp.dc.html" aria-label="უკან" style="width:44px;height:44px;border-radius:22px;background:#1A0D0B;display:flex;align-items:center;justify-content:center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+</a>
+<span class="bd" style="display:flex;align-items:center;gap:8px;background:#FFCC02;border-radius:16px;padding:6px 12px;font-weight:800;font-size:13px;color:#1A0D0B">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A0D0B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>ნომერი დადასტურებულია</span>
+</div>
+<div class="in" style="display:flex;flex-direction:column;gap:6px">
+<h1 style="margin:0;font-weight:800;font-size:26px;color:#1A0D0B">გავიცნოთ ერთმანეთი</h1>
+<span style="font-size:14px;color:#6b5a52;line-height:1.5">ეს ინფორმაცია დაგვჭირდება შეკვეთის მისაღებად</span>
+</div>
+<div class="in" style="animation-delay:.1s;display:flex;flex-direction:column;gap:8px">
+<label for="nm" style="font-weight:600;font-size:13px;color:#1A0D0B">სახელი და გვარი</label>
+<div class="fld" style="border:2px solid #E8DDB8;border-radius:18px;padding:0 16px;min-height:56px;background:#fff;display:flex;align-items:center">
+<input id="nm" type="text" autocomplete="name" placeholder="[სახელი გვარი]" onInput="{{onName}}" style="border:0;outline:0;flex:1;min-width:0;font-family:inherit;font-weight:600;font-size:17px;color:#1A0D0B;background:transparent">
+</div>
+</div>
+<div class="in" style="animation-delay:.18s;display:flex;flex-direction:column;gap:8px">
+<label for="em" style="font-weight:600;font-size:13px;color:#1A0D0B">ელფოსტა <span style="color:#6b5a52;font-weight:400">(არასავალდებულო)</span></label>
+<div class="fld" style="border:2px solid #E8DDB8;border-radius:18px;padding:0 16px;min-height:56px;background:#fff;display:flex;align-items:center">
+<input id="em" type="email" autocomplete="email" placeholder="[ელფოსტა]" style="border:0;outline:0;flex:1;min-width:0;font-family:inherit;font-weight:600;font-size:17px;color:#1A0D0B;background:transparent">
+</div>
+</div>
+<div class="in" style="animation-delay:.26s;display:flex;flex-direction:column;gap:10px;margin-top:6px">
+<button role="checkbox" aria-checked="{{terms}}" onClick="{{toggleTerms}}" style="display:flex;gap:12px;align-items:flex-start;text-align:left;background:transparent;border:0;padding:0;min-height:44px;color:#1A0D0B">
+<span class="{{tCls}}" style="{{tBox}}"><sc-if value="{{terms}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></sc-if></span>
+<span style="font-size:14px;line-height:1.5">ვეთანხმები [წესებსა და პირობებს] და [კონფიდენციალურობის პოლიტიკას]</span>
+</button>
+<button role="checkbox" aria-checked="{{promo}}" onClick="{{togglePromo}}" style="display:flex;gap:12px;align-items:flex-start;text-align:left;background:transparent;border:0;padding:0;min-height:44px;color:#1A0D0B">
+<span class="{{pCls}}" style="{{pBox}}"><sc-if value="{{promo}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></sc-if></span>
+<span style="font-size:14px;line-height:1.5">მსურს მივიღო შეთავაზებები და აქციები (არასავალდებულო)</span>
+</button>
+</div>
+<a href="Permissions.dc.html" class="in" style="{{btn}}">რეგისტრაციის დასრულება</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { name: '', terms: false, promo: false, t: 0, p: 0 };
+}
+renderVals() {
+const s = this.state;
+const box = (on) => 'width:26px;height:26px;border-radius:8px;box-sizing:border-box;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;' + (on ? 'background:#1A0D0B;' : 'background:#fff;border:2px solid #1A0D0B;');
+const ok = s.name.trim().length > 1 && s.terms;
+return {
+terms: s.terms,
+promo: s.promo,
+tBox: box(s.terms),
+pBox: box(s.promo),
+tCls: s.terms ? 'ck' : '',
+pCls: s.promo ? 'ck' : '',
+onName: (e) => this.setState({ name: String(e.target.value) }),
+toggleTerms: () => this.setState({ terms: !this.state.terms }),
+togglePromo: () => this.setState({ promo: !this.state.promo }),
+btn: 'animation-delay:.34s;margin-top:auto;min-height:56px;border-radius:28px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;transition:all .25s ease;' + (ok ? 'background:#D8141C;color:#fff;box-shadow:0 10px 20px rgba(216,20,28,.35);' : 'background:#E8DDB8;color:#6b5a52;')
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,457 @@
+{
+  "source": "https://wolt.com/ka/geo/tbilisi/restaurant/gochits-burger-dighomi",
+  "observedDate": "2026-10-15",
+  "notice": "Observed public platform menu; prices are a snapshot, not business-approved direct-order prices.",
+  "items": [
+    {
+      "image": "https://imageproxy.wolt.com/assets/6999e259172015cdb069ef70",
+      "name": "Double Smashed",
+      "priceLabels": [
+        "ძველი ფასი  GEL 24.95"
+      ],
+      "sourceId": "item-card-content-27e29e5b86b6c53136a576ea",
+      "visibleText": "Double Smashed\n\nსპეც სოუსი, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი\n\n-30% On Selected Items\n\nGEL 17.46\nGEL 24.95"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/6999e518172015cdb069efa8",
+      "name": "The Monster",
+      "priceLabels": [
+        "ძველი ფასი  GEL 32.70"
+      ],
+      "sourceId": "item-card-content-aab0ce99d38963fb2625f260",
+      "visibleText": "The Monster\n\nსპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი აისბერგი, ხახვი,ბეკონი, კიტრის მარინადი, პომიდორი\n\n-30% On Selected Items\n\nGEL 22.89\nGEL 32.70"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a32808d71993ce330879b",
+      "name": "კარტოფილი ფრი დიდი 350გრ.",
+      "priceLabels": [
+        "ფასი  8,50 ₾"
+      ],
+      "sourceId": "item-card-content-19c597cb43c5b57e1cb8046e",
+      "visibleText": "კარტოფილი ფრი დიდი 350გრ.\n\n8,50 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/menu/menu-images/5d207061ccc21e80ee0f69dd/6771e6ac-dd6f-11ea-8ee0-4e080ef224ad_1x_________.jpeg",
+      "name": "Gochits Burger",
+      "priceLabels": [
+        "ძველი ფასი  GEL 19.70"
+      ],
+      "sourceId": "item-card-content-9cfdaf90678264b4962c3077",
+      "visibleText": "Gochits Burger\n\nსპეც სოუსი, ნატურალური საქონლის ხორცი , ყველი ჩედარი აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი\n\n-30% On Selected Items\n\nGEL 13.79\nGEL 19.70"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/6999e259172015cdb069ef6f",
+      "name": "Giant Burger",
+      "priceLabels": [
+        "ძველი ფასი  GEL 49.90"
+      ],
+      "sourceId": "item-card-content-4664b5c900654956ee0768b1",
+      "visibleText": "Giant Burger\n\nსპეც სოუსი, ნატურალური საქონლის ხორცი 5 ფენა, ყველი ჩედარი აისბერგი, ხახვი,ბეკონი, კიტრის მარინადი, პომიდორი\n\n-30% On Selected Items\n\nGEL 34.93\nGEL 49.90"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/6999e5623eb3341f036eadd8",
+      "name": "Jalapeno Triple",
+      "priceLabels": [
+        "ძველი ფასი  GEL 35.70"
+      ],
+      "sourceId": "item-card-content-a2ab01534ad60346a66c23d5",
+      "visibleText": "Jalapeno Triple\n\nსპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი ორმაგი,აისბერგი,ბეკონი, ჰალაპენიო,ხახვი, პომიდორი\n\n-30% On Selected Items\n\nGEL 24.99\nGEL 35.70"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a305ff6ee27217dc0bd00",
+      "name": "Double Chicken Burger",
+      "priceLabels": [
+        "ძველი ფასი  GEL 21.00"
+      ],
+      "sourceId": "item-card-content-3e4231ff8b44316cee94238b",
+      "visibleText": "Double Chicken Burger\n\nქათმის ფილე , სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი\n\n-30% On Selected Items\n\nGEL 14.70\nGEL 21.00"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/69a54bd623e151913f3811f0",
+      "name": "Double Bacon Cheesburger",
+      "priceLabels": [
+        "ძველი ფასი  GEL 26.90"
+      ],
+      "sourceId": "item-card-content-bf49eeca2afcf98855b0cc4f",
+      "visibleText": "Double Bacon Cheesburger\n\nსაქონლის ხორცი 200გრ, ჩედარი 4 ფენა, ბეკონი 2ცალი, მაიონეზი, სპეც სოუსი\n\n-30% On Selected Items\n\nGEL 18.83\nGEL 26.90"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/menu/menu-images/5d207061ccc21e80ee0f69dd/b8ea2fa8-dd6f-11ea-9222-9eb78b4ecebd_bbq________.jpeg",
+      "name": "BBQ",
+      "priceLabels": [
+        "ძველი ფასი  GEL 38.70"
+      ],
+      "sourceId": "item-card-content-1aba7724a71d8c017fee4f70",
+      "visibleText": "BBQ\n\nსპეც სოუსი,ბარბექიუს სოუსი ნატურალური საქონლის ხორცი 2 ფენა შერეული მოხრაკულ ბეკონში, ყველი ჩედარი აისბერგი, ხახვი, ბეკონი,კიტრის მარინადი, პომიდორი\n\n-30% On Selected Items\n\nGEL 27.09\nGEL 38.70"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a32808d71993ce330879a",
+      "name": "კარტოფილი ფრი - მდნარი ყველით და ჰალაპენიოთი",
+      "priceLabels": [
+        "ფასი  16,50 ₾"
+      ],
+      "sourceId": "item-card-content-d3321f43d2e126f47bfd77c1",
+      "visibleText": "კარტოფილი ფრი - მდნარი ყველით და ჰალაპენიოთი\n\n16,50 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a3044f6ee27217dc0bcf8",
+      "name": "Chicken Burger",
+      "priceLabels": [
+        "ძველი ფასი  GEL 20.00"
+      ],
+      "sourceId": "item-card-content-7a7f82cabc4332ec90a100db",
+      "visibleText": "Chicken Burger\n\nქათმის ფილე , სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი\n\n-30% On Selected Items\n\nGEL 14.00\nGEL 20.00"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/6999e5903eb3341f036eadda",
+      "name": "Double Smashed Combo",
+      "priceLabels": [
+        "ფასი  33,90 ₾"
+      ],
+      "sourceId": "item-card-content-0c223325ce96424ff463d2bd",
+      "visibleText": "Double Smashed Combo\n\nსპეც სოუსი, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი, ფრი და სასმელი\n\n33,90 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a34d9f6ee27217dc0bf89",
+      "name": "Mexican Hot",
+      "priceLabels": [
+        "ძველი ფასი  GEL 32.70"
+      ],
+      "sourceId": "item-card-content-97158ac29718a36f46b462d1",
+      "visibleText": "Mexican Hot\n\nტკბილი მდოგვი,სპეც სოუსი, ჰალაპენიო,ტობასკო, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი\n\n-30% On Selected Items\n\nGEL 22.89\nGEL 32.70"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/69a3112f23e151913f37d82f",
+      "name": "Chicken Burger Spicy",
+      "priceLabels": [
+        "ძველი ფასი  GEL 20.00"
+      ],
+      "sourceId": "item-card-content-835901b531614ddd21be81fd",
+      "visibleText": "Chicken Burger Spicy\n\nქათმის ფილე , სუნელები , ბოსტნეული , ჰალაპენიო, ცხარე სპეცსოუსი.\n\n-30% On Selected Items\n\nGEL 14.00\nGEL 20.00"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/6aabf828f21760a0ab5803c3",
+      "name": "Pipipow Double Burger",
+      "priceLabels": [
+        "ძველი ფასი  GEL 40.00"
+      ],
+      "sourceId": "item-card-content-109c323065ad0e5a1c878e8b",
+      "visibleText": "Pipipow Double Burger\n\nბურგერის პური, აისბერგი, პომიდორი, ნატურალური საქონლის ხორცი, ჩედარი, მჟავე კიტრი, ბეკონი, სპეც სოუსი, ბარბექიუ სოუსი, კეტჩუპი, მდოგვი.\n\n-30% On Selected Items\n\n28,00 ₾\nGEL 40.00"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a34d9f6ee27217dc0bf8d",
+      "name": "Gochits Burger Combo",
+      "priceLabels": [
+        "ფასი  27,90 ₾"
+      ],
+      "sourceId": "item-card-content-5610871404228090ab28279f",
+      "visibleText": "Gochits Burger Combo\n\nსპეც სოუსი, ნატურალური საქონლის ხორცი, ყველი ჩედარი აისბერგი, ხახვი, კიტრის მარინადი,პომიდორი, ფრი და სასმელი\n\n27,90 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a30fcf6ee27217dc0be7e",
+      "name": "Chicken Burger Combo",
+      "priceLabels": [
+        "ფასი  25,00 ₾"
+      ],
+      "sourceId": "item-card-content-4a5a622ce458a1a46a4c6cf5",
+      "visibleText": "Chicken Burger Combo\n\nქათმის ფილე , სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი\n\n25,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a3117f6ee27217dc0be7f",
+      "name": "Double Chicken Burger Combo",
+      "priceLabels": [
+        "ფასი  28,00 ₾"
+      ],
+      "sourceId": "item-card-content-12265ccb1f655fb49c11a86b",
+      "visibleText": "Double Chicken Burger Combo\n\nქათმის ფილე , სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი\n\n28,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/6999e5a43eb3341f036eaddb",
+      "name": "The Monster Combo",
+      "priceLabels": [
+        "ფასი  40,90 ₾"
+      ],
+      "sourceId": "item-card-content-8e15093ff915fb54264a48a1",
+      "visibleText": "The Monster Combo\n\nსპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი აისბერგი, ხახვი,ბეკონი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი + სასმელი\n\n40,90 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/6999e259172015cdb069ef6f",
+      "name": "Giant Burger Combo",
+      "priceLabels": [
+        "ფასი  55,90 ₾"
+      ],
+      "sourceId": "item-card-content-a92aa468308656c26fdbbc0f",
+      "visibleText": "Giant Burger Combo\n\nსპეც სოუსი, ნატურალური საქონლის ხორცი 5 ფენა, ყველი ჩედარი აისბერგი, ხახვი,ბეკონი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი, სასმელი\n\n55,90 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/6999e259172015cdb069ef6e",
+      "name": "BBQ Double Combo",
+      "priceLabels": [
+        "ფასი  49,90 ₾"
+      ],
+      "sourceId": "item-card-content-4fbb28245c3e0d14f3e06ac9",
+      "visibleText": "BBQ Double Combo\n\nსპეც სოუსი,ბარბექიუს სოუსი ნატურალური საქონლის ხორცი 2 ფენა შერეული მოხრაკულ ბეკონში, ყველი ჩედარი აისბერგი, ხახვი, ბეკონი,კიტრის მარინადი, პომიდორი და კარტოფილი ფრი, სასმელი\n\n49,90 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a34d9f6ee27217dc0bf88",
+      "name": "Mexican Hot Combo",
+      "priceLabels": [
+        "ფასი  39,90 ₾"
+      ],
+      "sourceId": "item-card-content-0089b1b34d29b659148e551f",
+      "visibleText": "Mexican Hot Combo\n\nტკბილი მდოგვი,სპეც სოუსი, ჰალაპენიო,ტობასკო, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი, სასმელი\n\n39,90 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/6999e5b7172015cdb069efb5",
+      "name": "Jalapeno Triple Combo",
+      "priceLabels": [
+        "ფასი  43,90 ₾"
+      ],
+      "sourceId": "item-card-content-24c36cfff53e208f33c69db6",
+      "visibleText": "Jalapeno Triple Combo\n\nსპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი ორმაგი,აისბერგი, ჰალაპენიო,ხახვი, კიტრი და კარტოფილი, პომიდორი, ფრი, სასმელი\n\n43,90 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/6aabf8b6f21760a0ab5803ee",
+      "name": "Pipipow Double Burger Combo",
+      "priceLabels": [
+        "ფასი  35,90 ₾"
+      ],
+      "sourceId": "item-card-content-3755bfc9303aba890bfd072f",
+      "visibleText": "Pipipow Double Burger Combo\n\nბურგერის პური, აისბერგი, პომიდორი, ნატურალური საქონლის ხორცი, ჩედარი, მჟავე კიტრი, ბეკონი, სპეც სოუსი, ბარბექიუ სოუსი, კეტჩუპი, მდოგვი.\n\n35,90 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a3333aded7a30ce7e370e",
+      "name": "ქათმის როლი",
+      "priceLabels": [
+        "ფასი  18,50 ₾"
+      ],
+      "sourceId": "item-card-content-33f5c32e189a2cfcc1a29a16",
+      "visibleText": "ქათმის როლი\n\nქათმის ფილე , სუნელები , ბოსტნეული ,მჟავე კიტრი ,სპეც სოუსი\n\n18,50 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a337c8d71993ce33087cb",
+      "name": "ქათმის ცხარე როლი",
+      "priceLabels": [
+        "ფასი  18,50 ₾"
+      ],
+      "sourceId": "item-card-content-0cdf1f6e71c5fa1e56bdb663",
+      "visibleText": "ქათმის ცხარე როლი\n\nქათმის ფილე , სუნელები , ბოსტნეული , ჰალაპენიო , ცხარე სპეცსოუსი\n\n18,50 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a3406f6ee27217dc0bf72",
+      "name": "საქონლის ვრეპი",
+      "priceLabels": [
+        "ფასი  15,00 ₾"
+      ],
+      "sourceId": "item-card-content-5ed0a35a1170df02c0d7adab",
+      "visibleText": "საქონლის ვრეპი\n\nსაქონლის ფარში , ყველი , ბოსტნეული ,სპეც სოუსი , ბარბექიუ სოუსის , მჟავე კიტრი\n\n15,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a3406f6ee27217dc0bf72",
+      "name": "საქონლის ვრეპი ყველის სოუსით",
+      "priceLabels": [
+        "ფასი  15,00 ₾"
+      ],
+      "sourceId": "item-card-content-b9aa6e25e57ca624e9cec76f",
+      "visibleText": "საქონლის ვრეპი ყველის სოუსით\n\nსაქონლის ფარში , ყველი , ბოსტნეული ,სპეც სოუსი , ბარბექიუ სოუსის , მჟავე კიტრი, ყველის სოუსი\n\n15,00 ₾"
+    },
+    {
+      "image": null,
+      "name": "ქათმის ვრეპი",
+      "priceLabels": [
+        "ფასი  21,00 ₾"
+      ],
+      "sourceId": "item-card-content-5a33a8b1144b2c9b4457f46a",
+      "visibleText": "ქათმის ვრეპი\n\nქათმის ფილე , ყველი , ბოსტნეული ,სპეც სოუსი\n\n21,00 ₾"
+    },
+    {
+      "image": null,
+      "name": "ქათმის ვრეპი ცხარე",
+      "priceLabels": [
+        "ფასი  21,00 ₾"
+      ],
+      "sourceId": "item-card-content-52eb31b0730eac0de400e6ae",
+      "visibleText": "ქათმის ვრეპი ცხარე\n\nქათმის ფილე , ყველი , ბოსტნეული ,ცხარე სპეც სოუსი\n\n21,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a314b8d71993ce330875a",
+      "name": "ყველის ცხელი სოუსი 60გრ",
+      "priceLabels": [
+        "ფასი  7,00 ₾"
+      ],
+      "sourceId": "item-card-content-8d04dd2dbcb2e8c92b17a6f6",
+      "visibleText": "ყველის ცხელი სოუსი 60გრ\n\n7,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a314b8d71993ce3308756",
+      "name": "მაიონეზი 30გრ",
+      "priceLabels": [
+        "ფასი  3,00 ₾"
+      ],
+      "sourceId": "item-card-content-6c32aac0106eaa73ffcfb055",
+      "visibleText": "მაიონეზი 30გრ\n\n3,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a314b8d71993ce330875b",
+      "name": "ჰალაპენიო 30გრ",
+      "priceLabels": [
+        "ფასი  3,50 ₾"
+      ],
+      "sourceId": "item-card-content-dd52ad54d3720bbcf438845e",
+      "visibleText": "ჰალაპენიო 30გრ\n\n3,50 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a314b8d71993ce3308757",
+      "name": "კეტჩუპი 30გრ",
+      "priceLabels": [
+        "ფასი  3,00 ₾"
+      ],
+      "sourceId": "item-card-content-0a88e6165ad4b8e03382e7b2",
+      "visibleText": "კეტჩუპი 30გრ\n\n3,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a314b8d71993ce3308755",
+      "name": "BBQ სოუსი 30გრ",
+      "priceLabels": [
+        "ფასი  3,00 ₾"
+      ],
+      "sourceId": "item-card-content-3b1a566aa1d3d11d8b3f3f9b",
+      "visibleText": "BBQ სოუსი 30გრ\n\n3,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a3191f6ee27217dc0be98",
+      "name": "სპეც სოუსი 30გრ",
+      "priceLabels": [
+        "ფასი  3,00 ₾"
+      ],
+      "sourceId": "item-card-content-644c2e9184f2b136884708e7",
+      "visibleText": "სპეც სოუსი 30გრ\n\n3,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a31bf8d71993ce330876d",
+      "name": "სპეც სოუსი ცხარე 30გრ",
+      "priceLabels": [
+        "ფასი  3,00 ₾"
+      ],
+      "sourceId": "item-card-content-79f38785a584a0cf6fe99166",
+      "visibleText": "სპეც სოუსი ცხარე 30გრ\n\n3,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a31f4f6ee27217dc0bed1",
+      "name": "კოკა-კოლა 0.33 ლ",
+      "priceLabels": [
+        "ფასი  4,00 ₾"
+      ],
+      "sourceId": "item-card-content-af27ea203298fb70472fb426",
+      "visibleText": "კოკა-კოლა 0.33 ლ\n\n4,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a31f4f6ee27217dc0bed0",
+      "name": "კოკა-კოლა ზერო 0.33 ლ",
+      "priceLabels": [
+        "ფასი  4,00 ₾"
+      ],
+      "sourceId": "item-card-content-797bd03b6bd6435e77141160",
+      "visibleText": "კოკა-კოლა ზერო 0.33 ლ\n\n4,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a31f4f6ee27217dc0becf",
+      "name": "ფანტა 0.33 ლ",
+      "priceLabels": [
+        "ფასი  4,00 ₾"
+      ],
+      "sourceId": "item-card-content-cce3fb4a5618335070b03742",
+      "visibleText": "ფანტა 0.33 ლ\n\n4,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a31f4f6ee27217dc0bece",
+      "name": "სპრაიტი 0.33 ლ",
+      "priceLabels": [
+        "ფასი  4,00 ₾"
+      ],
+      "sourceId": "item-card-content-eed367790a2ba1bb48e140ba",
+      "visibleText": "სპრაიტი 0.33 ლ\n\n4,00 ₾"
+    },
+    {
+      "image": null,
+      "name": "Burn",
+      "priceLabels": [
+        "ფასი  4,50 ₾"
+      ],
+      "sourceId": "item-card-content-ae1504d21e535973d3de17ae",
+      "visibleText": "Burn\n\n4,50 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a31f4f6ee27217dc0bed5",
+      "name": "კოკა კოლა 0,5",
+      "priceLabels": [
+        "ფასი  4,00 ₾"
+      ],
+      "sourceId": "item-card-content-0359c648efe4bac244469956",
+      "visibleText": "კოკა კოლა 0,5\n\n4,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a31f4f6ee27217dc0bed3",
+      "name": "კოკა კოლა ზერო 0,5",
+      "priceLabels": [
+        "ფასი  3,50 ₾"
+      ],
+      "sourceId": "item-card-content-f1ee8fa2051f63692638bea1",
+      "visibleText": "კოკა კოლა ზერო 0,5\n\n3,50 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/68ad4f63f872c5d1f1ddf0c3",
+      "name": "მთის წყალი 0.5",
+      "priceLabels": [
+        "ფასი  3,00 ₾"
+      ],
+      "sourceId": "item-card-content-9ff7fd32093757f0ca27e030",
+      "visibleText": "მთის წყალი 0.5\n\n3,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a31f4f6ee27217dc0bed4",
+      "name": "ფანტა 0.5 ლ",
+      "priceLabels": [
+        "ფასი  4,00 ₾"
+      ],
+      "sourceId": "item-card-content-6ea7591b4595c258891eb472",
+      "visibleText": "ფანტა 0.5 ლ\n\n4,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a31f4f6ee27217dc0bed2",
+      "name": "სპრაიტი 0.5ლ",
+      "priceLabels": [
+        "ფასი  4,00 ₾"
+      ],
+      "sourceId": "item-card-content-c1bfa0bdd41114402bec251f",
+      "visibleText": "სპრაიტი 0.5ლ\n\n4,00 ₾"
+    },
+    {
+      "image": "https://imageproxy.wolt.com/assets/697a32808d71993ce330879b",
+      "name": "კარტოფილი ფრი პატარა 200გრ.",
+      "priceLabels": [
+        "ფასი  6,50 ₾"
+      ],
+      "sourceId": "item-card-content-c8dc4549c0c93f74c699172e",
+      "visibleText": "კარტოფილი ფრი პატარა 200გრ.\n\n6,50 ₾\n\nპოპულარული"
+    },
+    {
+      "image": null,
+      "name": "ქათმის ბოული",
+      "priceLabels": [
+        "ფასი  17,50 ₾"
+      ],
+      "sourceId": "item-card-content-b16d0e29978d10cccfe51dbf",
+      "visibleText": "ქათმის ბოული\n\nფრი, ქათმის ფილე, სპეც სოუსი\n\n17,50 ₾"
+    },
+    {
+      "image": null,
+      "name": "ქათმის ფრეშ ბოული",
+      "priceLabels": [
+        "ფასი  14,50 ₾"
+      ],
+      "sourceId": "item-card-content-b0ee5c17a4d4af8996f8ee7a",
+      "visibleText": "ქათმის ფრეშ ბოული\n\nქათმის ფილე, სპეც სოუსი, აისბერგი, პომიდორი, მჟავე კიტრი,\n\n14,50 ₾"
+    }
+  ]
+}

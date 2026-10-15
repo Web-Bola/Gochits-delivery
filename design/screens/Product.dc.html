@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>პროდუქტის არჩევა</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+@keyframes heroIn{0%{transform:scale(.7) rotate(-6deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+@keyframes fadeUp{0%{transform:translateY(20px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes qty{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes qtyB{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.hero{animation:heroIn .8s cubic-bezier(.2,.9,.3,1.15) both}
+.ring{animation:spin 26s linear infinite}
+.sec{animation:fadeUp .6s ease-out both}
+.q1{animation:qty .3s ease-out}
+.q2{animation:qtyB .3s ease-out}
+.opt{transition:transform .15s ease,background .2s ease}
+.opt:active{transform:scale(.96)}
+@media (prefers-reduced-motion:reduce){.hero,.ring,.sec,.q1,.q2{animation:none}}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;box-sizing:border-box;overflow:hidden;background:#FFF8E1;display:flex;flex-direction:column">
+<div style="position:relative;height:290px;background:#FFCC02;border-radius:0 0 40px 40px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">
+<div class="ring" style="position:absolute;width:340px;height:340px;border-radius:50%;border:3px dashed rgba(26,13,11,.25)"></div>
+<div style="position:absolute;width:230px;height:230px;border-radius:50%;background:#FFE066"></div>
+<div class="hero" style="position:relative;width:200px;height:200px;border-radius:50%;background:linear-gradient(145deg,#F28C1E,#D8141C);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;box-shadow:0 18px 30px rgba(26,13,11,.3);overflow:hidden"><img src="/_blob/2496ac46218bdf27cecb1b3112f90f12" alt="Double Smashed" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+<a href="Menu.dc.html" aria-label="უკან" style="position:absolute;left:18px;top:22px;width:44px;height:44px;border-radius:22px;background:#1A0D0B;display:flex;align-items:center;justify-content:center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+</a>
+</div>
+<div style="flex:1;overflow-y:auto;padding:20px 20px 130px;display:flex;flex-direction:column;gap:18px">
+<div class="sec" style="display:flex;flex-direction:column;gap:6px">
+<div style="font-weight:800;font-size:24px;color:#1A0D0B">Double Smashed</div>
+<div style="font-size:14px;color:#6b5a52;line-height:1.5">სპეც სოუსი, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი</div>
+<div style="font-size:12px;color:#6b5a52;line-height:1.5;background:#FFF1BF;border-radius:12px;padding:8px 10px">ფასი ნანახია Wolt-ზე და დასადასტურებელია. ვარიანტები და დამატებები ქვემოთ მაგალითია: [რესტორნისგან დასადასტურებელი]</div>
+</div>
+<div class="sec" style="animation-delay:.12s;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-weight:800;font-size:16px;color:#1A0D0B">არჩევანი 1</span><span style="font-size:12px;font-weight:600;color:#D8141C">სავალდებულო</span></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="3">
+<button class="opt" aria-pressed="{{s.on}}" onClick="{{s.pick}}" style="{{s.style}}">{{s.label}}</button>
+</sc-for>
+</div>
+</div>
+<div class="sec" style="animation-delay:.24s;display:flex;flex-direction:column;gap:10px">
+<span style="font-weight:800;font-size:16px;color:#1A0D0B">დამატებები</span>
+<sc-for list="{{extras}}" as="e" hint-placeholder-count="3">
+<button class="opt" aria-pressed="{{e.on}}" onClick="{{e.toggle}}" style="{{e.style}}">
+<span style="font-weight:600;font-size:15px">{{e.label}}</span>
+<span style="display:flex;align-items:center;gap:10px"><span style="font-weight:800;font-size:14px">+₾ --.--</span>
+<span style="{{e.boxStyle}}"><sc-if value="{{e.on}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></sc-if></span></span>
+</button>
+</sc-for>
+</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:14px 16px 22px;background:#fff;border-radius:28px 28px 0 0;box-shadow:0 -8px 24px rgba(26,13,11,.1);display:flex;align-items:center;gap:12px">
+<div style="display:flex;align-items:center;gap:6px;background:#FFF1BF;border-radius:28px;padding:4px">
+<button onClick="{{dec}}" aria-label="შემცირება" style="width:44px;height:44px;border-radius:22px;border:0;background:#fff;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A0D0B" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+<span class="{{qtyClass}}" style="min-width:26px;text-align:center;font-weight:800;font-size:18px;color:#1A0D0B">{{qty}}</span>
+<button onClick="{{inc}}" aria-label="გაზრდა" style="width:44px;height:44px;border-radius:22px;border:0;background:#1A0D0B;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+</div>
+<a href="Menu.dc.html" style="flex:1;min-height:56px;border-radius:28px;background:#D8141C;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-weight:800;font-size:16px">
+<span>დამატება</span><span>₾ 17.46</span>
+</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { size: 0, extras: [false, false, false], qty: 1, tick: 0 };
+}
+renderVals() {
+const on = 'background:#1A0D0B;color:#FFCC02;border:2px solid #1A0D0B;';
+const off = 'background:#fff;color:#1A0D0B;border:2px solid #E8DDB8;';
+const sizes = ['ვარიანტი 1', 'ვარიანტი 2', 'ვარიანტი 3'].map((label, i) => ({
+label,
+on: this.state.size === i,
+pick: () => this.setState({ size: i }),
+style: 'min-height:48px;padding:0 20px;border-radius:24px;font-weight:800;font-size:14px;' + (this.state.size === i ? on : off)
+}));
+const extras = ['დამატება 1', 'დამატება 2', 'დამატება 3'].map((label, i) => {
+const sel = this.state.extras[i];
+return {
+label,
+on: sel,
+toggle: () => {
+const next = this.state.extras.slice();
+next[i] = !next[i];
+this.setState({ extras: next });
+},
+style: 'width:100%;min-height:52px;border-radius:18px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;' + (sel ? 'background:#FFF1BF;color:#1A0D0B;border:2px solid #1A0D0B;' : off),
+boxStyle: 'width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;' + (sel ? 'background:#1A0D0B;' : 'border:2px solid #1A0D0B;background:#fff;')
+};
+});
+return {
+sizes,
+extras,
+qty: this.state.qty,
+qtyClass: this.state.tick % 2 === 1 ? 'q1' : 'q2',
+inc: () => this.setState({ qty: this.state.qty + 1, tick: this.state.tick + 1 }),
+dec: () => this.setState({ qty: Math.max(1, this.state.qty - 1), tick: this.state.tick + 1 })
+};
+}
+}
+</script>
+</body>
+</html>

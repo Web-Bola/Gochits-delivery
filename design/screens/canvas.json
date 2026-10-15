@@ -1,0 +1,373 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-15T12:30:00Z"
+  },
+  "title": "Gochit's App Design",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "1 · გახსნა",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Menu.dc.html": {
+      "x": 470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "2 · მენიუ",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Product.dc.html": {
+      "x": 940,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "3 · პროდუქტი",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Tracking.dc.html": {
+      "x": 1410,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "4 · თვალყური",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Courier.dc.html": {
+      "x": 0,
+      "y": 1330,
+      "w": 390,
+      "h": 844,
+      "title": "კურიერი 1 · მთავარი",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "CourierDelivery.dc.html": {
+      "x": 470,
+      "y": 1330,
+      "w": 390,
+      "h": 844,
+      "title": "კურიერი 2 · მიტანა",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Restaurant.dc.html": {
+      "x": 0,
+      "y": 2500,
+      "w": 1280,
+      "h": 800,
+      "title": "რესტორნის დაფა",
+      "is_interactive": true,
+      "expand": "fill"
+    },
+    "Admin.dc.html": {
+      "x": 1360,
+      "y": 2500,
+      "w": 1280,
+      "h": 800,
+      "title": "სუპერადმინის დაფა",
+      "expand": "fill"
+    },
+    "StaffLogin.dc.html": {
+      "x": 2720,
+      "y": 2500,
+      "w": 1280,
+      "h": 800,
+      "title": "დაფის შესვლა",
+      "is_interactive": true,
+      "expand": "fill"
+    },
+    "Login.dc.html": {
+      "x": 0,
+      "y": 3620,
+      "w": 390,
+      "h": 844,
+      "title": "ანგარიში 1 · შესვლა",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Otp.dc.html": {
+      "x": 470,
+      "y": 3620,
+      "w": 390,
+      "h": 844,
+      "title": "ანგარიში 2 · კოდი",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Register.dc.html": {
+      "x": 940,
+      "y": 3620,
+      "w": 390,
+      "h": 844,
+      "title": "ანგარიში 3 · რეგისტრაცია",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Address.dc.html": {
+      "x": 1410,
+      "y": 3620,
+      "w": 390,
+      "h": 844,
+      "title": "ანგარიში 4 · მისამართი",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Checkout.dc.html": {
+      "x": 1880,
+      "y": 3620,
+      "w": 390,
+      "h": 844,
+      "title": "ანგარიში 5 · გაფორმება",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Profile.dc.html": {
+      "x": 2350,
+      "y": 3620,
+      "w": 390,
+      "h": 844,
+      "title": "ანგარიში 6 · პროფილი",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Cart.dc.html": {
+      "x": 0,
+      "y": 4900,
+      "w": 390,
+      "h": 844,
+      "title": "დამატებითი 1 · კალათა",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "AddressList.dc.html": {
+      "x": 470,
+      "y": 4900,
+      "w": 390,
+      "h": 844,
+      "title": "დამატებითი 2 · მისამართები",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "PaymentResult.dc.html": {
+      "x": 940,
+      "y": 4900,
+      "w": 390,
+      "h": 844,
+      "title": "დამატებითი 3 · გადახდა",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "OrderDetail.dc.html": {
+      "x": 1410,
+      "y": 4900,
+      "w": 390,
+      "h": 844,
+      "title": "დამატებითი 4 · შეკვეთა",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "States.dc.html": {
+      "x": 1880,
+      "y": 4900,
+      "w": 390,
+      "h": 844,
+      "title": "დამატებითი 5 · მდგომარეობები",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "Permissions.dc.html": {
+      "x": 2350,
+      "y": 4900,
+      "w": 390,
+      "h": 844,
+      "title": "დამატებითი 6 · ნებართვები",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "CourierPending.dc.html": {
+      "x": 0,
+      "y": 6100,
+      "w": 390,
+      "h": 844,
+      "title": "კურიერი 3 · განაცხადი",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "CourierHistory.dc.html": {
+      "x": 470,
+      "y": 6100,
+      "w": 390,
+      "h": 844,
+      "title": "კურიერი 4 · ისტორია",
+      "radius": 36
+    },
+    "RestaurantMenu.dc.html": {
+      "x": 0,
+      "y": 7100,
+      "w": 1280,
+      "h": 800,
+      "title": "რესტორანი · მენიუს რედაქტორი",
+      "is_interactive": true,
+      "expand": "fill"
+    },
+    "AdminZones.dc.html": {
+      "x": 1360,
+      "y": 7100,
+      "w": 1280,
+      "h": 800,
+      "title": "ადმინი · მიტანის ზონები",
+      "is_interactive": true,
+      "expand": "fill"
+    },
+    "AdminPromos.dc.html": {
+      "x": 2720,
+      "y": 7100,
+      "w": 1280,
+      "h": 800,
+      "title": "ადმინი · პრომო კოდები",
+      "is_interactive": true,
+      "expand": "fill"
+    },
+    "BranchPick.dc.html": {
+      "x": 2820,
+      "y": 4900,
+      "w": 390,
+      "h": 844,
+      "title": "დამატებითი 7 · ფილიალის არჩევა",
+      "is_interactive": true,
+      "radius": 36
+    },
+    "AdminBranches.dc.html": {
+      "x": 4080,
+      "y": 7100,
+      "w": 1280,
+      "h": 800,
+      "title": "ადმინი · ფილიალები (6)",
+      "is_interactive": true,
+      "expand": "fill"
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Login.dc.html",
+    "Otp.dc.html",
+    "Register.dc.html",
+    "Permissions.dc.html",
+    "Address.dc.html",
+    "AddressList.dc.html",
+    "BranchPick.dc.html",
+    "Menu.dc.html",
+    "Product.dc.html",
+    "Cart.dc.html",
+    "Checkout.dc.html",
+    "PaymentResult.dc.html",
+    "Tracking.dc.html",
+    "OrderDetail.dc.html",
+    "States.dc.html",
+    "Profile.dc.html",
+    "Courier.dc.html",
+    "CourierDelivery.dc.html",
+    "CourierPending.dc.html",
+    "CourierHistory.dc.html",
+    "StaffLogin.dc.html",
+    "Restaurant.dc.html",
+    "RestaurantMenu.dc.html",
+    "Admin.dc.html",
+    "AdminBranches.dc.html",
+    "AdminZones.dc.html",
+    "AdminPromos.dc.html"
+  ],
+  "notes": {
+    "t1": {
+      "x": 0,
+      "y": -260,
+      "text": "მომხმარებლის აპი",
+      "kind": "title1",
+      "maxW": 1800
+    },
+    "s1": {
+      "x": 0,
+      "y": 900,
+      "w": 560,
+      "maxH": 150,
+      "text": "მენიუს მენიუ-ეკრანზე 50 პროდუქტია Wolt-ის დიღმის ფილიალიდან (ნანახია 2026-10-15). ფასები დასადასტურებელია. Facebook-ის მენიუს სურათზე ფასები განსხვავებულია. სხვა ეკრანებზე ცარიელი მაგალითებია. ფერები აღებულია ლოგოდან: ყვითელი #FFCC02, წითელი #D8141C, მუქი #1A0D0B. ნარინჯისფერი #F28C1E გამოყვანილია და დამტკიცებას საჭიროებს.",
+      "size": "m",
+      "fill": "orange"
+    },
+    "t2": {
+      "x": 0,
+      "y": 1060,
+      "text": "კურიერის აპი",
+      "kind": "title1",
+      "maxW": 900
+    },
+    "t3": {
+      "x": 0,
+      "y": 2230,
+      "text": "ვებ დაფები: რესტორანი, სუპერადმინი და შესვლა",
+      "kind": "title1",
+      "maxW": 4000
+    },
+    "t4": {
+      "x": 0,
+      "y": 3340,
+      "text": "მომხმარებლის ანგარიში: შესვლა, რეგისტრაცია, მისამართი, გაფორმება, პროფილი",
+      "kind": "title1",
+      "maxW": 2740
+    },
+    "s2": {
+      "x": 2800,
+      "y": 3620,
+      "w": 480,
+      "maxH": 260,
+      "text": "ღია გადაწყვეტილებები: სტუმრად შეკვეთა დაშვებული იქნება თუ არა; ნაღდი ანგარიშსწორება ჩართული იქნება თუ არა; სამართლებრივი ტექსტები (წესები, კონფიდენციალურობა) უნდა მოამზადოს იურისტმა.",
+      "size": "m",
+      "fill": "orange"
+    },
+    "t5": {
+      "x": 0,
+      "y": 4620,
+      "text": "მომხმარებელი: დამატებითი ეკრანები და მდგომარეობები",
+      "kind": "title1",
+      "maxW": 2740
+    },
+    "t6": {
+      "x": 0,
+      "y": 5820,
+      "text": "კურიერი: განაცხადი და ისტორია",
+      "kind": "title1",
+      "maxW": 900
+    },
+    "t7": {
+      "x": 0,
+      "y": 6820,
+      "text": "დაფები: მენიუ, მიტანის ზონები, პრომო კოდები",
+      "kind": "title1",
+      "maxW": 4000
+    },
+    "s3": {
+      "x": 3300,
+      "y": 4900,
+      "w": 480,
+      "maxH": 240,
+      "text": "6 ფილიალი: თითოეულს აქვს საკუთარი მიტანის ზონები. მისამართი → სერვერი პოულობს ფილიალებს, რომელთა ზონაშიც ხვდება → თუ რამდენიმეა, მომხმარებელი ირჩევს (წესი D-OVERLAP დასადასტურებელია). ერთი შეკვეთა = ერთი ფილიალი.",
+      "size": "m",
+      "fill": "orange"
+    }
+  },
+  "designSystems": []
+}

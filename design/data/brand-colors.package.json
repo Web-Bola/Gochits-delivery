@@ -1,0 +1,13 @@
+{
+  "status": "prototype approximations, not official brand specifications",
+  "reference": "https://www.facebook.com/gochits/",
+  "colors": {
+    "yellow": "#FFD520",
+    "red": "#ED2436",
+    "background": "#111115",
+    "card": "#1C1C23",
+    "text": "#FFF9E9",
+    "mutedText": "#A5A4AA",
+    "border": "#34333B"
+  }
+}

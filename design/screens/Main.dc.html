@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>გახსნის ეკრანი</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif}
+a{text-decoration:none}
+@keyframes popIn{0%{transform:scale(.3) rotate(-8deg);opacity:0}60%{transform:scale(1.08) rotate(2deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes drift{0%{transform:translate(0,0) rotate(0)}100%{transform:translate(18px,-26px) rotate(40deg)}}
+@keyframes riseUp{0%{transform:translateY(24px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes bar{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(26,13,11,.35)}50%{box-shadow:0 0 0 12px rgba(26,13,11,0)}}
+.logo-pop{animation:popIn .9s cubic-bezier(.2,.9,.3,1.2) both}
+.logo-float{animation:floaty 3.4s ease-in-out 1s infinite}
+.seed{position:absolute;width:14px;height:22px;border-radius:50%;background:#fff6c9;opacity:.75;animation:drift 5s ease-in-out infinite alternate}
+.rise{animation:riseUp .7s ease-out 1.1s both}
+.bar-run{animation:bar 1.6s ease-in-out infinite}
+.cta{animation:riseUp .7s ease-out 1.3s both,pulse 2.2s ease-in-out 2.2s infinite}
+@media (prefers-reduced-motion:reduce){.logo-pop,.logo-float,.seed,.rise,.bar-run,.cta{animation:none}}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;box-sizing:border-box;overflow:hidden;background:{{bg}};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:48px 32px">
+<div class="seed" style="left:46px;top:90px;animation-duration:4.4s"></div>
+<div class="seed" style="left:300px;top:150px;animation-duration:5.6s;transform:scale(.7)"></div>
+<div class="seed" style="left:70px;top:610px;animation-duration:6.2s;transform:scale(.9)"></div>
+<div class="seed" style="left:320px;top:690px;animation-duration:4.9s"></div>
+<div class="seed" style="left:210px;top:60px;animation-duration:5.1s;transform:scale(.6)"></div>
+<div style="position:absolute;left:-90px;bottom:-110px;width:320px;height:320px;border-radius:50%;background:{{accent}};opacity:.9"></div>
+<div style="position:absolute;right:-70px;top:-80px;width:220px;height:220px;border-radius:50%;background:#FFE066"></div>
+<div class="logo-pop" style="position:relative;z-index:2">
+<div class="logo-float">
+<img src="/_blob/503cabd4940cb54d2a25bf4fdd509bb8" alt="Gochita ლოგო" style="width:300px;height:auto;display:block;filter:drop-shadow(0 14px 18px rgba(26,13,11,.28))">
+</div>
+</div>
+<div class="rise" style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:14px;width:100%">
+<div style="font-weight:800;font-size:22px;color:#1A0D0B;text-align:center">მოგესალმებით</div>
+<div style="width:180px;height:8px;border-radius:8px;background:rgba(26,13,11,.15);overflow:hidden">
+<div class="bar-run" style="width:70px;height:8px;border-radius:8px;background:#D8141C"></div>
+</div>
+</div>
+<a class="cta" href="Login.dc.html" style="position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;border-radius:28px;background:#1A0D0B;color:#FFCC02;font-weight:800;font-size:18px">
+დაწყება
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"bg":{"editor":"color","default":"#FFCC02","options":["#FFCC02","#FFD633","#FFB800"]},"accent":{"editor":"color","default":"#F28C1E","options":["#F28C1E","#D8141C","#FF9F1C"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { bg: this.props.bg ?? '#FFCC02', accent: this.props.accent ?? '#F28C1E' };
+}
+}
+</script>
+</body>
+</html>

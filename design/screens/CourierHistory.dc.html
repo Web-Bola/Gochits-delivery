@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>კურიერი: ისტორია</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif}
+a{text-decoration:none;color:inherit}
+@keyframes up{0%{transform:translateY(18px);opacity:0}100%{transform:translateY(0);opacity:1}}
+.in{animation:up .5s ease-out both}
+@media (prefers-reduced-motion:reduce){.in{animation:none}}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;box-sizing:border-box;overflow:hidden;background:#1A0D0B;color:#fff;display:flex;flex-direction:column;padding:24px 20px 28px;gap:16px">
+<div style="display:flex;align-items:center;gap:12px">
+<a href="Courier.dc.html" aria-label="უკან" style="width:44px;height:44px;border-radius:22px;background:#2A1814;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+<h1 style="margin:0;font-weight:800;font-size:22px">მიტანების ისტორია</h1>
+</div>
+<div class="in" style="display:flex;gap:10px">
+<div style="flex:1;background:#FFCC02;color:#1A0D0B;border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:600">დღეს მიტანილია</span><span style="font-weight:800;font-size:26px">—</span></div>
+<div style="flex:1;background:#2A1814;border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:600;color:#d9c9bd">ნაღდი, ჩასაბარებელი</span><span style="font-weight:800;font-size:26px;color:#FFCC02">₾ —</span></div>
+</div>
+<span class="in" style="animation-delay:.1s;font-weight:800;font-size:15px">ბოლო მიტანები</span>
+<div class="in" style="animation-delay:.14s;background:#2A1814;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;justify-content:space-between"><span style="font-weight:800;font-size:14px">№[ნომერი] · [დრო]</span><span style="font-size:12px;font-weight:800;color:#1A0D0B;background:#FFCC02;border-radius:10px;padding:3px 10px">მიტანილია</span></div>
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#d9c9bd"><span>[უბანი]</span><span>[ბარათი / ნაღდი ₾ --.--]</span></div>
+</div>
+<div class="in" style="animation-delay:.2s;background:#2A1814;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;justify-content:space-between"><span style="font-weight:800;font-size:14px">№[ნომერი] · [დრო]</span><span style="font-size:12px;font-weight:800;color:#fff;background:#D8141C;border-radius:10px;padding:3px 10px">ვერ მიეწოდა</span></div>
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#d9c9bd"><span>[უბანი]</span><span>[მიზეზი]</span></div>
+</div>
+<div class="in" style="animation-delay:.26s;background:#2A1814;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;justify-content:space-between"><span style="font-weight:800;font-size:14px">№[ნომერი] · [დრო]</span><span style="font-size:12px;font-weight:800;color:#1A0D0B;background:#FFCC02;border-radius:10px;padding:3px 10px">მიტანილია</span></div>
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#d9c9bd"><span>[უბანი]</span><span>[ბარათი / ნაღდი ₾ --.--]</span></div>
+</div>
+<div style="margin-top:auto;font-size:12px;color:#d9c9bd;line-height:1.5;background:#2A1814;border-radius:16px;padding:12px 14px">ანაზღაურების გამოთვლა დამოკიდებულია რესტორნის გადაწყვეტილებაზე: [კურიერის ანაზღაურების მოდელი]</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>შესვლა</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif}
+a{text-decoration:none;color:inherit}
+@keyframes pop{0%{transform:scale(.6) rotate(-6deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes sheet{0%{transform:translateY(80px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.lg{animation:pop .7s cubic-bezier(.2,.9,.3,1.2) both,bob 3.6s ease-in-out .8s infinite}
+.sh{animation:sheet .6s cubic-bezier(.2,.9,.3,1.1) .15s both}
+.fld:focus-within{border-color:#1A0D0B;box-shadow:0 0 0 4px rgba(255,204,2,.6)}
+@media (prefers-reduced-motion:reduce){.lg,.sh{animation:none}}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;box-sizing:border-box;overflow:hidden;background:#FFCC02;display:flex;flex-direction:column">
+<div style="position:absolute;right:-60px;top:-70px;width:220px;height:220px;border-radius:50%;background:#FFE066"></div>
+<div style="flex:1;display:flex;align-items:center;justify-content:center;position:relative">
+<img class="lg" src="/_blob/503cabd4940cb54d2a25bf4fdd509bb8" alt="Gochita ლოგო" style="width:250px;height:auto;filter:drop-shadow(0 12px 16px rgba(26,13,11,.25))">
+</div>
+<div class="sh" style="background:#fff;border-radius:36px 36px 0 0;padding:28px 22px 30px;display:flex;flex-direction:column;gap:16px;box-shadow:0 -12px 30px rgba(26,13,11,.15)">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h1 style="margin:0;font-weight:800;font-size:24px;color:#1A0D0B">შესვლა ან რეგისტრაცია</h1>
+<span style="font-size:14px;color:#6b5a52;line-height:1.5">შეიყვანე ტელეფონის ნომერი, SMS-ით გამოგიგზავნით კოდს</span>
+</div>
+<label for="ph" style="font-weight:600;font-size:13px;color:#1A0D0B">ტელეფონის ნომერი</label>
+<div class="fld" style="display:flex;align-items:center;gap:10px;border:2px solid #E8DDB8;border-radius:18px;padding:0 14px;min-height:56px;background:#fff">
+<span style="font-weight:800;font-size:16px;color:#1A0D0B;border-right:2px solid #E8DDB8;padding-right:10px">+995</span>
+<input id="ph" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="9" placeholder="5__ __ __ __" onInput="{{onPhone}}" style="border:0;outline:0;flex:1;min-width:0;font-family:inherit;font-weight:600;font-size:18px;letter-spacing:1px;color:#1A0D0B;background:transparent">
+</div>
+<a href="Otp.dc.html" style="{{btn}}">კოდის გაგზავნა</a>
+<span style="font-size:12px;color:#6b5a52;line-height:1.5;text-align:center">გაგრძელებით ეთანხმები [წესებსა და პირობებს] და [კონფიდენციალურობის პოლიტიკას]</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { phone: '' };
+}
+renderVals() {
+const ok = this.state.phone.length === 9;
+return {
+onPhone: (e) => this.setState({ phone: String(e.target.value).replace(/\D/g, '').slice(0, 9) }),
+btn: 'min-height:56px;border-radius:28px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;transition:all .25s ease;' + (ok ? 'background:#D8141C;color:#fff;box-shadow:0 10px 20px rgba(216,20,28,.35);' : 'background:#E8DDB8;color:#6b5a52;')
+};
+}
+}
+</script>
+</body>
+</html>

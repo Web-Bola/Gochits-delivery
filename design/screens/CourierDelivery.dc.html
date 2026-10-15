@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>კურიერი: მიტანა</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+@keyframes rise{0%{transform:translateY(18px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes tick{0%{transform:scale(.4)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(255,204,2,.5)}50%{box-shadow:0 0 0 14px rgba(255,204,2,0)}}
+@keyframes confetti{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(120px) rotate(300deg);opacity:0}}
+.in{animation:rise .55s ease-out both}
+.tk{animation:tick .45s ease-out}
+.go{animation:glow 2s ease-in-out infinite}
+.cf{position:absolute;top:0;width:10px;height:16px;border-radius:3px;animation:confetti 1.6s ease-out infinite}
+.go:active{transform:scale(.97)}
+@media (prefers-reduced-motion:reduce){.in,.tk,.go,.cf{animation:none}}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;box-sizing:border-box;overflow:hidden;background:#1A0D0B;color:#fff;display:flex;flex-direction:column;padding:24px 20px 28px;gap:16px">
+<div style="display:flex;align-items:center;gap:12px">
+<a href="Courier.dc.html" aria-label="უკან" style="width:44px;height:44px;border-radius:22px;background:#2A1814;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+</a>
+<div style="display:flex;flex-direction:column"><span style="font-size:12px;color:#d9c9bd">შეკვეთა №[ნომერი]</span><span style="font-weight:800;font-size:19px">აქტიური მიტანა</span></div>
+</div>
+<div class="in" style="background:#2A1814;border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:12px;align-items:flex-start">
+<span style="width:14px;height:14px;border-radius:7px;background:#FFCC02;flex-shrink:0;margin-top:5px"></span>
+<div style="display:flex;flex-direction:column"><span style="font-size:12px;color:#d9c9bd">აიღე</span><span style="font-weight:600;font-size:15px">[ფილიალის მისამართი]</span></div>
+</div>
+<div style="display:flex;gap:12px;align-items:flex-start">
+<span style="width:14px;height:14px;border-radius:7px;background:#D8141C;flex-shrink:0;margin-top:5px"></span>
+<div style="display:flex;flex-direction:column"><span style="font-size:12px;color:#d9c9bd">მიიტანე</span><span style="font-weight:600;font-size:15px">[მომხმარებლის მისამართი, სადარბაზო, სართული]</span><span style="font-size:13px;color:#d9c9bd;margin-top:2px">შენიშვნა: [კომენტარი]</span></div>
+</div>
+<div style="display:flex;gap:10px">
+<button style="flex:1;min-height:48px;border-radius:24px;border:2px solid #FFCC02;background:transparent;color:#FFCC02;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8z"/></svg>ნავიგაცია</button>
+<button style="flex:1;min-height:48px;border-radius:24px;border:2px solid #FFCC02;background:transparent;color:#FFCC02;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>დარეკვა</button>
+</div>
+</div>
+<div style="background:#FFF1BF;color:#1A0D0B;border-radius:20px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+<span style="font-weight:600;font-size:14px">ნაღდი თანხა მისაღებად</span><span style="font-weight:800;font-size:20px">₾ --.--</span>
+</div>
+<div style="display:flex;flex-direction:column;gap:0;flex:1">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+<div style="display:flex;gap:14px;align-items:center;min-height:46px">
+<div class="{{s.cls}}" style="{{s.dot}}"><sc-if value="{{s.done}}" hint-placeholder-val="{{ true }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1A0D0B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></sc-if></div>
+<span style="{{s.text}}">{{s.label}}</span>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{finished}}" hint-placeholder-val="{{ false }}">
+<div style="position:relative;height:0">
+<span class="cf" style="left:50px;background:#FFCC02"></span><span class="cf" style="left:120px;background:#D8141C;animation-delay:.3s"></span><span class="cf" style="left:200px;background:#F28C1E;animation-delay:.6s"></span><span class="cf" style="left:280px;background:#FFCC02;animation-delay:.15s"></span><span class="cf" style="left:330px;background:#D8141C;animation-delay:.45s"></span>
+</div>
+<a href="Courier.dc.html" class="go" style="min-height:64px;border-radius:32px;background:#FFCC02;color:#1A0D0B;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px">მზადაა, მთავარზე დაბრუნება</a>
+</sc-if>
+<sc-if value="{{active}}" hint-placeholder-val="{{ true }}">
+<button class="go" onClick="{{next}}" style="min-height:64px;border-radius:32px;border:0;background:#FFCC02;color:#1A0D0B;font-weight:800;font-size:18px">{{btn}}</button>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { step: 0 };
+}
+renderVals() {
+const cur = this.state.step;
+const labels = ['ფილიალში მივედი', 'შეკვეთა ავიღე', 'მომხმარებლთან მივედი', 'მიტანილია'];
+const btns = ['ფილიალში ვარ', 'შეკვეთა ავიღე', 'მისამართზე ვარ', 'მივაწოდე'];
+const steps = labels.map((label, i) => {
+const done = i < cur;
+const active = i === cur && cur < 4;
+return {
+label,
+done,
+cls: done && i === cur - 1 ? 'tk' : '',
+dot: 'width:28px;height:28px;border-radius:14px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex-shrink:0;' + (done ? 'background:#FFCC02;' : active ? 'border:4px solid #FFCC02;background:#2A1814;' : 'border:3px solid #5a4640;background:transparent;'),
+text: 'font-size:16px;' + (active ? 'font-weight:800;color:#FFCC02;' : done ? 'font-weight:600;color:#fff;' : 'font-weight:400;color:#8a7a70;')
+};
+});
+return {
+steps,
+active: cur < 4,
+finished: cur >= 4,
+btn: btns[Math.min(cur, 3)],
+next: () => this.setState({ step: Math.min(4, this.state.step + 1) })
+};
+}
+}
+</script>
+</body>
+</html>

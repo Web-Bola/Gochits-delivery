@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>კურიერის განაცხადი</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+@keyframes up{0%{transform:translateY(18px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes flip{0%{transform:rotate(0)}50%{transform:rotate(180deg)}100%{transform:rotate(360deg)}}
+@keyframes boom{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.in{animation:up .5s ease-out both}
+.hg{animation:flip 3s ease-in-out infinite}
+.bm{animation:boom .6s cubic-bezier(.2,.9,.3,1.2) both}
+@media (prefers-reduced-motion:reduce){.in,.hg,.bm{animation:none}}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;box-sizing:border-box;overflow:hidden;background:#1A0D0B;color:#fff;display:flex;flex-direction:column;padding:24px 22px 30px;gap:18px">
+<div style="display:flex;align-items:center;justify-content:space-between"><img src="/_blob/503cabd4940cb54d2a25bf4fdd509bb8" alt="Gochita" style="height:44px;width:auto"><span style="font-weight:600;font-size:13px;color:#FFCC02;border:2px solid #FFCC02;border-radius:16px;padding:6px 12px">კურიერი</span></div>
+<div style="display:flex;gap:6px;align-self:center;background:#2A1814;border-radius:22px;padding:4px">
+<button onClick="{{p0}}" style="{{t0}}">განხილვაში</button>
+<button onClick="{{p1}}" style="{{t1}}">დამტკიცდა</button>
+<button onClick="{{p2}}" style="{{t2}}">უარყოფილია</button>
+</div>
+<sc-if value="{{pending}}" hint-placeholder-val="{{ true }}">
+<div class="in" style="display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;margin-top:10px">
+<div style="width:110px;height:110px;border-radius:55px;background:#FFCC02;display:flex;align-items:center;justify-content:center"><svg class="hg" width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#1A0D0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12M6 21h12M7 3c0 6 5 6 5 9s-5 3-5 9M17 3c0 6-5 6-5 9s5 3 5 9"/></svg></div>
+<h1 style="margin:0;font-weight:800;font-size:23px">განაცხადი განიხილება</h1>
+<span style="font-size:14px;color:#d9c9bd;line-height:1.5;max-width:290px">როცა დაგვიდასტურებენ, შეტყობინებას მიიღებ. მიტანებს მხოლოდ დამტკიცების შემდეგ ნახავ</span>
+</div>
+<div class="in" style="animation-delay:.12s;background:#2A1814;border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:12px;align-items:center"><span style="width:26px;height:26px;border-radius:13px;background:#FFCC02;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1A0D0B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></span><span style="font-weight:600;font-size:15px">განაცხადი გაგზავნილია</span></div>
+<div style="display:flex;gap:12px;align-items:center"><span style="width:26px;height:26px;border-radius:13px;border:4px solid #FFCC02;box-sizing:border-box;flex-shrink:0"></span><span style="font-weight:800;font-size:15px;color:#FFCC02">დოკუმენტების შემოწმება</span></div>
+<div style="display:flex;gap:12px;align-items:center"><span style="width:26px;height:26px;border-radius:13px;border:3px solid #5a4640;box-sizing:border-box;flex-shrink:0"></span><span style="font-size:15px;color:#8a7a70">დამტკიცება</span></div>
+</div>
+<div class="in" style="animation-delay:.2s;font-size:12px;color:#d9c9bd;line-height:1.5;background:#2A1814;border-radius:18px;padding:12px 14px">საჭირო დოკუმენტები და პირობები: [რესტორნის გადაწყვეტილება]</div>
+</sc-if>
+<sc-if value="{{approved}}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center">
+<div class="bm" style="width:120px;height:120px;border-radius:60px;background:#FFCC02;display:flex;align-items:center;justify-content:center"><svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#1A0D0B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg></div>
+<h1 style="margin:0;font-weight:800;font-size:24px">მოგესალმებით გუნდში!</h1>
+<span style="font-size:14px;color:#d9c9bd;line-height:1.5;max-width:290px">შეგიძლია ჩართო ონლაინ რეჟიმი და მიიღო მიტანები</span>
+</div>
+<a href="Courier.dc.html" style="min-height:56px;border-radius:28px;background:#FFCC02;color:#1A0D0B;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px">დაწყება</a>
+</sc-if>
+<sc-if value="{{rejected}}" hint-placeholder-val="{{ false }}">
+<div class="in" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center">
+<div style="width:120px;height:120px;border-radius:60px;background:#D8141C;display:flex;align-items:center;justify-content:center"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+<h1 style="margin:0;font-weight:800;font-size:24px">განაცხადი არ დამტკიცდა</h1>
+<span style="font-size:14px;color:#d9c9bd;line-height:1.5;max-width:290px">მიზეზი: [მიზეზი ადმინისტრატორისგან]. შეგიძლია დაგვიკავშირდე დეტალებისთვის: [ტელეფონი]</span>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { s: 0 };
+}
+renderVals() {
+const s = this.state.s;
+const tab = (i) => 'min-height:44px;padding:0 12px;border-radius:20px;border:0;font-weight:800;font-size:13px;' + (s === i ? 'background:#FFCC02;color:#1A0D0B;' : 'background:transparent;color:#d9c9bd;');
+return {
+pending: s === 0, approved: s === 1, rejected: s === 2,
+p0: () => this.setState({ s: 0 }), p1: () => this.setState({ s: 1 }), p2: () => this.setState({ s: 2 }),
+t0: tab(0), t1: tab(1), t2: tab(2)
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>სუპერადმინის დაფა</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif;background:#FFF8E1}
+a{text-decoration:none}
+@keyframes up{0%{transform:translateY(16px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes sh{0%{background-position:-200px 0}100%{background-position:200px 0}}
+@keyframes grow{0%{transform:scaleY(.1)}100%{transform:scaleY(1)}}
+.k{animation:up .55s ease-out both}
+.sk{background:linear-gradient(90deg,#f3e6b8 0,#fff3c8 50%,#f3e6b8 100%);background-size:400px 100%;animation:sh 1.8s linear infinite}
+.bar{transform-origin:bottom;animation:grow .9s cubic-bezier(.2,.9,.3,1.1) both}
+@media (prefers-reduced-motion:reduce){.k,.sk,.bar{animation:none}}
+</style>
+</helmet>
+<div style="width:100%;min-height:800px;box-sizing:border-box;display:flex;flex-wrap:wrap;background:#FFF8E1;color:#1A0D0B">
+<aside style="flex:1 0 240px;max-width:100%;background:#1A0D0B;padding:24px 18px;display:flex;flex-direction:column;gap:22px;box-sizing:border-box">
+<img src="/_blob/503cabd4940cb54d2a25bf4fdd509bb8" alt="Gochita" style="width:150px;height:auto">
+<span style="font-size:12px;font-weight:800;color:#1A0D0B;background:#FFCC02;border-radius:12px;padding:4px 10px;align-self:flex-start">სუპერადმინი</span>
+<nav style="display:flex;flex-direction:column;gap:4px">
+<a href="#" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;background:#FFCC02;color:#1A0D0B;font-weight:800;font-size:15px">მიმოხილვა</a>
+<a href="AdminBranches.dc.html" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;color:#f1e4d4;font-weight:600;font-size:15px">ფილიალები</a>
+<a href="AdminZones.dc.html" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;color:#f1e4d4;font-weight:600;font-size:15px">მიტანის ზონები და ტარიფები</a>
+<a href="AdminPromos.dc.html" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;color:#f1e4d4;font-weight:600;font-size:15px">პრომო კოდები</a>
+<a href="#" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;color:#f1e4d4;font-weight:600;font-size:15px">თანამშრომლები და კურიერები</a>
+<a href="#" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;color:#f1e4d4;font-weight:600;font-size:15px">გადახდები და დაბრუნებები</a>
+<a href="#" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;color:#f1e4d4;font-weight:600;font-size:15px">ანალიტიკა</a>
+<a href="#" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;color:#f1e4d4;font-weight:600;font-size:15px">აუდიტის ჟურნალი</a>
+<a href="#" style="display:flex;align-items:center;min-height:46px;padding:0 14px;border-radius:14px;color:#f1e4d4;font-weight:600;font-size:15px">პარამეტრები</a>
+</nav>
+</aside>
+<main style="flex:999 1 620px;min-width:0;padding:24px;box-sizing:border-box;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center">
+<h1 style="margin:0;font-weight:800;font-size:28px">მიმოხილვა</h1>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<span style="min-height:44px;padding:0 18px;border-radius:22px;background:#fff;display:flex;align-items:center;font-weight:600;font-size:14px;box-shadow:0 4px 12px rgba(26,13,11,.08)">პერიოდი: [არჩევა]</span>
+<span style="min-height:44px;padding:0 18px;border-radius:22px;background:#fff;display:flex;align-items:center;font-weight:600;font-size:14px;box-shadow:0 4px 12px rgba(26,13,11,.08)">ფილიალი: ყველა</span>
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:14px">
+<div class="k" style="flex:1 1 180px;background:#FFCC02;border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">შეკვეთები</span><span style="font-weight:800;font-size:32px">—</span></div>
+<div class="k" style="animation-delay:.08s;flex:1 1 180px;background:#fff;border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:6px;box-shadow:0 4px 12px rgba(26,13,11,.06)"><span style="font-size:13px;font-weight:600;color:#6b5a52">შემოსავალი</span><span style="font-weight:800;font-size:32px">₾ —</span></div>
+<div class="k" style="animation-delay:.16s;flex:1 1 180px;background:#fff;border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:6px;box-shadow:0 4px 12px rgba(26,13,11,.06)"><span style="font-size:13px;font-weight:600;color:#6b5a52">საშუალო ჩეკი</span><span style="font-weight:800;font-size:32px">₾ —</span></div>
+<div class="k" style="animation-delay:.24s;flex:1 1 180px;background:#D8141C;color:#fff;border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">გაუქმებები</span><span style="font-weight:800;font-size:32px">—</span></div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:16px">
+<section class="k" style="animation-delay:.3s;flex:2 1 380px;min-width:0;background:#fff;border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 4px 12px rgba(26,13,11,.06)">
+<h2 style="margin:0;font-weight:800;font-size:17px">შეკვეთები დღეების მიხედვით</h2>
+<div style="height:200px;display:flex;align-items:flex-end;gap:10px;border-bottom:2px solid #E8DDB8;padding:0 6px" role="img" aria-label="გრაფიკის ადგილი: რეალური მონაცემები ჯერ არ არის">
+<div class="bar sk" style="flex:1;height:40%;border-radius:8px 8px 0 0;animation-delay:.4s"></div>
+<div class="bar sk" style="flex:1;height:65%;border-radius:8px 8px 0 0;animation-delay:.5s"></div>
+<div class="bar sk" style="flex:1;height:50%;border-radius:8px 8px 0 0;animation-delay:.6s"></div>
+<div class="bar sk" style="flex:1;height:80%;border-radius:8px 8px 0 0;animation-delay:.7s"></div>
+<div class="bar sk" style="flex:1;height:60%;border-radius:8px 8px 0 0;animation-delay:.8s"></div>
+<div class="bar sk" style="flex:1;height:90%;border-radius:8px 8px 0 0;animation-delay:.9s"></div>
+<div class="bar sk" style="flex:1;height:70%;border-radius:8px 8px 0 0;animation-delay:1s"></div>
+</div>
+<span style="font-size:13px;color:#6b5a52">გრაფიკის ფორმა საჩვენებელია, რეალური მონაცემები გამოჩნდება შეკვეთების შემდეგ.</span>
+</section>
+<section class="k" style="animation-delay:.36s;flex:1 1 280px;min-width:0;background:#fff;border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 12px rgba(26,13,11,.06)">
+<h2 style="margin:0;font-weight:800;font-size:17px">ფილიალები</h2>
+<div style="display:flex;align-items:center;justify-content:space-between;background:#FFF8E1;border-radius:16px;padding:12px 14px"><span style="font-weight:600;font-size:14px">[ფილიალი 1]</span><span style="font-size:12px;font-weight:800;color:#1A0D0B;background:#FFCC02;border-radius:10px;padding:3px 10px">აქტიური</span></div>
+<div style="display:flex;align-items:center;justify-content:space-between;background:#FFF8E1;border-radius:16px;padding:12px 14px"><span style="font-weight:600;font-size:14px">[ფილიალი 2]</span><span style="font-size:12px;font-weight:800;color:#fff;background:#6b5a52;border-radius:10px;padding:3px 10px">დაპაუზებული</span></div>
+<span style="min-height:44px;border-radius:22px;border:2px dashed #1A0D0B;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px">+ ფილიალის დამატება</span>
+</section>
+</div>
+<section class="k" style="animation-delay:.42s;background:#fff;border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:12px;box-shadow:0 4px 12px rgba(26,13,11,.06)">
+<h2 style="margin:0;font-weight:800;font-size:17px">ბოლო შეკვეთები</h2>
+<div style="overflow-x:auto">
+<div style="min-width:560px;display:flex;flex-direction:column;gap:8px">
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;font-size:12px;font-weight:800;color:#6b5a52;padding:0 8px"><span>№</span><span>ფილიალი</span><span>სტატუსი</span><span>გადახდა</span><span>თანხა</span></div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;background:#FFF8E1;border-radius:14px;padding:12px 8px;font-size:14px"><span>[№]</span><span>[ფილიალი]</span><span>[სტატუსი]</span><span>[ბარათი / ნაღდი]</span><span style="font-weight:800">₾ --.--</span></div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;background:#FFF8E1;border-radius:14px;padding:12px 8px;font-size:14px"><span>[№]</span><span>[ფილიალი]</span><span>[სტატუსი]</span><span>[ბარათი / ნაღდი]</span><span style="font-weight:800">₾ --.--</span></div>
+</div>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

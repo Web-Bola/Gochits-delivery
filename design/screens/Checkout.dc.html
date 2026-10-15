@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>შეკვეთის გაფორმება</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+@keyframes up{0%{transform:translateY(18px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes tag{0%{transform:scale(.6) rotate(-6deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes sel{0%{transform:scale(.97)}60%{transform:scale(1.02)}100%{transform:scale(1)}}
+.in{animation:up .5s ease-out both}
+.tg{animation:tag .4s cubic-bezier(.2,.9,.3,1.3) both}
+.pick{animation:sel .3s ease-out}
+.fld:focus-within{border-color:#1A0D0B;box-shadow:0 0 0 4px rgba(255,204,2,.6)}
+@media (prefers-reduced-motion:reduce){.in,.tg,.pick{animation:none}}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;box-sizing:border-box;overflow:hidden;background:#FFF8E1;display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;gap:12px;padding:24px 20px 12px">
+<a href="Menu.dc.html" aria-label="უკან" style="width:44px;height:44px;border-radius:22px;background:#1A0D0B;display:flex;align-items:center;justify-content:center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+</a>
+<h1 style="margin:0;font-weight:800;font-size:22px;color:#1A0D0B">შეკვეთის გაფორმება</h1>
+</div>
+<div style="flex:1;overflow-y:auto;padding:4px 20px 140px;display:flex;flex-direction:column;gap:14px">
+<div class="in" style="background:#fff;border-radius:22px;padding:14px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 12px rgba(26,13,11,.06)">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D8141C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+<div style="flex:1;display:flex;flex-direction:column"><span style="font-weight:800;font-size:14px;color:#1A0D0B">[მისამართის სახელი]</span><span style="font-size:13px;color:#6b5a52">[ქუჩა, სახლი, ბინა]</span></div>
+<a href="Address.dc.html" style="font-weight:800;font-size:13px;color:#D8141C;min-height:44px;display:flex;align-items:center">შეცვლა</a>
+</div>
+<div class="in" style="animation-delay:.08s;background:#fff;border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 4px 12px rgba(26,13,11,.06)">
+<span style="font-weight:800;font-size:15px;color:#1A0D0B">შეკვეთა</span>
+<div style="display:flex;justify-content:space-between;font-size:14px;color:#1A0D0B"><span>[პროდუქტი 1] × 1</span><span style="font-weight:800">₾ --.--</span></div>
+<div style="display:flex;justify-content:space-between;font-size:14px;color:#1A0D0B"><span>[პროდუქტი 2] × 1</span><span style="font-weight:800">₾ --.--</span></div>
+</div>
+<div class="in" style="animation-delay:.14s;background:#fff;border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 4px 12px rgba(26,13,11,.06)">
+<label for="pc" style="font-weight:800;font-size:15px;color:#1A0D0B">პრომო კოდი</label>
+<div style="display:flex;gap:10px">
+<div class="fld" style="flex:1;border:2px solid #E8DDB8;border-radius:16px;padding:0 14px;min-height:48px;display:flex;align-items:center"><input id="pc" type="text" placeholder="[კოდი]" autocapitalize="characters" style="border:0;outline:0;width:100%;min-width:0;font-family:inherit;font-weight:800;font-size:15px;letter-spacing:1px;color:#1A0D0B;background:transparent"></div>
+<button onClick="{{applyPromo}}" style="min-height:48px;padding:0 20px;border-radius:24px;border:0;background:#1A0D0B;color:#FFCC02;font-weight:800;font-size:14px">გამოყენება</button>
+</div>
+<sc-if value="{{promoOn}}" hint-placeholder-val="{{ false }}"><div class="tg" style="background:#FFF1BF;border-radius:14px;padding:10px 12px;font-size:13px;font-weight:600;color:#1A0D0B">კოდი მოწმდება სერვერზე, ფასდაკლება გამოჩნდება ჯამში</div></sc-if>
+</div>
+<div class="in" style="animation-delay:.2s;display:flex;flex-direction:column;gap:10px">
+<span style="font-weight:800;font-size:15px;color:#1A0D0B">გადახდის წესი</span>
+<sc-for list="{{pays}}" as="p" hint-placeholder-count="2">
+<button role="radio" aria-checked="{{p.on}}" onClick="{{p.pick}}" class="{{p.cls}}" style="{{p.style}}">
+<span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left"><span style="font-weight:800;font-size:15px">{{p.title}}</span><span style="font-size:12px;opacity:.75">{{p.sub}}</span></span>
+<span style="{{p.radio}}"><sc-if value="{{p.on}}" hint-placeholder-val="{{ false }}"><span style="width:12px;height:12px;border-radius:6px;background:#FFCC02;display:block"></span></sc-if></span>
+</button>
+</sc-for>
+</div>
+<div class="in" style="animation-delay:.26s;background:#fff;border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:8px;box-shadow:0 4px 12px rgba(26,13,11,.06)">
+<div style="display:flex;justify-content:space-between;font-size:14px;color:#6b5a52"><span>პროდუქტები</span><span>₾ --.--</span></div>
+<div style="display:flex;justify-content:space-between;font-size:14px;color:#6b5a52"><span>ფასდაკლება</span><span>− ₾ --.--</span></div>
+<div style="display:flex;justify-content:space-between;font-size:14px;color:#6b5a52"><span>ფილიალი</span><span style="font-weight:800;color:#1A0D0B">[ფილიალი]</span></div>
+<div style="display:flex;justify-content:space-between;font-size:14px;color:#6b5a52"><span>მიტანა</span><span>₾ --.--</span></div>
+<div style="display:flex;justify-content:space-between;font-weight:800;font-size:18px;color:#1A0D0B;border-top:2px dashed #E8DDB8;padding-top:10px"><span>სულ</span><span>₾ --.--</span></div>
+</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:14px 16px 22px;background:#fff;border-radius:28px 28px 0 0;box-shadow:0 -8px 24px rgba(26,13,11,.1)">
+<a href="PaymentResult.dc.html" style="min-height:58px;border-radius:29px;background:#D8141C;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-weight:800;font-size:17px;box-shadow:0 10px 20px rgba(216,20,28,.35)"><span>{{cta}}</span><span>₾ --.--</span></a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { pay: 0, promo: false, n: 0 };
+}
+renderVals() {
+const on = 'background:#1A0D0B;color:#fff;border:2px solid #1A0D0B;';
+const off = 'background:#fff;color:#1A0D0B;border:2px solid #E8DDB8;';
+const items = [
+{ title: 'ბარათით ონლაინ', sub: 'უსაფრთხო გადახდა ბანკის გვერდზე' },
+{ title: 'ნაღდი ფულით კურიერთან', sub: 'თუ რესტორანმა ჩართო' }
+];
+const pays = items.map((it, i) => {
+const sel = this.state.pay === i;
+return {
+title: it.title,
+sub: it.sub,
+on: sel,
+cls: sel ? 'pick' : '',
+pick: () => this.setState({ pay: i }),
+style: 'width:100%;min-height:64px;border-radius:20px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;' + (sel ? on : off),
+radio: 'width:24px;height:24px;border-radius:12px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;' + (sel ? 'border:2px solid #FFCC02;' : 'border:2px solid #1A0D0B;')
+};
+});
+return {
+pays,
+promoOn: this.state.promo,
+applyPromo: () => this.setState({ promo: !this.state.promo }),
+cta: this.state.pay === 0 ? 'გადახდა და შეკვეთა' : 'შეკვეთის გაფორმება'
+};
+}
+}
+</script>
+</body>
+</html>

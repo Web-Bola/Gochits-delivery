@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>რესტორნის დაფა</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif;background:#FFF8E1}
+button{font-family:inherit;cursor:pointer}
+@keyframes cardIn{0%{transform:translateY(16px) scale(.97);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+@keyframes alarm{0%,100%{box-shadow:0 0 0 0 rgba(216,20,28,.5)}50%{box-shadow:0 0 0 10px rgba(216,20,28,0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.oc{animation:cardIn .45s ease-out both}
+.newc{animation:cardIn .45s ease-out both,alarm 1.8s ease-in-out infinite}
+.dot{animation:blink 1.2s ease-in-out infinite}
+.act:active{transform:scale(.96)}
+@media (prefers-reduced-motion:reduce){.oc,.newc,.dot{animation:none}}
+</style>
+</helmet>
+<div style="width:100%;min-height:800px;box-sizing:border-box;display:flex;flex-wrap:wrap;background:#FFF8E1;color:#1A0D0B">
+<aside style="flex:0 0 240px;max-width:100%;background:#FFCC02;padding:24px 18px;display:flex;flex-direction:column;gap:22px;box-sizing:border-box;flex-grow:1;flex-basis:240px">
+<img src="/_blob/503cabd4940cb54d2a25bf4fdd509bb8" alt="Gochita" style="width:150px;height:auto">
+<nav style="display:flex;flex-direction:column;gap:6px">
+<a href="#" style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-radius:16px;background:#1A0D0B;color:#FFCC02;font-weight:800;font-size:15px;text-decoration:none">შეკვეთები</a>
+<a href="RestaurantMenu.dc.html" style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-radius:16px;color:#1A0D0B;font-weight:600;font-size:15px;text-decoration:none">მენიუ და ხელმისაწვდომობა</a>
+<a href="#" style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-radius:16px;color:#1A0D0B;font-weight:600;font-size:15px;text-decoration:none">კურიერები</a>
+<a href="#" style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-radius:16px;color:#1A0D0B;font-weight:600;font-size:15px;text-decoration:none">სამუშაო საათები</a>
+<a href="#" style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-radius:16px;color:#1A0D0B;font-weight:600;font-size:15px;text-decoration:none">ანალიტიკა</a>
+</nav>
+<div style="margin-top:auto;font-size:13px;font-weight:600">ფილიალი: [ფილიალის სახელი]</div>
+</aside>
+<main style="flex:999 1 560px;min-width:0;padding:24px;box-sizing:border-box;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between">
+<div style="display:flex;flex-direction:column;gap:2px">
+<h1 style="margin:0;font-weight:800;font-size:28px">შეკვეთები</h1>
+<span style="font-size:14px;color:#6b5a52;display:flex;align-items:center;gap:8px"><span class="dot" style="width:10px;height:10px;border-radius:5px;background:#D8141C;display:inline-block"></span>პირდაპირ ეთერში</span>
+</div>
+<div style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:24px;padding:8px 8px 8px 18px;box-shadow:0 4px 12px rgba(26,13,11,.08)">
+<span style="font-weight:800;font-size:14px">{{acceptLabel}}</span>
+<button role="switch" aria-checked="{{accepting}}" aria-label="შეკვეთების მიღება" onClick="{{toggle}}" style="{{swStyle}}"><span style="{{knobStyle}}"></span></button>
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:14px">
+<div style="flex:1 1 160px;background:#fff;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:4px;box-shadow:0 4px 12px rgba(26,13,11,.06)"><span style="font-size:13px;color:#6b5a52;font-weight:600">დღევანდელი შეკვეთები</span><span style="font-weight:800;font-size:26px">—</span></div>
+<div style="flex:1 1 160px;background:#fff;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:4px;box-shadow:0 4px 12px rgba(26,13,11,.06)"><span style="font-size:13px;color:#6b5a52;font-weight:600">მიღების საშუალო დრო</span><span style="font-weight:800;font-size:26px">—</span></div>
+<div style="flex:1 1 160px;background:#fff;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:4px;box-shadow:0 4px 12px rgba(26,13,11,.06)"><span style="font-size:13px;color:#6b5a52;font-weight:600">აქტიური კურიერები</span><span style="font-weight:800;font-size:26px">—</span></div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+<sc-for list="{{cols}}" as="col" hint-placeholder-count="4">
+<section style="flex:1 1 220px;min-width:0;background:#FFF1BF;border-radius:24px;padding:14px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font-weight:800;font-size:16px">{{col.title}}</h2><span style="min-width:28px;height:28px;border-radius:14px;background:#1A0D0B;color:#FFCC02;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px">{{col.count}}</span></div>
+<sc-for list="{{col.cards}}" as="c" hint-placeholder-count="1">
+<article class="{{c.cls}}" style="background:#fff;border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:800;font-size:15px">№[ნომერი] · {{c.n}}</span><span style="font-size:12px;font-weight:600;color:#D8141C">[X] წთ</span></div>
+<div style="font-size:13px;color:#6b5a52;line-height:1.5">[პროდუქტები და არჩევანი]</div>
+<div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600"><span>[ბარათი / ნაღდი]</span><span style="font-weight:800">₾ --.--</span></div>
+<sc-if value="{{c.hasCourier}}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;font-weight:600;background:#FFF1BF;border-radius:12px;padding:8px 10px">კურიერი: [სახელი]</div></sc-if>
+<sc-if value="{{c.hasAction}}" hint-placeholder-val="{{ true }}"><button class="act" onClick="{{c.advance}}" style="min-height:44px;border-radius:22px;border:0;background:#1A0D0B;color:#FFCC02;font-weight:800;font-size:14px">{{c.action}}</button></sc-if>
+</article>
+</sc-for>
+</section>
+</sc-for>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { accepting: true, orders: [{ n: 1, col: 0 }, { n: 2, col: 0 }, { n: 3, col: 1 }, { n: 4, col: 2 }] };
+}
+renderVals() {
+const titles = ['ახალი', 'მზადდება', 'მზადაა', 'გზაშია'];
+const actions = ['მიღება', 'მზადაა', 'კურიერის მინიჭება', ''];
+const on = this.state.accepting;
+const cols = titles.map((title, ci) => {
+const cards = this.state.orders.filter((o) => o.col === ci).map((o) => ({
+n: o.n,
+cls: ci === 0 ? 'newc' : 'oc',
+hasAction: ci < 3,
+hasCourier: ci === 3,
+action: actions[ci],
+advance: () => this.setState({ orders: this.state.orders.map((x) => (x.n === o.n ? { n: x.n, col: Math.min(3, x.col + 1) } : x)) })
+}));
+return { title, cards, count: cards.length };
+});
+return {
+cols,
+accepting: on,
+acceptLabel: on ? 'შეკვეთებს ვიღებთ' : 'შეკვეთები დაპაუზებულია',
+toggle: () => this.setState({ accepting: !this.state.accepting }),
+swStyle: 'width:64px;height:40px;border-radius:20px;border:0;padding:4px;display:flex;align-items:center;' + (on ? 'background:#1A0D0B;justify-content:flex-end;' : 'background:#c9bcb2;justify-content:flex-start;'),
+knobStyle: 'width:32px;height:32px;border-radius:16px;display:block;' + (on ? 'background:#FFCC02;' : 'background:#fff;')
+};
+}
+}
+</script>
+</body>
+</html>

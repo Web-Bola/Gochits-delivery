@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>კოდის დადასტურება</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+@keyframes up{0%{transform:translateY(20px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes land{0%{transform:scale(1.5);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes envelope{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+.in{animation:up .5s ease-out both}
+.dg{animation:land .25s ease-out}
+.env{animation:envelope 2.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.in,.dg,.env{animation:none}}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;box-sizing:border-box;overflow:hidden;background:#FFF8E1;display:flex;flex-direction:column;padding:24px 22px 30px;gap:20px">
+<a href="Login.dc.html" aria-label="უკან" style="width:44px;height:44px;border-radius:22px;background:#1A0D0B;display:flex;align-items:center;justify-content:center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+</a>
+<div class="in" style="display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:12px;text-align:center">
+<div class="env" style="width:96px;height:96px;border-radius:48px;background:#FFCC02;display:flex;align-items:center;justify-content:center">
+<svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#1A0D0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 8l9 6 9-6"/></svg>
+</div>
+<h1 style="margin:0;font-weight:800;font-size:24px;color:#1A0D0B">შეიყვანე კოდი</h1>
+<span style="font-size:14px;color:#6b5a52;line-height:1.5;max-width:290px">6-ნიშნა კოდი გამოგიგზავნეთ ნომერზე +995 [ნომერი]</span>
+</div>
+<div class="in" style="position:relative;display:flex;gap:10px;justify-content:center;animation-delay:.12s">
+<sc-for list="{{boxes}}" as="b" hint-placeholder-count="6">
+<div class="{{b.cls}}" style="{{b.style}}">{{b.ch}}</div>
+</sc-for>
+<label for="otp" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">6-ნიშნა კოდი</label>
+<input id="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" onInput="{{onCode}}" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;cursor:text">
+</div>
+<div class="in" style="animation-delay:.2s;text-align:center;font-size:14px;color:#6b5a52">{{resendText}}</div>
+<button onClick="{{resend}}" style="{{resendBtn}}">კოდის თავიდან გაგზავნა</button>
+<a href="Register.dc.html" style="{{verify}}" class="in">დადასტურება</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { code: '', left: 30 };
+this.timer = null;
+}
+componentDidMount() {
+this.timer = setInterval(() => {
+if (this.state.left > 0) this.setState({ left: this.state.left - 1 });
+}, 1000);
+}
+componentWillUnmount() {
+if (this.timer) clearInterval(this.timer);
+}
+renderVals() {
+const code = this.state.code;
+const boxes = [0, 1, 2, 3, 4, 5].map((i) => {
+const ch = code[i] || '';
+const focus = i === code.length;
+return {
+ch,
+cls: ch ? 'dg' : '',
+style: 'width:48px;height:60px;border-radius:16px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:26px;color:#1A0D0B;background:#fff;border:2px solid ' + (focus ? '#1A0D0B' : ch ? '#FFCC02' : '#E8DDB8') + ';' + (focus ? 'box-shadow:0 0 0 4px rgba(255,204,2,.6);' : '')
+};
+});
+const full = code.length === 6;
+const l = this.state.left;
+return {
+boxes,
+onCode: (e) => this.setState({ code: String(e.target.value).replace(/\D/g, '').slice(0, 6) }),
+resendText: l > 0 ? 'ახალი კოდის მოთხოვნა შესაძლებელია ' + l + ' წამში' : 'კოდი არ მოგივიდა?',
+resend: () => { if (this.state.left === 0) this.setState({ left: 30 }); },
+resendBtn: 'min-height:48px;border-radius:24px;background:transparent;border:2px solid ' + (l === 0 ? '#1A0D0B' : '#E8DDB8') + ';color:' + (l === 0 ? '#1A0D0B' : '#9a8b80') + ';font-weight:800;font-size:14px;',
+verify: 'animation-delay:.28s;margin-top:auto;min-height:56px;border-radius:28px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;transition:all .25s ease;' + (full ? 'background:#D8141C;color:#fff;box-shadow:0 10px 20px rgba(216,20,28,.35);' : 'background:#E8DDB8;color:#6b5a52;')
+};
+}
+}
+</script>
+</body>
+</html>

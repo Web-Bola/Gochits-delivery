@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>დაფის შესვლა</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif;background:#FFCC02}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+@keyframes cardIn{0%{transform:translateY(30px) scale(.97);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+@keyframes swap{0%{transform:translateX(24px);opacity:0}100%{transform:translateX(0);opacity:1}}
+@keyframes drift{0%{transform:translate(0,0)}100%{transform:translate(30px,-20px)}}
+.card{animation:cardIn .6s cubic-bezier(.2,.9,.3,1.1) both}
+.st{animation:swap .35s ease-out both}
+.bubble{animation:drift 6s ease-in-out infinite alternate}
+.fld:focus-within{border-color:#1A0D0B;box-shadow:0 0 0 4px rgba(255,204,2,.6)}
+@media (prefers-reduced-motion:reduce){.card,.st,.bubble{animation:none}}
+</style>
+</helmet>
+<div style="position:relative;width:100%;min-height:800px;box-sizing:border-box;overflow:hidden;background:#FFCC02;display:flex;align-items:center;justify-content:center;padding:24px">
+<div class="bubble" style="position:absolute;left:-80px;bottom:-100px;width:360px;height:360px;border-radius:50%;background:#F28C1E;opacity:.85"></div>
+<div class="bubble" style="position:absolute;right:-60px;top:-80px;width:280px;height:280px;border-radius:50%;background:#FFE066;animation-duration:8s"></div>
+<div class="card" style="position:relative;width:100%;max-width:440px;background:#fff;border-radius:32px;padding:32px;box-sizing:border-box;display:flex;flex-direction:column;gap:18px;box-shadow:0 24px 50px rgba(26,13,11,.25)">
+<img src="/_blob/503cabd4940cb54d2a25bf4fdd509bb8" alt="Gochita" style="width:150px;height:auto;align-self:center">
+<div style="text-align:center;display:flex;flex-direction:column;gap:4px">
+<h1 style="margin:0;font-weight:800;font-size:24px;color:#1A0D0B">{{title}}</h1>
+<span style="font-size:14px;color:#6b5a52;line-height:1.5">{{sub}}</span>
+</div>
+<sc-if value="{{first}}" hint-placeholder-val="{{ true }}">
+<div class="st" style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;flex-direction:column;gap:6px"><label for="se" style="font-weight:600;font-size:13px;color:#1A0D0B">ელფოსტა</label>
+<div class="fld" style="border:2px solid #E8DDB8;border-radius:16px;padding:0 14px;min-height:52px;display:flex;align-items:center"><input id="se" type="email" autocomplete="username" placeholder="[ელფოსტა]" style="border:0;outline:0;width:100%;min-width:0;font-family:inherit;font-weight:600;font-size:16px;color:#1A0D0B;background:transparent"></div></div>
+<div style="display:flex;flex-direction:column;gap:6px"><label for="sp" style="font-weight:600;font-size:13px;color:#1A0D0B">პაროლი</label>
+<div class="fld" style="border:2px solid #E8DDB8;border-radius:16px;padding:0 14px;min-height:52px;display:flex;align-items:center"><input id="sp" type="password" autocomplete="current-password" placeholder="••••••••" style="border:0;outline:0;width:100%;min-width:0;font-family:inherit;font-weight:600;font-size:16px;color:#1A0D0B;background:transparent"></div></div>
+<button onClick="{{next}}" style="min-height:54px;border-radius:27px;border:0;background:#1A0D0B;color:#FFCC02;font-weight:800;font-size:16px">გაგრძელება</button>
+</div>
+</sc-if>
+<sc-if value="{{second}}" hint-placeholder-val="{{ false }}">
+<div class="st" style="display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;flex-direction:column;gap:6px"><label for="mf" style="font-weight:600;font-size:13px;color:#1A0D0B">6-ნიშნა კოდი ავტორიზაციის აპიდან</label>
+<div class="fld" style="border:2px solid #E8DDB8;border-radius:16px;padding:0 14px;min-height:56px;display:flex;align-items:center"><input id="mf" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="______" style="border:0;outline:0;width:100%;min-width:0;font-family:inherit;font-weight:800;font-size:24px;letter-spacing:10px;text-align:center;color:#1A0D0B;background:transparent"></div></div>
+<a href="Restaurant.dc.html" style="min-height:54px;border-radius:27px;background:#D8141C;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;box-shadow:0 10px 20px rgba(216,20,28,.35)">შესვლა</a>
+<button onClick="{{back}}" style="min-height:44px;border:0;background:transparent;color:#6b5a52;font-weight:600;font-size:14px">უკან</button>
+</div>
+</sc-if>
+<div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:#6b5a52;text-align:center">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b5a52" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+დაცული შესვლა თანამშრომლებისთვის
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { step: 0 };
+}
+renderVals() {
+const s = this.state.step;
+return {
+first: s === 0,
+second: s === 1,
+title: s === 0 ? 'თანამშრომლის შესვლა' : 'დადასტურება',
+sub: s === 0 ? 'რესტორნისა და ადმინისტრაციის დაფა' : 'შეიყვანე კოდი უსაფრთხოების დასადასტურებლად',
+next: () => this.setState({ step: 1 }),
+back: () => this.setState({ step: 0 })
+};
+}
+}
+</script>
+</body>
+</html>

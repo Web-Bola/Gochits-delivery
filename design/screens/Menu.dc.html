@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>მენიუ</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+@keyframes slideIn{0%{transform:translateY(18px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes barUp{0%{transform:translateY(90px)}100%{transform:translateY(0)}}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+@keyframes bumpB{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+.card{animation:slideIn .5s ease-out both}
+.cartbar{animation:barUp .4s cubic-bezier(.2,.9,.3,1.1) both}
+.bump{animation:bump .35s ease-out}
+.bump2{animation:bumpB .35s ease-out}
+.add:active{transform:scale(.9)}
+.stripe{height:12px;background:repeating-linear-gradient(-45deg,#1A0D0B 0 10px,#FFCC02 10px 20px)}
+@media (prefers-reduced-motion:reduce){.card,.cartbar,.bump,.bump2{animation:none}}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;box-sizing:border-box;overflow:hidden;background:#FFF8E1;display:flex;flex-direction:column">
+<div style="background:#FFCC02;padding:22px 20px 16px;display:flex;flex-direction:column;gap:12px;flex-shrink:0">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<img src="/_blob/503cabd4940cb54d2a25bf4fdd509bb8" alt="Gochit's" style="height:46px;width:auto">
+<a href="Profile.dc.html" aria-label="პროფილი" style="width:44px;height:44px;border-radius:22px;background:#1A0D0B;display:flex;align-items:center;justify-content:center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+</a>
+</div>
+<div style="display:flex;align-items:center;gap:8px;color:#1A0D0B;font-weight:600;font-size:14px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D8141C" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+მიტანის მისამართი: [მისამართი]
+</div>
+<a href="BranchPick.dc.html" style="align-self:flex-start;min-height:36px;padding:0 14px;border-radius:18px;background:#1A0D0B;color:#FFCC02;display:flex;align-items:center;font-weight:800;font-size:13px">ფილიალი: [ფილიალი] · შეცვლა</a>
+<label style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:16px;padding:0 14px;min-height:48px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A0D0B" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+<span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">ძებნა</span>
+<input type="text" placeholder="მოძებნე მენიუში" onInput="{{onSearch}}" style="border:0;outline:0;flex:1;min-width:0;font-family:inherit;font-size:15px;background:transparent;color:#1A0D0B">
+</label>
+</div>
+<div class="stripe"></div>
+<div style="display:flex;gap:8px;padding:12px 20px 6px;overflow-x:auto;flex-shrink:0">
+<sc-for list="{{cats}}" as="c" hint-placeholder-count="4">
+<button onClick="{{c.pick}}" style="{{c.style}}">{{c.label}}</button>
+</sc-for>
+</div>
+<div style="flex:1;overflow-y:auto;padding:6px 20px 120px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:12px;line-height:1.5;color:#1A0D0B;background:#FFF1BF;border-radius:14px;padding:8px 12px">ფასები ნანახია Wolt-ზე (დიღმის ფილიალი). ისინი დასადასტურებელია და არ არის პირდაპირი შეკვეთის დამტკიცებული ფასები</div>
+<sc-for list="{{items}}" as="it" hint-placeholder-count="4">
+<div class="card" style="{{it.delay}}display:flex;gap:12px;background:#fff;border-radius:22px;padding:10px;box-shadow:0 6px 16px rgba(26,13,11,.08)">
+<a href="Product.dc.html" style="width:104px;height:104px;border-radius:16px;overflow:hidden;flex-shrink:0;background:#1A0D0B;display:flex;align-items:center;justify-content:center;position:relative">
+<sc-if value="{{it.hasPhoto}}" hint-placeholder-val="{{ true }}"><img src="{{it.photo}}" alt="{{it.name}}" style="width:100%;height:100%;object-fit:cover;display:block"></sc-if>
+<sc-if value="{{it.noPhoto}}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:800;color:#FFCC02;text-align:center;padding:6px">ფოტო<br>არ არის</span></sc-if>
+<sc-if value="{{it.sale}}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:6px;top:6px;background:#D8141C;color:#fff;font-weight:800;font-size:11px;border-radius:10px;padding:2px 7px">{{it.pct}}</span></sc-if>
+</a>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-width:0">
+<a href="Product.dc.html" style="display:flex;flex-direction:column;gap:3px">
+<span style="font-weight:800;font-size:15px;color:#1A0D0B">{{it.name}}</span>
+<span style="font-size:12px;color:#6b5a52;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{it.desc}}</span>
+</a>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+<span style="display:flex;align-items:baseline;gap:6px"><span style="font-weight:800;font-size:17px;color:#D8141C">₾ {{it.price}}</span><sc-if value="{{it.sale}}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:#8a7a70;text-decoration:line-through">{{it.old}}</span></sc-if></span>
+<button class="add" onClick="{{it.add}}" aria-label="დამატება: {{it.name}}" style="width:44px;height:44px;border-radius:22px;border:0;background:#1A0D0B;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+</div>
+</div>
+</div>
+</sc-for>
+<sc-if value="{{none}}" hint-placeholder-val="{{ false }}"><div style="text-align:center;padding:40px 20px;color:#6b5a52;font-size:14px">ვერაფერი მოიძებნა</div></sc-if>
+</div>
+<sc-if value="{{hasCart}}" hint-placeholder-val="{{ true }}">
+<a class="cartbar" href="Cart.dc.html" style="position:absolute;left:16px;right:16px;bottom:20px;min-height:60px;border-radius:30px;background:#D8141C;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 14px;box-shadow:0 12px 24px rgba(216,20,28,.4)">
+<span style="display:flex;align-items:center;gap:12px;font-weight:800;font-size:16px">
+<span class="{{bumpClass}}" style="min-width:34px;height:34px;border-radius:17px;background:#FFCC02;color:#1A0D0B;display:flex;align-items:center;justify-content:center;font-weight:800">{{count}}</span>
+კალათა
+</span>
+<span style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px">₾ {{total}}
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+</span>
+</a>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { cat: 0, q: '', count: 0, sum: 0, bump: 0 };
+this.P = {
+ds: '/_blob/2496ac46218bdf27cecb1b3112f90f12', mon: '/_blob/ef47f17c572ffd47416bac4cee5dc6cf', fry: '/_blob/099a05bc1033a236192809de3a920494',
+gb: '/_blob/677cb6c3eeaa638858ca918fec51aec6', giant: '/_blob/110cc8311a9706d09b9888e09f0bc26c', jal: '/_blob/9e1c1de603b437586308243c579eca7c',
+bbq: '/_blob/a884a1d7f68db496c619a5a143a084db', mex: '/_blob/8fe571f7632580e9eb71d0d1470173a3', ch: '/_blob/d84936c8fa7ddfb8d54c68c25b4e732a',
+dch: '/_blob/dd8bf1ee08559a0f9721f7467f6d7abb', chs: '/_blob/977c09d5425fa08e6e4305676104ad46', dbc: '/_blob/24e9c8ff5ac56d974b119bde5167c633',
+pip: '/_blob/bda874967cca322fce153b7d53351412', gbc: '/_blob/87548e873f22c485b18892f24b43e3bd', dsc: '/_blob/4560a8dcd7d2fe8fab4355f653a2bc6f',
+chc: '/_blob/b355e2674debbbfa02629c7e05056346', dchc: '/_blob/374f529954b9817075efc350a5f325ef', monc: '/_blob/86986537d5885c1da5f8c85e516b5014',
+bbqc: '/_blob/415ffc6fdfe560f30da291553c51d3c8', mexc: '/_blob/60b7a175dcc40f771938b9d18837a02a', jalc: '/_blob/d205fc6c6826480392745085765c4f17'
+};
+this.cats = ['ბურგერები', 'კომბო', 'ვრეპები და როლები', 'ბოულები', 'გარნირები', 'სოუსები', 'სასმელები'];
+this.D = [
+[0, 'Double Smashed', 1746, 2495, 'ds', 'სპეც სოუსი, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი'],
+[0, 'The Monster', 2289, 3270, 'mon', 'სპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი'],
+[0, 'Gochits Burger', 1379, 1970, 'gb', 'სპეც სოუსი, ნატურალური საქონლის ხორცი, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი'],
+[0, 'Giant Burger', 3493, 4990, 'giant', 'სპეც სოუსი, ნატურალური საქონლის ხორცი 5 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი'],
+[0, 'Jalapeno Triple', 2499, 3570, 'jal', 'სპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი ორმაგი, აისბერგი, ბეკონი, ჰალაპენიო, ხახვი, პომიდორი'],
+[0, 'Double Chicken Burger', 1470, 2100, 'dch', 'ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი'],
+[0, 'Double Bacon Cheesburger', 1883, 2690, 'dbc', 'საქონლის ხორცი 200გრ, ჩედარი 4 ფენა, ბეკონი 2ცალი, მაიონეზი, სპეც სოუსი'],
+[0, 'BBQ', 2709, 3870, 'bbq', 'სპეც სოუსი, ბარბექიუს სოუსი, ნატურალური საქონლის ხორცი 2 ფენა შერეული მოხრაკულ ბეკონში, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი'],
+[0, 'Chicken Burger', 1400, 2000, 'ch', 'ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი'],
+[0, 'Mexican Hot', 2289, 3270, 'mex', 'ტკბილი მდოგვი, სპეც სოუსი, ჰალაპენიო, ტობასკო, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი'],
+[0, 'Chicken Burger Spicy', 1400, 2000, 'chs', 'ქათმის ფილე, სუნელები, ბოსტნეული, ჰალაპენიო, ცხარე სპეცსოუსი'],
+[0, 'Pipipow Double Burger', 2800, 4000, 'pip', 'ბურგერის პური, აისბერგი, პომიდორი, ნატურალური საქონლის ხორცი, ჩედარი, მჟავე კიტრი, ბეკონი, სპეც სოუსი, ბარბექიუ სოუსი, კეტჩუპი, მდოგვი'],
+[1, 'Double Smashed Combo', 3390, 0, 'dsc', 'სპეც სოუსი, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი, ფრი და სასმელი'],
+[1, 'Gochits Burger Combo', 2790, 0, 'gbc', 'სპეც სოუსი, ნატურალური საქონლის ხორცი, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი, ფრი და სასმელი'],
+[1, 'Chicken Burger Combo', 2500, 0, 'chc', 'ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი'],
+[1, 'Double Chicken Burger Combo', 2800, 0, 'dchc', 'ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი'],
+[1, 'The Monster Combo', 4090, 0, 'monc', 'სპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი + სასმელი'],
+[1, 'Giant Burger Combo', 5590, 0, 'giant', 'სპეც სოუსი, ნატურალური საქონლის ხორცი 5 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი, სასმელი'],
+[1, 'BBQ Double Combo', 4990, 0, 'bbqc', 'სპეც სოუსი, ბარბექიუს სოუსი, ნატურალური საქონლის ხორცი 2 ფენა შერეული მოხრაკულ ბეკონში, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი, სასმელი'],
+[1, 'Mexican Hot Combo', 3990, 0, 'mexc', 'ტკბილი მდოგვი, სპეც სოუსი, ჰალაპენიო, ტობასკო, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი, სასმელი'],
+[1, 'Jalapeno Triple Combo', 4390, 0, 'jalc', 'სპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი ორმაგი, აისბერგი, ჰალაპენიო, ხახვი, კიტრი და კარტოფილი, პომიდორი, ფრი, სასმელი'],
+[1, 'Pipipow Double Burger Combo', 3590, 0, '', 'ბურგერის პური, აისბერგი, პომიდორი, ნატურალური საქონლის ხორცი, ჩედარი, მჟავე კიტრი, ბეკონი, სპეც სოუსი, ბარბექიუ სოუსი, კეტჩუპი, მდოგვი'],
+[2, 'ქათმის როლი', 1850, 0, '', 'ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი'],
+[2, 'ქათმის ცხარე როლი', 1850, 0, '', 'ქათმის ფილე, სუნელები, ბოსტნეული, ჰალაპენიო, ცხარე სპეცსოუსი'],
+[2, 'საქონლის ვრეპი', 1500, 0, '', 'საქონლის ფარში, ყველი, ბოსტნეული, სპეც სოუსი, ბარბექიუ სოუსი, მჟავე კიტრი'],
+[2, 'საქონლის ვრეპი ყველის სოუსით', 1500, 0, '', 'საქონლის ფარში, ყველი, ბოსტნეული, სპეც სოუსი, ბარბექიუ სოუსი, მჟავე კიტრი, ყველის სოუსი'],
+[2, 'ქათმის ვრეპი', 2100, 0, '', 'ქათმის ფილე, ყველი, ბოსტნეული, სპეც სოუსი'],
+[2, 'ქათმის ვრეპი ცხარე', 2100, 0, '', 'ქათმის ფილე, ყველი, ბოსტნეული, ცხარე სპეც სოუსი'],
+[3, 'ქათმის ბოული', 1750, 0, '', 'ფრი, ქათმის ფილე, სპეც სოუსი'],
+[3, 'ქათმის ფრეშ ბოული', 1450, 0, '', 'ქათმის ფილე, სპეც სოუსი, აისბერგი, პომიდორი, მჟავე კიტრი'],
+[4, 'კარტოფილი ფრი დიდი 350გრ.', 850, 0, 'fry', ''],
+[4, 'კარტოფილი ფრი პატარა 200გრ.', 650, 0, 'fry', ''],
+[4, 'კარტოფილი ფრი მდნარი ყველით და ჰალაპენიოთი', 1650, 0, '', ''],
+[5, 'ყველის ცხელი სოუსი 60გრ', 700, 0, '', ''],
+[5, 'მაიონეზი 30გრ', 300, 0, '', ''],
+[5, 'ჰალაპენიო 30გრ', 350, 0, '', ''],
+[5, 'კეტჩუპი 30გრ', 300, 0, '', ''],
+[5, 'BBQ სოუსი 30გრ', 300, 0, '', ''],
+[5, 'სპეც სოუსი 30გრ', 300, 0, '', ''],
+[5, 'სპეც სოუსი ცხარე 30გრ', 300, 0, '', ''],
+[6, 'კოკა-კოლა 0.33 ლ', 400, 0, '', ''],
+[6, 'კოკა-კოლა ზერო 0.33 ლ', 400, 0, '', ''],
+[6, 'ფანტა 0.33 ლ', 400, 0, '', ''],
+[6, 'სპრაიტი 0.33 ლ', 400, 0, '', ''],
+[6, 'Burn', 450, 0, '', ''],
+[6, 'კოკა-კოლა 0.5 ლ', 400, 0, '', ''],
+[6, 'კოკა-კოლა ზერო 0.5 ლ', 350, 0, '', ''],
+[6, 'ფანტა 0.5 ლ', 400, 0, '', ''],
+[6, 'სპრაიტი 0.5 ლ', 400, 0, '', ''],
+[6, 'მთის წყალი 0.5 ლ', 300, 0, '', '']
+];
+}
+fmt(n) {
+return (n / 100).toFixed(2);
+}
+renderVals() {
+const s = this.state;
+const q = s.q.trim().toLowerCase();
+const cats = this.cats.map((label, i) => ({
+label,
+pick: () => this.setState({ cat: i }),
+style: 'min-height:44px;padding:0 16px;border-radius:22px;white-space:nowrap;font-weight:800;font-size:13px;border:2px solid #1A0D0B;' + (s.cat === i ? 'background:#1A0D0B;color:#FFCC02' : 'background:transparent;color:#1A0D0B')
+}));
+const list = this.D.filter((d) => (q ? d[1].toLowerCase().indexOf(q) >= 0 : d[0] === s.cat));
+const items = list.map((d, i) => {
+const sale = d[3] > 0;
+return {
+name: d[1],
+desc: d[5] || '',
+price: this.fmt(d[2]),
+old: sale ? this.fmt(d[3]) : '',
+sale,
+pct: sale ? '−' + Math.round((1 - d[2] / d[3]) * 100) + '%' : '',
+photo: d[4] ? this.P[d[4]] : '',
+hasPhoto: !!d[4],
+noPhoto: !d[4],
+delay: 'animation-delay:' + Math.min(i, 6) * 60 + 'ms;',
+add: () => this.setState({ count: this.state.count + 1, sum: this.state.sum + d[2], bump: this.state.bump + 1 })
+};
+});
+return {
+cats,
+items,
+none: items.length === 0,
+onSearch: (e) => this.setState({ q: String(e.target.value) }),
+count: s.count,
+total: this.fmt(s.sum),
+hasCart: s.count > 0,
+bumpClass: s.bump % 2 === 1 ? 'bump' : 'bump2'
+};
+}
+}
+</script>
+</body>
+</html>

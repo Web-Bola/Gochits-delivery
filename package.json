@@ -1,0 +1,14 @@
+{
+  "name": "gochits-delivery",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "lint": "turbo run lint"
+  },
+  "devDependencies": {
+    "turbo": "^2.11.8",
+    "typescript": "~5.9.2"
+  }
+}

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>გადახდის შედეგი</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes boom{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@keyframes draw{0%{stroke-dashoffset:60}100%{stroke-dashoffset:0}}
+@keyframes up{0%{transform:translateY(18px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes ring{0%{transform:scale(.6);opacity:.7}100%{transform:scale(1.8);opacity:0}}
+.sp{animation:spin 1s linear infinite}
+.bm{animation:boom .7s cubic-bezier(.2,.9,.3,1.2) both}
+.dr{stroke-dasharray:60;animation:draw .6s ease-out .35s both}
+.in{animation:up .5s ease-out .3s both}
+.sk{animation:shake .5s ease-out .2s both}
+.rg{position:absolute;width:140px;height:140px;border-radius:50%;border:3px solid #FFCC02;animation:ring 2s ease-out infinite}
+@media (prefers-reduced-motion:reduce){.sp,.bm,.dr,.in,.sk,.rg{animation:none}}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;box-sizing:border-box;overflow:hidden;background:{{bg}};display:flex;flex-direction:column;padding:24px 22px 30px">
+<div style="display:flex;gap:8px;align-self:center;background:rgba(26,13,11,.1);border-radius:22px;padding:4px">
+<button onClick="{{showWait}}" style="{{t0}}">მოლოდინი</button>
+<button onClick="{{showOk}}" style="{{t1}}">წარმატება</button>
+<button onClick="{{showFail}}" style="{{t2}}">შეცდომა</button>
+</div>
+<sc-if value="{{wait}}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center">
+<svg class="sp" width="84" height="84" viewBox="0 0 50 50" aria-hidden="true"><circle cx="25" cy="25" r="20" fill="none" stroke="rgba(26,13,11,.2)" stroke-width="6"/><path d="M25 5a20 20 0 0 1 20 20" fill="none" stroke="#D8141C" stroke-width="6" stroke-linecap="round"/></svg>
+<h1 style="margin:0;font-weight:800;font-size:24px;color:#1A0D0B">გადახდა მოწმდება</h1>
+<span style="font-size:14px;color:#1A0D0B;line-height:1.5;max-width:270px">არ დახურო აპი, ბანკისგან დადასტურებას ველოდებით</span>
+</div>
+</sc-if>
+<sc-if value="{{ok}}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center">
+<div style="position:relative;width:140px;height:140px;display:flex;align-items:center;justify-content:center">
+<div class="rg"></div>
+<div class="bm" style="width:120px;height:120px;border-radius:60px;background:#1A0D0B;display:flex;align-items:center;justify-content:center"><svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="dr" d="M5 12l5 5 9-10"/></svg></div>
+</div>
+<h1 class="in" style="margin:0;font-weight:800;font-size:26px;color:#1A0D0B">შეკვეთა მიღებულია!</h1>
+<span class="in" style="font-size:14px;color:#1A0D0B;line-height:1.5;max-width:280px">შეკვეთა №[ნომერი]. რესტორანი მალე დაადასტურებს</span>
+</div>
+<div class="in" style="display:flex;flex-direction:column;gap:10px">
+<a href="Tracking.dc.html" style="min-height:56px;border-radius:28px;background:#1A0D0B;color:#FFCC02;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px">შეკვეთის თვალყური</a>
+<a href="Menu.dc.html" style="min-height:48px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#1A0D0B">მენიუში დაბრუნება</a>
+</div>
+</sc-if>
+<sc-if value="{{fail}}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center">
+<div class="sk" style="width:120px;height:120px;border-radius:60px;background:#D8141C;display:flex;align-items:center;justify-content:center"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+<h1 class="in" style="margin:0;font-weight:800;font-size:26px;color:#1A0D0B">გადახდა ვერ შესრულდა</h1>
+<span class="in" style="font-size:14px;color:#1A0D0B;line-height:1.5;max-width:280px">თანხა არ ჩამოგჭრიათ. სცადე ხელახლა ან აირჩიე სხვა გადახდის წესი</span>
+</div>
+<div class="in" style="display:flex;flex-direction:column;gap:10px">
+<a href="Checkout.dc.html" style="min-height:56px;border-radius:28px;background:#1A0D0B;color:#FFCC02;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px">ხელახლა ცდა</a>
+<a href="Cart.dc.html" style="min-height:48px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#1A0D0B">კალათაში დაბრუნება</a>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { s: 1 };
+}
+renderVals() {
+const s = this.state.s;
+const tab = (i) => 'min-height:44px;padding:0 14px;border-radius:20px;border:0;font-weight:800;font-size:13px;' + (s === i ? 'background:#1A0D0B;color:#FFCC02;' : 'background:transparent;color:#1A0D0B;');
+return {
+wait: s === 0,
+ok: s === 1,
+fail: s === 2,
+bg: s === 2 ? '#FFF1BF' : '#FFCC02',
+showWait: () => this.setState({ s: 0 }),
+showOk: () => this.setState({ s: 1 }),
+showFail: () => this.setState({ s: 2 }),
+t0: tab(0), t1: tab(1), t2: tab(2)
+};
+}
+}
+</script>
+</body>
+</html>

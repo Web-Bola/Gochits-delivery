@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<title>მისამართები</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Noto Sans Georgian',system-ui,sans-serif}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+@keyframes up{0%{transform:translateY(18px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes sel{0%{transform:scale(.97)}60%{transform:scale(1.02)}100%{transform:scale(1)}}
+.in{animation:up .5s ease-out both}
+.pick{animation:sel .3s ease-out}
+@media (prefers-reduced-motion:reduce){.in,.pick{animation:none}}
+</style>
+</helmet>
+<div style="position:relative;width:390px;height:844px;box-sizing:border-box;overflow:hidden;background:#FFF8E1;display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;gap:12px;padding:24px 20px 12px">
+<a href="Profile.dc.html" aria-label="უკან" style="width:44px;height:44px;border-radius:22px;background:#1A0D0B;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a>
+<h1 style="margin:0;font-weight:800;font-size:22px;color:#1A0D0B">ჩემი მისამართები</h1>
+</div>
+<div style="flex:1;overflow-y:auto;padding:4px 20px 130px;display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{items}}" as="a" hint-placeholder-count="3">
+<div class="in" style="{{a.delay}}">
+<button role="radio" aria-checked="{{a.on}}" onClick="{{a.pick}}" class="{{a.cls}}" style="{{a.style}}">
+<span style="{{a.radio}}"><sc-if value="{{a.on}}" hint-placeholder-val="{{ false }}"><span style="width:12px;height:12px;border-radius:6px;background:#FFCC02;display:block"></span></sc-if></span>
+<span style="flex:1;display:flex;flex-direction:column;gap:2px;text-align:left;min-width:0"><span style="font-weight:800;font-size:15px">{{a.label}}</span><span style="font-size:13px;opacity:.75">[ქუჩა, სახლი, ბინა]</span></span>
+<sc-if value="{{a.on}}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:800;background:#FFCC02;color:#1A0D0B;border-radius:10px;padding:3px 10px">ძირითადი</span></sc-if>
+</button>
+<div style="display:flex;gap:16px;padding:6px 6px 0">
+<a href="Address.dc.html" style="min-height:44px;display:flex;align-items:center;font-weight:800;font-size:13px;color:#1A0D0B">რედაქტირება</a>
+<button style="min-height:44px;border:0;background:transparent;font-weight:800;font-size:13px;color:#D8141C;padding:0">წაშლა</button>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:14px 16px 22px;background:#fff;border-radius:28px 28px 0 0;box-shadow:0 -8px 24px rgba(26,13,11,.1)">
+<a href="Address.dc.html" style="min-height:56px;border-radius:28px;background:#1A0D0B;color:#FFCC02;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:800;font-size:16px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFCC02" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>ახალი მისამართი</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { sel: 0 };
+}
+renderVals() {
+const names = ['სახლი', 'სამსახური', 'სხვა'];
+return {
+items: names.map((label, i) => {
+const on = this.state.sel === i;
+return {
+label,
+on,
+cls: on ? 'pick' : '',
+delay: 'animation-delay:' + (i * 80) + 'ms;',
+pick: () => this.setState({ sel: i }),
+style: 'width:100%;min-height:72px;border-radius:22px;padding:0 16px;display:flex;align-items:center;gap:12px;' + (on ? 'background:#1A0D0B;color:#fff;border:2px solid #1A0D0B;' : 'background:#fff;color:#1A0D0B;border:2px solid #E8DDB8;'),
+radio: 'width:24px;height:24px;border-radius:12px;box-sizing:border-box;flex-shrink:0;display:flex;align-items:center;justify-content:center;' + (on ? 'border:2px solid #FFCC02;' : 'border:2px solid #1A0D0B;')
+};
+})
+};
+}
+}
+</script>
+</body>
+</html>
