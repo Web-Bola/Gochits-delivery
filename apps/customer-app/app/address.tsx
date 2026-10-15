@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Text } from 'react-native';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import { ka } from '@gochits/i18n';
-import { Body, Button, Field, H1, Screen } from '../src/components/ui';
+import { ScrollView, View } from 'react-native';
+import { Body, Button, ErrorText, Field, Header, Screen } from '../src/components/ui';
 import { supabase } from '../src/lib/supabase';
 import { useCart } from '../src/state/cart';
 
@@ -53,16 +53,20 @@ export default function Address() {
   }
 
   return (
-    <Screen>
-      <H1>{ka.address.title}</H1>
-      <Field label={ka.address.street} value={street} onChangeText={setStreet} autoComplete="street-address" />
-      <Field label={ka.address.entrance} value={entrance} onChangeText={setEntrance} />
-      <Field label={ka.address.floor} value={floor} onChangeText={setFloor} />
-      <Field label={ka.address.apartment} value={apartment} onChangeText={setApartment} />
-      <Body muted>{ka.branch.hint}</Body>
-      {error && <Text accessibilityLiveRegion="polite" style={{ color: '#D8141C' }}>{error}</Text>}
-      <Button title={busy ? ka.address.working : ka.address.save} onPress={() => save()} disabled={street.trim().length < 3 || busy} />
-      {__DEV__ && <Button variant="outline" title="ტესტი: დიღმის ცენტრი" onPress={() => save({ lat: 41.755, lng: 44.765 })} disabled={street.trim().length < 3 || busy} />}
+    <Screen scroll>
+      <Header back title={ka.address.title} subtitle={ka.branch.hint} />
+      <ScrollView contentContainerStyle={{ padding: 20, gap: 14 }}>
+        <Field label={ka.address.street} value={street} onChangeText={setStreet} autoComplete="street-address" />
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <View style={{ flex: 1 }}><Field label={ka.address.entrance} value={entrance} onChangeText={setEntrance} /></View>
+          <View style={{ flex: 1 }}><Field label={ka.address.floor} value={floor} onChangeText={setFloor} /></View>
+          <View style={{ flex: 1 }}><Field label={ka.address.apartment} value={apartment} onChangeText={setApartment} /></View>
+        </View>
+        {error && <ErrorText>{error}</ErrorText>}
+        <Button title={busy ? ka.address.working : ka.address.save} onPress={() => save()} disabled={street.trim().length < 3 || busy} />
+        {__DEV__ && <Button variant="outline" title="ტესტი: დიღმის ცენტრი" onPress={() => save({ lat: 41.755, lng: 44.765 })} disabled={street.trim().length < 3 || busy} />}
+        <Body muted>{' '}</Body>
+      </ScrollView>
     </Screen>
   );
 }

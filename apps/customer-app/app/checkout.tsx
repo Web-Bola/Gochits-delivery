@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Text } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatGel } from '@gochits/shared';
 import { errorText, ka } from '@gochits/i18n';
-import { Body, Button, Field, H1, Screen } from '../src/components/ui';
+import { colors, fontFamily } from '@gochits/ui-tokens';
+import { Body, Button, Card, ErrorText, Field, Header, Screen } from '../src/components/ui';
 import { supabase } from '../src/lib/supabase';
 import { useCart } from '../src/state/cart';
 
@@ -27,21 +28,31 @@ export default function Checkout() {
       p_notes: notes || null,
     });
     setBusy(false);
-    if (e) { setError(errorText(e.message)); return; }
+    if (e) { console.warn('create_order failed', e); setError(errorText(e.message)); return; }
     clear();
     router.replace({ pathname: '/order/[id]', params: { id: String(data) } });
   }
 
+  const row = (k: string, v: string) => (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+      <Body muted>{k}</Body><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.ink, flexShrink: 1, textAlign: 'right' }}>{v}</Text>
+    </View>
+  );
+
   return (
-    <Screen>
-      <H1>{ka.checkout.title}</H1>
-      <Body>{branch?.branch_name}</Body>
-      <Body muted>{address?.street}</Body>
-      <Body>{ka.cart.subtotal}: {formatGel(subtotal)}</Body>
-      <Body muted>{ka.branch.hint}</Body>
-      <Field label={ka.checkout.notes} value={notes} onChangeText={setNotes} multiline />
-      {error && <Text accessibilityLiveRegion="polite" style={{ color: '#D8141C' }}>{error}</Text>}
-      <Button title={ka.checkout.place} onPress={place} disabled={busy || lines.length === 0} />
+    <Screen scroll>
+      <Header back title={ka.checkout.title} />
+      <ScrollView contentContainerStyle={{ padding: 20, gap: 12 }}>
+        <Card>
+          {row(ka.branch.title, branch?.branch_name ?? '')}
+          {row(ka.address.title, address?.street ?? '')}
+          {row(ka.cart.subtotal, formatGel(subtotal))}
+          <Body muted>{ka.branch.hint}</Body>
+        </Card>
+        <Field label={ka.checkout.notes} value={notes} onChangeText={setNotes} multiline />
+        {error && <ErrorText>{error}</ErrorText>}
+        <Button title={busy ? '...' : ka.checkout.place} onPress={place} disabled={busy || lines.length === 0} />
+      </ScrollView>
     </Screen>
   );
 }

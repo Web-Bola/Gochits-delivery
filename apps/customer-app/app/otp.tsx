@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Text } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ka } from '@gochits/i18n';
-import { Body, Button, Field, H1, Screen } from '../src/components/ui';
+import { Body, Button, ErrorText, Field, H1, Hero } from '../src/components/ui';
 import { supabase } from '../src/lib/supabase';
 
 export default function Otp() {
@@ -33,13 +32,13 @@ export default function Otp() {
   }
 
   return (
-    <Screen>
+    <Hero small>
       <H1>{ka.otp.title}</H1>
       <Body muted>+995 {phone}</Body>
       <Field label={ka.otp.title} keyboardType="number-pad" maxLength={6} value={code} onChangeText={(t) => setCode(t.replace(/\D/g, ''))} autoComplete="sms-otp" textContentType="oneTimeCode" />
-      {error && <Text accessibilityLiveRegion="polite" style={{ color: '#D8141C' }}>{error}</Text>}
+      {error && <ErrorText>{error}</ErrorText>}
       <Button title={ka.otp.confirm} onPress={confirm} disabled={code.length !== 6 || busy} />
       <Button variant="outline" title={left > 0 ? `${ka.otp.resend} (${left})` : ka.otp.resend} onPress={resend} disabled={left > 0} />
-    </Screen>
+    </Hero>
   );
 }

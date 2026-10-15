@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Text } from 'react-native';
-import { useRouter } from 'expo-router';
 import { ka } from '@gochits/i18n';
-import { Body, Button, Field, H1, Screen } from '../src/components/ui';
+import { Body, Button, ErrorText, Field, H1, Hero } from '../src/components/ui';
 import { supabase } from '../src/lib/supabase';
+import { useRouter } from 'expo-router';
 
 export default function Login() {
   const router = useRouter();
@@ -21,13 +20,13 @@ export default function Login() {
   }
 
   return (
-    <Screen>
+    <Hero>
       <H1>{ka.login.title}</H1>
       <Body muted>+995</Body>
       <Field label={ka.login.phone} keyboardType="number-pad" maxLength={9} value={digits} onChangeText={(t) => setDigits(t.replace(/\D/g, ''))} placeholder="5XX XXX XXX" autoComplete="tel" />
-      {digits.length > 0 && !valid && <Text accessibilityLiveRegion="polite">{ka.login.invalid}</Text>}
-      {error && <Text accessibilityLiveRegion="polite" style={{ color: '#D8141C' }}>{error}</Text>}
+      {digits.length > 0 && !valid && <ErrorText>{ka.login.invalid}</ErrorText>}
+      {error && <ErrorText>{error}</ErrorText>}
       <Button title={ka.login.send} onPress={send} disabled={!valid || busy} />
-    </Screen>
+    </Hero>
   );
 }

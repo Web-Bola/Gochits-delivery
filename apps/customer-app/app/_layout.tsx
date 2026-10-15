@@ -4,6 +4,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { useFonts, NotoSansGeorgian_400Regular, NotoSansGeorgian_600SemiBold, NotoSansGeorgian_800ExtraBold } from '@expo-google-fonts/noto-sans-georgian';
 import { colors } from '@gochits/ui-tokens';
 import { CartProvider } from '../src/state/cart';
+import { AppFrame } from '../src/components/ui';
 
 export default function Layout() {
   const [loaded] = useFonts({ NotoSansGeorgian_400Regular, NotoSansGeorgian_600SemiBold, NotoSansGeorgian_800ExtraBold });
@@ -11,7 +12,9 @@ export default function Layout() {
   return (
     <CartProvider>
       <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.cream } }} />
+      <AppFrame>
+        <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', contentStyle: { backgroundColor: colors.cream } }} />
+      </AppFrame>
     </CartProvider>
   );
 }
