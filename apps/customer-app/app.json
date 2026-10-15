@@ -7,8 +7,26 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "icon": "./assets/logo.png",
-    "plugins": ["expo-router", "expo-secure-store", ["expo-location", { "locationWhenInUsePermission": "მისამართის დასადგენად გვჭირდება შენი მდებარეობა" }]],
-    "ios": { "bundleIdentifier": "ge.gochits.customer" },
-    "android": { "package": "ge.gochits.customer" }
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "მისამართის დასადგენად გვჭირდება შენი მდებარეობა"
+        }
+      ]
+    ],
+    "ios": {
+      "bundleIdentifier": "ge.gochits.customer"
+    },
+    "android": {
+      "package": "ge.gochits.customer"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/logo.png"
+    }
   }
 }
