@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { formatGel, type OrderStatus } from '@gochits/shared';
-import { colors, fontFamily } from '@gochits/ui-tokens';
+import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Body, Button, Card, FadeIn, Header, Screen } from '../../src/components/ui';
 import { Confetti, Float, Pulse } from '../../src/components/fx';
 import { supabase } from '../../src/lib/supabase';
@@ -30,7 +30,7 @@ export default function OrderScreen() {
     return () => { alive = false; supabase.removeChannel(ch); };
   }, [id]);
 
-  if (!row) return <Screen><ActivityIndicator color={colors.ink} /></Screen>;
+  if (!row) return <Screen><ActivityIndicator color={colors.yellow} /></Screen>;
   const at = STEPS.indexOf(row.status);
   return (
     <Screen scroll>
@@ -48,10 +48,10 @@ export default function OrderScreen() {
             return (
               <FadeIn key={st} index={i}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 36 }}>
-                  <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: done ? colors.red : colors.sand, alignItems: 'center', justifyContent: 'center', borderWidth: current ? 4 : 0, borderColor: colors.yellow }}>
+                  <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: done ? colors.red : theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: current ? 4 : 0, borderColor: colors.yellow }}>
                     {done && <Text style={{ color: colors.white, fontSize: 12, fontFamily: fontFamily.extrabold }}>✓</Text>}
                   </View>
-                  <Text style={{ fontFamily: done ? fontFamily.extrabold : fontFamily.regular, fontSize: 15, color: done ? colors.ink : colors.muted }}>{LABEL[st]}</Text>
+                  <Text style={{ fontFamily: done ? fontFamily.extrabold : fontFamily.regular, fontSize: 15, color: done ? theme.text : theme.muted }}>{LABEL[st]}</Text>
                 </View>
               </FadeIn>
             );

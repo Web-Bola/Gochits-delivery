@@ -3,7 +3,7 @@ import { ActivityIndicator, ScrollView, Text, View, Pressable } from 'react-nati
 import { useRouter } from 'expo-router';
 import { nearestOrderable, formatGel, PRICE_PLACEHOLDER, sortBranchOptions, type BranchOption } from '@gochits/shared';
 import { ka } from '@gochits/i18n';
-import { colors, fontFamily } from '@gochits/ui-tokens';
+import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Body, Button, Card, FadeIn, Header, Screen } from '../src/components/ui';
 import { supabase } from '../src/lib/supabase';
 import { useCart } from '../src/state/cart';
@@ -26,7 +26,7 @@ export default function Branches() {
     });
   }, [address, router]);
 
-  if (!options) return <Screen><ActivityIndicator color={colors.ink} /></Screen>;
+  if (!options) return <Screen><ActivityIndicator color={colors.yellow} /></Screen>;
   const nearestId = nearestOrderable(options)?.branch_id;
 
   return (
@@ -41,14 +41,14 @@ export default function Branches() {
               <Pressable accessibilityRole="radio" accessibilityState={{ selected: on, disabled: !o.can_order }} disabled={!o.can_order} onPress={() => setSelected(o.branch_id)}>
                 <Card selected={on} style={{ opacity: o.can_order ? 1 : 0.5 }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.ink, flex: 1 }}>{o.branch_name}</Text>
+                    <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text, flex: 1 }}>{o.branch_name}</Text>
                     {o.branch_id === nearestId && <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.white, backgroundColor: colors.red, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 3, overflow: 'hidden' }}>{ka.branch.nearest}</Text>}
                   </View>
                   {!o.can_order && <Body muted>{ka.branch.closed}</Body>}
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-                    <Body muted>{ka.branch.fee} <Text style={{ fontFamily: fontFamily.extrabold, color: colors.ink }}>{o.fee_tetri === null ? PRICE_PLACEHOLDER : formatGel(o.fee_tetri)}</Text></Body>
-                    <Body muted>{ka.branch.time} <Text style={{ fontFamily: fontFamily.extrabold, color: colors.ink }}>+{o.extra_minutes}</Text></Body>
-                    <Body muted>{ka.branch.min} <Text style={{ fontFamily: fontFamily.extrabold, color: colors.ink }}>{formatGel(o.min_order_tetri)}</Text></Body>
+                    <Body muted>{ka.branch.fee} <Text style={{ fontFamily: fontFamily.extrabold, color: theme.text }}>{o.fee_tetri === null ? PRICE_PLACEHOLDER : formatGel(o.fee_tetri)}</Text></Body>
+                    <Body muted>{ka.branch.time} <Text style={{ fontFamily: fontFamily.extrabold, color: theme.text }}>+{o.extra_minutes}</Text></Body>
+                    <Body muted>{ka.branch.min} <Text style={{ fontFamily: fontFamily.extrabold, color: theme.text }}>{formatGel(o.min_order_tetri)}</Text></Body>
                   </View>
                 </Card>
               </Pressable>

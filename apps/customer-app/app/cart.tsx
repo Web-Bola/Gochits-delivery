@@ -2,15 +2,15 @@ import { ScrollView, Text, View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatGel } from '@gochits/shared';
 import { ka } from '@gochits/i18n';
-import { colors, fontFamily } from '@gochits/ui-tokens';
+import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Body, Button, Card, FadeIn, Header, Screen } from '../src/components/ui';
 import { useCart } from '../src/state/cart';
 
 function Qty({ label, onPress }: { label: string; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label === '+' ? 'მეტი' : 'ნაკლები'} onPress={onPress}
-      style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: colors.ink, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? colors.yellow : 'transparent' })}>
-      <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.ink, marginTop: -2 }}>{label}</Text>
+      style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: theme.border, alignItems: 'center', justifyContent: 'center', backgroundColor: pressed ? colors.yellow : theme.surface2 })}>
+      <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 20, color: theme.text, marginTop: -2 }}>{label}</Text>
     </Pressable>
   );
 }
@@ -27,18 +27,18 @@ export default function Cart() {
           <FadeIn key={l.productId} index={i}>
             <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.ink }}>{l.name}</Text>
-                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.red }}>{formatGel(l.unitPriceTetri * l.quantity)}</Text>
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{l.name}</Text>
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.yellow }}>{formatGel(l.unitPriceTetri * l.quantity)}</Text>
               </View>
               <Qty label="−" onPress={() => remove(l.productId)} />
-              <Text style={{ fontFamily: fontFamily.extrabold, minWidth: 22, textAlign: 'center', fontSize: 16 }}>{l.quantity}</Text>
+              <Text style={{ fontFamily: fontFamily.extrabold, minWidth: 22, textAlign: 'center', fontSize: 16, color: theme.text }}>{l.quantity}</Text>
               <Qty label="+" onPress={() => add({ productId: l.productId, name: l.name, unitPriceTetri: l.unitPriceTetri })} />
             </Card>
           </FadeIn>
         ))}
         <Card>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Body muted>{ka.cart.subtotal}</Body><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.ink }}>{formatGel(subtotal)}</Text>
+            <Body muted>{ka.cart.subtotal}</Body><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.yellow }}>{formatGel(subtotal)}</Text>
           </View>
           <Body muted>{ka.branch.hint}</Body>
         </Card>

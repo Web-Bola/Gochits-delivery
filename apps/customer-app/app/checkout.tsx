@@ -3,7 +3,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatGel } from '@gochits/shared';
 import { errorText, ka } from '@gochits/i18n';
-import { colors, fontFamily } from '@gochits/ui-tokens';
+import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Body, Button, Card, ErrorText, Field, Header, Screen } from '../src/components/ui';
 import { supabase } from '../src/lib/supabase';
 import { useCart } from '../src/state/cart';
@@ -35,7 +35,7 @@ export default function Checkout() {
 
   const row = (k: string, v: string) => (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
-      <Body muted>{k}</Body><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.ink, flexShrink: 1, textAlign: 'right' }}>{v}</Text>
+      <Body muted>{k}</Body><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text, flexShrink: 1, textAlign: 'right' }}>{v}</Text>
     </View>
   );
 

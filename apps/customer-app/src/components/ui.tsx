@@ -1,7 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Animated, Easing, Image, Platform, Pressable, StyleSheet, Text, TextInput, View, type TextInputProps, type ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
-import { colors, fontFamily, minTouch, radius } from '@gochits/ui-tokens';
+import { colors, fontFamily, minTouch, radius, theme } from '@gochits/ui-tokens';
 import { Float, ND, Pulse, PressScale, useReduceMotion } from './fx';
 import { menuImages } from '../lib/menuImages';
 
@@ -11,13 +11,13 @@ const logo = require('../../assets/logo.png');
 export function AppFrame({ children }: { children: ReactNode }) {
   if (Platform.OS !== 'web') return <>{children}</>;
   return (
-    <View style={{ flex: 1, backgroundColor: colors.yellowSoft, alignItems: 'center' }}>
-      <View style={{ flex: 1, width: '100%', maxWidth: 430, backgroundColor: colors.cream, overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 30 }}>{children}</View>
+    <View style={{ flex: 1, backgroundColor: '#0A0605', alignItems: 'center' }}>
+      <View style={{ flex: 1, width: '100%', maxWidth: 430, backgroundColor: theme.bg, overflow: 'hidden' }}>{children}</View>
     </View>
   );
 }
 
-/** Fade + slide up. Respects nothing fancy: short, one-shot. `index` staggers lists. */
+/** Fade + slide up. `index` staggers lists. Skipped under reduced motion. */
 export function FadeIn({ children, index = 0, style }: { children: ReactNode; index?: number; style?: ViewStyle }) {
   const v = useRef(new Animated.Value(0)).current;
   const reduce = useReduceMotion();
@@ -55,13 +55,13 @@ export function BackButton({ onPress }: { onPress?: () => void }) {
   const router = useRouter();
   return (
     <Pressable accessibilityRole="button" accessibilityLabel="უკან" onPress={onPress ?? (() => (router.canGoBack() ? router.back() : router.replace('/')))}
-      style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ color: colors.yellow, fontSize: 22, fontFamily: fontFamily.extrabold, marginTop: -2 }}>←</Text>
+      style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ color: colors.ink, fontSize: 22, fontFamily: fontFamily.extrabold, marginTop: -2 }}>←</Text>
     </Pressable>
   );
 }
 
-/** Yellow header: optional back button, logo or title, optional right slot. */
+/** Dark header: optional back button, logo, title, right slot. Hazard stripe underneath. */
 export function Header({ title, subtitle, back, showLogo, right }: { title?: string; subtitle?: string; back?: boolean; showLogo?: boolean; right?: ReactNode }) {
   return (
     <View>
@@ -73,12 +73,12 @@ export function Header({ title, subtitle, back, showLogo, right }: { title?: str
         {title && <Text style={s.h1} accessibilityRole="header">{title}</Text>}
         {subtitle && <Text style={s.sub}>{subtitle}</Text>}
       </View>
-      <Stripe />
+      <Stripe height={8} />
     </View>
   );
 }
 
-/** Big yellow hero with the logo, radar rings and floating burgers (login, otp). Content sits in a white sheet below. */
+/** Big yellow hero with the logo, radar rings and floating burgers (login, otp). Content sits in a dark sheet below. */
 export function Hero({ children, small }: { children: ReactNode; small?: boolean }) {
   const size = small ? 120 : 180;
   const bubble = (key: string, pos: ViewStyle, d: number, sz: number) => (
@@ -101,7 +101,7 @@ export function Hero({ children, small }: { children: ReactNode; small?: boolean
         <Float amplitude={8} duration={2200}><Image source={logo} style={{ width: size, height: size }} resizeMode="contain" accessibilityLabel="Gochit's" /></Float>
       </View>
       <Stripe />
-      <View style={{ flex: 1, backgroundColor: colors.white, padding: 24, gap: 14 }}>{children}</View>
+      <View style={{ flex: 1, backgroundColor: theme.bg, padding: 24, gap: 14 }}>{children}</View>
     </View>
   );
 }
@@ -111,29 +111,31 @@ export function Screen({ children, scroll }: { children: ReactNode; scroll?: boo
 }
 
 export function H1({ children }: { children: ReactNode }) {
-  return <Text style={s.h1dark} accessibilityRole="header">{children}</Text>;
+  return <Text style={s.h1} accessibilityRole="header">{children}</Text>;
 }
 
 export function Body({ children, muted }: { children: ReactNode; muted?: boolean }) {
-  return <Text style={[s.body, muted && { color: colors.muted }]}>{children}</Text>;
+  return <Text style={[s.body, muted && { color: theme.muted }]}>{children}</Text>;
 }
 
 export function ErrorText({ children }: { children: ReactNode }) {
-  return <Text accessibilityLiveRegion="polite" style={{ color: colors.red, fontFamily: fontFamily.semibold, fontSize: 13 }}>{children}</Text>;
+  return <Text accessibilityLiveRegion="polite" style={{ color: '#FF6B6B', fontFamily: fontFamily.semibold, fontSize: 13 }}>{children}</Text>;
 }
 
 export function Card({ children, style, selected }: { children: ReactNode; style?: ViewStyle; selected?: boolean }) {
-  return <View style={[s.card, selected && { borderColor: colors.red, borderWidth: 3 }, style]}>{children}</View>;
+  return <View style={[s.card, selected && { borderColor: colors.yellow }, style]}>{children}</View>;
 }
 
+/** red = main action, ink = yellow secondary action, outline = quiet. */
 export function Button({ title, onPress, disabled, variant = 'red' }: { title: string; onPress: () => void; disabled?: boolean; variant?: 'red' | 'ink' | 'outline' }) {
-  const bg = variant === 'red' ? colors.red : variant === 'ink' ? colors.ink : 'transparent';
-  const fg = variant === 'red' ? colors.white : variant === 'ink' ? colors.yellow : colors.ink;
+  const bg = variant === 'red' ? colors.red : variant === 'ink' ? colors.yellow : 'transparent';
+  const fg = variant === 'red' ? colors.white : variant === 'ink' ? colors.ink : theme.text;
   return (
     <PressScale accessibilityRole="button" accessibilityState={{ disabled: !!disabled }} onPress={onPress} disabled={disabled} scaleTo={0.97}
       style={{ ...s.btn, backgroundColor: bg, opacity: disabled ? 0.45 : 1,
-        ...(variant === 'red' && !disabled ? { shadowColor: colors.red, shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 8 } } : {}),
-        ...(variant === 'outline' ? { borderWidth: 2, borderColor: colors.ink } : {}) }}>
+        ...(variant === 'red' && !disabled ? { shadowColor: colors.red, shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } } : {}),
+        ...(variant === 'ink' && !disabled ? { shadowColor: colors.yellow, shadowOpacity: 0.3, shadowRadius: 14, shadowOffset: { width: 0, height: 6 } } : {}),
+        ...(variant === 'outline' ? { borderWidth: 2, borderColor: theme.border } : {}) }}>
       <Text style={[s.btnText, { color: fg }]}>{title}</Text>
     </PressScale>
   );
@@ -143,21 +145,20 @@ export function Field({ label, ...p }: TextInputProps & { label: string }) {
   return (
     <View style={{ gap: 6 }}>
       <Text style={s.label}>{label}</Text>
-      <TextInput accessibilityLabel={label} placeholderTextColor={colors.muted} {...p} style={[s.input, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
+      <TextInput accessibilityLabel={label} placeholderTextColor={theme.muted} {...p} style={[s.input, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.cream, padding: 20, gap: 14 },
-  header: { backgroundColor: colors.yellow, paddingHorizontal: 20, paddingTop: 22, paddingBottom: 16, gap: 10 },
-  h1: { fontFamily: fontFamily.extrabold, fontSize: 24, color: colors.ink },
-  h1dark: { fontFamily: fontFamily.extrabold, fontSize: 24, color: colors.ink },
-  sub: { fontFamily: fontFamily.regular, fontSize: 13, color: colors.ink, lineHeight: 19 },
-  body: { fontFamily: fontFamily.regular, fontSize: 15, color: colors.ink, lineHeight: 22 },
-  card: { backgroundColor: colors.white, borderRadius: radius.card, padding: 16, gap: 6, borderWidth: 3, borderColor: 'transparent', shadowColor: colors.ink, shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 6 } },
+  screen: { flex: 1, backgroundColor: theme.bg, padding: 20, gap: 14 },
+  header: { backgroundColor: theme.bg, paddingHorizontal: 20, paddingTop: 22, paddingBottom: 16, gap: 10 },
+  h1: { fontFamily: fontFamily.extrabold, fontSize: 24, color: theme.text },
+  sub: { fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted, lineHeight: 19 },
+  body: { fontFamily: fontFamily.regular, fontSize: 15, color: theme.text, lineHeight: 22 },
+  card: { backgroundColor: theme.surface, borderRadius: radius.card, padding: 16, gap: 6, borderWidth: 2, borderColor: theme.border },
   btn: { minHeight: 56, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 },
   btnText: { fontFamily: fontFamily.extrabold, fontSize: 17 },
-  label: { fontFamily: fontFamily.semibold, fontSize: 13, color: colors.ink },
-  input: { minHeight: Math.max(52, minTouch), borderWidth: 2, borderColor: colors.sand, borderRadius: radius.input, paddingHorizontal: 14, fontFamily: fontFamily.semibold, fontSize: 16, color: colors.ink, backgroundColor: colors.white },
+  label: { fontFamily: fontFamily.semibold, fontSize: 13, color: theme.text },
+  input: { minHeight: Math.max(52, minTouch), borderWidth: 2, borderColor: theme.border, borderRadius: radius.input, paddingHorizontal: 14, fontFamily: fontFamily.semibold, fontSize: 16, color: theme.text, backgroundColor: theme.surface },
 });
