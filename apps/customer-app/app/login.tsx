@@ -16,7 +16,7 @@ export default function Login() {
     setBusy(true); setError(null);
     const { error: e } = await supabase.auth.signInWithOtp({ phone: `+995${digits}` });
     setBusy(false);
-    if (e) { setError(ka.errors.generic); return; }
+    if (e) { console.warn('signInWithOtp failed', e); setError(__DEV__ ? `${ka.errors.generic} (${e.message})` : ka.errors.generic); return; }
     router.push({ pathname: '/otp', params: { phone: digits } });
   }
 

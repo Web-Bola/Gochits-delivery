@@ -23,7 +23,7 @@ export default function Otp() {
     setBusy(true); setError(null);
     const { error: e } = await supabase.auth.verifyOtp({ phone: `+995${phone}`, token: code, type: 'sms' });
     setBusy(false);
-    if (e) { setError(ka.otp.wrong); return; }
+    if (e) { console.warn('verifyOtp failed', e); setError(__DEV__ ? `${ka.otp.wrong} (${e.message})` : ka.otp.wrong); return; }
     router.replace('/address');
   }
 
