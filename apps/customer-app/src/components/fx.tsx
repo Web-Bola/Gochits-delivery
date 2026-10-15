@@ -129,3 +129,29 @@ export function Confetti({ count = 28 }: { count?: number }) {
     </View>
   );
 }
+
+/** Slow endless rotation (dashed ring behind a hero image). */
+export function Spin({ children, duration = 26000, style }: { children?: ReactNode; duration?: number; style?: ViewStyle }) {
+  const v = useRef(new Animated.Value(0)).current;
+  const reduce = useReduceMotion();
+  useEffect(() => {
+    if (reduce) return;
+    const loop = Animated.loop(Animated.timing(v, { toValue: 1, duration, easing: Easing.linear, useNativeDriver: ND }));
+    loop.start();
+    return () => loop.stop();
+  }, [v, duration, reduce]);
+  return <Animated.View style={[style, { transform: [{ rotate: v.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }]}>{children}</Animated.View>;
+}
+
+/** Looping 0..1 value for custom animations (progress bar, drifting seeds). */
+export function useLoop(duration: number, delay = 0): Animated.Value {
+  const v = useRef(new Animated.Value(0)).current;
+  const reduce = useReduceMotion();
+  useEffect(() => {
+    if (reduce) return;
+    const loop = Animated.loop(Animated.timing(v, { toValue: 1, duration, delay, easing: Easing.inOut(Easing.quad), useNativeDriver: ND }));
+    loop.start();
+    return () => loop.stop();
+  }, [v, duration, delay, reduce]);
+  return v;
+}

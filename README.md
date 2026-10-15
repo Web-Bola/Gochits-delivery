@@ -31,3 +31,9 @@ Supabase project setup: apply `supabase/migrations/*.sql` in order, then `supaba
 - Money is integer tetri. Totals, fees and discounts are computed only in the database (`create_order`).
 - Tables `orders`, `order_items`, `order_events` accept no direct writes; only the SECURITY DEFINER functions.
 - All UI text is Georgian, in `packages/i18n`.
+
+## Demo mode (for showing the app to the restaurant)
+Run `supabase/migrations/0004_demo_mode.sql` in the Supabase SQL Editor, then switch demo on:
+`update app_settings set value='true' where key='demo_mode';`
+Switch it off before any real launch: `update app_settings set value='false' where key='demo_mode';`
+Demo mode simulates card payment and order progress on the server. No card data is collected anywhere. Real payment is not built (provider undecided).

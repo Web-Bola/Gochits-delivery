@@ -5,6 +5,7 @@ import { formatGel } from '@gochits/shared';
 import { ka } from '@gochits/i18n';
 import { colors, fontFamily, radius, theme } from '@gochits/ui-tokens';
 import { Body, Button, FadeIn, Stripe } from '../src/components/ui';
+import { TabBar } from '../src/components/TabBar';
 import { Bump, Float, FloatUp, PressScale, Shimmer, SlideUp, useReduceMotion } from '../src/components/fx';
 import { menuImages } from '../src/lib/menuImages';
 import { supabase } from '../src/lib/supabase';
@@ -19,13 +20,15 @@ function discount(i: Item): number | null {
   return i.old_price_tetri && i.old_price_tetri > i.price_tetri ? Math.round((1 - i.price_tetri / i.old_price_tetri) * 100) : null;
 }
 
-function ProductCard({ item, width, onAdd, bumped }: { item: Item; width: number | `${number}%`; onAdd: () => void; bumped: number }) {
+function ProductCard({ item, width, onAdd, onOpen, bumped }: { item: Item; width: number | `${number}%`; onAdd: () => void; onOpen: () => void; bumped: number }) {
   const img = item.image_path ? menuImages[item.image_path] : undefined;
   const off = discount(item);
   return (
     <View style={{ width, backgroundColor: theme.surface, borderRadius: radius.card, overflow: 'hidden', borderWidth: 1, borderColor: theme.border }}>
       <View style={{ height: 130, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}>
+        <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={onOpen} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
         {img ? <Image source={img} style={{ width: '100%', height: '100%' }} resizeMode="cover" /> : <Text style={{ color: theme.muted, fontSize: 11, textAlign: 'center', fontFamily: fontFamily.extrabold }}>ფოტო{'\n'}არ არის</Text>}
+        </Pressable>
         {off ? <View style={{ position: 'absolute', left: 8, top: 8, backgroundColor: colors.yellow, borderRadius: 12, paddingHorizontal: 9, paddingVertical: 3 }}><Text style={{ color: colors.ink, fontFamily: fontFamily.extrabold, fontSize: 12 }}>-{off}%</Text></View> : null}
         <View style={{ position: 'absolute', right: 8, bottom: 8 }}>
           <PressScale accessibilityRole="button" accessibilityLabel={`${ka.menu.add}: ${item.name}`} onPress={onAdd} scaleTo={0.8}
@@ -35,14 +38,14 @@ function ProductCard({ item, width, onAdd, bumped }: { item: Item; width: number
           <FloatUp trigger={bumped} />
         </View>
       </View>
-      <View style={{ padding: 12, gap: 3 }}>
+      <Pressable accessibilityRole="button" accessibilityLabel={`${item.name} ·`} onPress={onOpen} style={{ padding: 12, gap: 3 }}>
         <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{item.name}</Text>
         <Text numberOfLines={1} style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{item.description_ka ?? ' '}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
           <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.yellow }}>{formatGel(item.price_tetri)}</Text>
           {item.old_price_tetri ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted, textDecorationLine: 'line-through' }}>{formatGel(item.old_price_tetri)}</Text> : null}
         </View>
-      </View>
+      </Pressable>
     </View>
   );
 }
@@ -170,7 +173,7 @@ export default function Menu() {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 130, gap: 22 }} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 190, gap: 22 }} showsVerticalScrollIndicator={false}>
         {/* category tiles */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={{ gap: 12, paddingHorizontal: 20 }}>
           {[{ id: 'all', name_ka: 'ყველა' } as Cat, ...byCat.map((x) => x.cat)].map((c, i) => {
@@ -200,7 +203,7 @@ export default function Menu() {
                   <Pressable accessibilityRole="button" onPress={() => setCat(c.id)}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>სრულად ნახვა</Text></Pressable>
                 </View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingHorizontal: 20 }}>
-                  {list.map((it, i) => <FadeIn key={it.id} index={i}><ProductCard item={it} width={cardW} onAdd={() => addItem(it)} bumped={bumps[it.id] ?? 0} /></FadeIn>)}
+                  {list.map((it, i) => <FadeIn key={it.id} index={i}><ProductCard item={it} width={cardW} onAdd={() => addItem(it)} onOpen={() => router.push({ pathname: '/product/[id]', params: { id: it.id } })} bumped={bumps[it.id] ?? 0} /></FadeIn>)}
                 </ScrollView>
               </View>
             ))}
@@ -210,7 +213,7 @@ export default function Menu() {
           <View style={{ paddingHorizontal: 20, gap: 12 }}>
             <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 20, color: theme.text }}>{searching ? ka.menu.search : cats.find((c) => c.id === cat)?.name_ka}</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-              {gridItems.map((it, i) => <FadeIn key={it.id} index={i} style={{ width: '47.5%' }}><ProductCard item={it} width="100%" onAdd={() => addItem(it)} bumped={bumps[it.id] ?? 0} /></FadeIn>)}
+              {gridItems.map((it, i) => <FadeIn key={it.id} index={i} style={{ width: '47.5%' }}><ProductCard item={it} width="100%" onAdd={() => addItem(it)} onOpen={() => router.push({ pathname: '/product/[id]', params: { id: it.id } })} bumped={bumps[it.id] ?? 0} /></FadeIn>)}
             </View>
             {gridItems.length === 0 && <Body muted>—</Body>}
           </View>
@@ -218,10 +221,11 @@ export default function Menu() {
       </ScrollView>
 
       {count > 0 && (
-        <SlideUp style={{ position: 'absolute', left: 20, right: 20, bottom: 24 }}>
+        <SlideUp style={{ position: 'absolute', left: 20, right: 20, bottom: 76 }}>
           <Bump value={count}><Button title={`🛒  ${ka.cart.title} · ${count} · ${formatGel(subtotal)}`} onPress={() => router.push('/cart')} variant="ink" /></Bump>
         </SlideUp>
       )}
+      <TabBar />
     </View>
   );
 }

@@ -6,6 +6,7 @@ DB=gochits_test_$$
 createdb "$DB"; trap 'dropdb --if-exists "$DB"' EXIT
 export PGDATABASE=$DB
 psql -v ON_ERROR_STOP=1 -q -f tests/00_stub_supabase.sql
+psql -v ON_ERROR_STOP=1 -q -c "create publication supabase_realtime" 2>/dev/null || true
 for f in migrations/*.sql; do psql -v ON_ERROR_STOP=1 -q -f "$f"; done
 psql -v ON_ERROR_STOP=1 -q -f seed.sql
 for f in tests/1*.sql; do psql -v ON_ERROR_STOP=1 -q -f "$f"; done

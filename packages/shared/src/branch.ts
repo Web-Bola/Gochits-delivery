@@ -10,6 +10,7 @@ export interface BranchOption {
   extra_minutes: number;
   distance_m: number | null;
   can_order: boolean;
+  cod_enabled: boolean;
 }
 
 /** Order for the picker: orderable branches first, then nearest. Which one is preselected is D-OVERLAP. */
