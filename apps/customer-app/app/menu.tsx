@@ -45,7 +45,7 @@ export default function Menu() {
         <Text style={{ color: colors.yellow, fontFamily: fontFamily.extrabold, fontSize: 13 }}>{branch?.branch_name} · {ka.branch.change}</Text>
       </Pressable>
       <Body muted>{ka.menu.unapprovedPrices}</Body>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={{ gap: 8 }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, flexShrink: 0, height: 52 }} contentContainerStyle={{ gap: 8, alignItems: 'center' }}>
         {cats.map((c) => (
           <Pressable key={c.id} accessibilityRole="tab" accessibilityState={{ selected: cat === c.id }} onPress={() => setCat(c.id)}
             style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 22, justifyContent: 'center', borderWidth: 2, borderColor: colors.ink, backgroundColor: cat === c.id ? colors.ink : 'transparent' }}>
