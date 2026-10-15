@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { formatGel, type OrderStatus } from '@gochits/shared';
 import { colors, fontFamily } from '@gochits/ui-tokens';
 import { Body, Button, Card, FadeIn, Header, Screen } from '../../src/components/ui';
+import { Confetti, Float, Pulse } from '../../src/components/fx';
 import { supabase } from '../../src/lib/supabase';
 
 // Status labels are placeholders until the restaurant confirms wording (ARCHITECTURE section 5).
@@ -35,13 +36,19 @@ export default function OrderScreen() {
     <Screen scroll>
       <Header title={row.number} subtitle={LABEL[row.status]} />
       <View style={{ padding: 20, gap: 12 }}>
+        <View style={{ alignItems: 'center', justifyContent: 'center', height: 130 }}>
+          <Pulse size={90} color={colors.red} />
+          <Pulse size={90} color={colors.yellow} delay={1300} />
+          <Float amplitude={6}><Text style={{ fontSize: 56 }}>{row.status === 'delivered' ? '🎉' : '🍔'}</Text></Float>
+        </View>
         <Card>
           {STEPS.map((st, i) => {
             const done = at >= i;
+            const current = at === i;
             return (
               <FadeIn key={st} index={i}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 36 }}>
-                  <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: done ? colors.red : colors.sand, alignItems: 'center', justifyContent: 'center' }}>
+                  <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: done ? colors.red : colors.sand, alignItems: 'center', justifyContent: 'center', borderWidth: current ? 4 : 0, borderColor: colors.yellow }}>
                     {done && <Text style={{ color: colors.white, fontSize: 12, fontFamily: fontFamily.extrabold }}>✓</Text>}
                   </View>
                   <Text style={{ fontFamily: done ? fontFamily.extrabold : fontFamily.regular, fontSize: 15, color: done ? colors.ink : colors.muted }}>{LABEL[st]}</Text>
@@ -53,6 +60,7 @@ export default function OrderScreen() {
         <Body muted>{formatGel(row.total_tetri)}</Body>
         <Button title="მენიუ" onPress={() => router.replace('/menu')} variant="ink" />
       </View>
+      <Confetti />
     </Screen>
   );
 }

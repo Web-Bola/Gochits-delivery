@@ -2,6 +2,8 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { Animated, Easing, Image, Platform, Pressable, StyleSheet, Text, TextInput, View, type TextInputProps, type ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, fontFamily, minTouch, radius } from '@gochits/ui-tokens';
+import { Float, ND, Pulse, PressScale, useReduceMotion } from './fx';
+import { menuImages } from '../lib/menuImages';
 
 const logo = require('../../assets/logo.png');
 
@@ -18,21 +20,33 @@ export function AppFrame({ children }: { children: ReactNode }) {
 /** Fade + slide up. Respects nothing fancy: short, one-shot. `index` staggers lists. */
 export function FadeIn({ children, index = 0, style }: { children: ReactNode; index?: number; style?: ViewStyle }) {
   const v = useRef(new Animated.Value(0)).current;
+  const reduce = useReduceMotion();
   useEffect(() => {
-    Animated.timing(v, { toValue: 1, duration: 420, delay: Math.min(index, 8) * 60, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }).start();
-  }, [v, index]);
+    if (reduce) { v.setValue(1); return; }
+    Animated.timing(v, { toValue: 1, duration: 480, delay: Math.min(index, 8) * 70, easing: Easing.out(Easing.back(1.2)), useNativeDriver: ND }).start();
+  }, [v, index, reduce]);
   return (
     <Animated.View style={[style, { opacity: v, transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }] }]}>{children}</Animated.View>
   );
 }
 
-/** Black and yellow hazard stripe from the Facebook cover. */
+/** Black and yellow hazard stripe from the Facebook cover. Slowly scrolls (still when reduced motion is on). */
 export function Stripe({ height = 12 }: { height?: number }) {
+  const v = useRef(new Animated.Value(0)).current;
+  const reduce = useReduceMotion();
+  useEffect(() => {
+    if (reduce) return;
+    const loop = Animated.loop(Animated.timing(v, { toValue: 1, duration: 1400, easing: Easing.linear, useNativeDriver: ND }));
+    loop.start();
+    return () => loop.stop();
+  }, [v, reduce]);
   return (
-    <View style={{ height, flexDirection: 'row', overflow: 'hidden', backgroundColor: colors.yellow }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      {Array.from({ length: 40 }).map((_, i) => (
-        <View key={i} style={{ width: 14, height, backgroundColor: i % 2 === 0 ? colors.ink : colors.yellow, transform: [{ skewX: '-40deg' }], marginRight: 0 }} />
-      ))}
+    <View style={{ height, overflow: 'hidden', backgroundColor: colors.yellow }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <Animated.View style={{ flexDirection: 'row', width: 1400, transform: [{ translateX: v.interpolate({ inputRange: [0, 1], outputRange: [-28, 0] }) }] }}>
+        {Array.from({ length: 100 }).map((_, i) => (
+          <View key={i} style={{ width: 14, height, backgroundColor: i % 2 === 0 ? colors.ink : colors.yellow, transform: [{ skewX: '-40deg' }] }} />
+        ))}
+      </Animated.View>
     </View>
   );
 }
@@ -64,14 +78,30 @@ export function Header({ title, subtitle, back, showLogo, right }: { title?: str
   );
 }
 
-/** Big yellow hero with the logo (login, otp). Content sits in a white rounded sheet below it. */
+/** Big yellow hero with the logo, radar rings and floating burgers (login, otp). Content sits in a white sheet below. */
 export function Hero({ children, small }: { children: ReactNode; small?: boolean }) {
+  const size = small ? 120 : 180;
+  const bubble = (key: string, pos: ViewStyle, d: number, sz: number) => (
+    <Float amplitude={12} duration={2000 + d} delay={d} style={{ position: 'absolute', ...pos }}>
+      <View style={{ width: sz, height: sz, borderRadius: sz / 2, overflow: 'hidden', borderWidth: 4, borderColor: colors.white, backgroundColor: colors.ink }}>
+        {menuImages[key] !== undefined && <Image source={menuImages[key]} style={{ width: '100%', height: '100%' }} />}
+      </View>
+    </Float>
+  );
   return (
     <View style={{ flex: 1, backgroundColor: colors.yellow }}>
-      <View style={{ alignItems: 'center', justifyContent: 'center', paddingTop: 48, paddingBottom: 24 }}>
-        <FadeIn><Image source={logo} style={{ width: small ? 120 : 190, height: small ? 120 : 190 }} resizeMode="contain" accessibilityLabel="Gochit's" /></FadeIn>
+      <View style={{ alignItems: 'center', justifyContent: 'center', paddingTop: 44, paddingBottom: 24, minHeight: small ? 200 : 290, overflow: 'hidden' }}>
+        <View style={{ position: 'absolute', width: 320, height: 320, borderRadius: 160, backgroundColor: '#FFD83A', top: -80, right: -90 }} />
+        <View style={{ position: 'absolute', width: 190, height: 190, borderRadius: 95, backgroundColor: colors.orange, opacity: 0.55, bottom: -70, left: -60 }} />
+        <Pulse size={size + 30} color={colors.ink} />
+        <Pulse size={size + 30} color={colors.red} delay={1300} />
+        {bubble('menu/01-double-smashed.jpg', { left: 18, top: 70 }, 0, small ? 54 : 70)}
+        {bubble('menu/05-giant-burger.jpg', { right: 20, top: 90 }, 500, small ? 48 : 62)}
+        {!small && bubble('menu/04-gochits-burger.jpg', { right: 56, bottom: 22 }, 900, 50)}
+        <Float amplitude={8} duration={2200}><Image source={logo} style={{ width: size, height: size }} resizeMode="contain" accessibilityLabel="Gochit's" /></Float>
       </View>
-      <View style={{ flex: 1, backgroundColor: colors.white, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, padding: 24, gap: 14 }}>{children}</View>
+      <Stripe />
+      <View style={{ flex: 1, backgroundColor: colors.white, padding: 24, gap: 14 }}>{children}</View>
     </View>
   );
 }
@@ -100,12 +130,12 @@ export function Button({ title, onPress, disabled, variant = 'red' }: { title: s
   const bg = variant === 'red' ? colors.red : variant === 'ink' ? colors.ink : 'transparent';
   const fg = variant === 'red' ? colors.white : variant === 'ink' ? colors.yellow : colors.ink;
   return (
-    <Pressable accessibilityRole="button" accessibilityState={{ disabled: !!disabled }} onPress={onPress} disabled={disabled}
-      style={({ pressed }) => [s.btn, { backgroundColor: bg, opacity: disabled ? 0.45 : 1, transform: [{ scale: pressed ? 0.97 : 1 }] },
-        variant === 'red' && !disabled && { shadowColor: colors.red, shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 8 } },
-        variant === 'outline' && { borderWidth: 2, borderColor: colors.ink }]}>
+    <PressScale accessibilityRole="button" accessibilityState={{ disabled: !!disabled }} onPress={onPress} disabled={disabled} scaleTo={0.97}
+      style={{ ...s.btn, backgroundColor: bg, opacity: disabled ? 0.45 : 1,
+        ...(variant === 'red' && !disabled ? { shadowColor: colors.red, shadowOpacity: 0.35, shadowRadius: 12, shadowOffset: { width: 0, height: 8 } } : {}),
+        ...(variant === 'outline' ? { borderWidth: 2, borderColor: colors.ink } : {}) }}>
       <Text style={[s.btnText, { color: fg }]}>{title}</Text>
-    </Pressable>
+    </PressScale>
   );
 }
 

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { FlatList, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatGel } from '@gochits/shared';
 import { ka } from '@gochits/i18n';
 import { colors, fontFamily, radius } from '@gochits/ui-tokens';
-import { Body, Button, FadeIn, Screen, Stripe } from '../src/components/ui';
+import { Body, Button, FadeIn, Stripe } from '../src/components/ui';
+import { Bump, Float, FloatUp, PressScale, Shimmer, SlideUp } from '../src/components/fx';
 import { menuImages } from '../src/lib/menuImages';
 import { supabase } from '../src/lib/supabase';
 import { useCart } from '../src/state/cart';
@@ -42,15 +43,26 @@ export default function Menu() {
     return (items ?? []).filter((i) => (needle ? i.name.toLowerCase().includes(needle) : i.category_id === cat));
   }, [items, cat, q]);
 
-  if (!items) return <Screen><ActivityIndicator color={colors.ink} /></Screen>;
+  const [bumps, setBumps] = useState<Record<string, number>>({});
+  if (!items) {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.cream }}>
+        <View style={{ backgroundColor: colors.yellow, height: 150 }} />
+        <Stripe />
+        <View style={{ padding: 20, flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+          {Array.from({ length: 6 }).map((_, i) => <Shimmer key={i} style={{ width: '47%', height: 190, borderRadius: 22 }} />)}
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.cream }}>
       <View style={{ backgroundColor: colors.yellow, paddingHorizontal: 20, paddingTop: 22, paddingBottom: 16, gap: 12 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Image source={require('../assets/logo.png')} style={{ height: 46, width: 70 }} resizeMode="contain" accessibilityLabel="Gochit's" />
-          <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: 22, backgroundColor: colors.ink, maxWidth: 260 }}>
-            <Text numberOfLines={1} style={{ color: colors.yellow, fontFamily: fontFamily.extrabold, fontSize: 13 }}>{branch?.branch_name} · {ka.branch.change}</Text>
+          <Float amplitude={4} duration={1800}><Image source={require('../assets/logo.png')} style={{ height: 46, width: 70 }} resizeMode="contain" accessibilityLabel="Gochit's" /></Float>
+          <Pressable accessibilityRole="button" accessibilityLabel={ka.branch.change} onPress={() => router.push('/branches')} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: 22, backgroundColor: colors.ink, maxWidth: 260 }}>
+            <Text numberOfLines={1} style={{ color: colors.yellow, fontFamily: fontFamily.extrabold, fontSize: 13 }}>{branch?.branch_name} ▾</Text>
           </Pressable>
         </View>
         <Text numberOfLines={1} style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: colors.ink }}>📍 {address?.street}</Text>
@@ -72,28 +84,35 @@ export default function Menu() {
           );
         })}
       </ScrollView>
-      <FlatList data={shown} keyExtractor={(i) => i.id} contentContainerStyle={{ gap: 12, paddingHorizontal: 20, paddingTop: 4, paddingBottom: 120 }}
+      <FlatList data={shown} numColumns={2} key="grid" keyExtractor={(i) => i.id}
+        columnWrapperStyle={{ gap: 12 }} contentContainerStyle={{ gap: 12, paddingHorizontal: 16, paddingTop: 4, paddingBottom: 130 }}
         ListHeaderComponent={<Body muted>{ka.menu.unapprovedPrices}</Body>}
+        ListEmptyComponent={<Body muted>—</Body>}
         renderItem={({ item, index }) => {
           const img = item.image_path ? menuImages[item.image_path] : undefined;
+          const onAdd = () => { add({ productId: item.id, name: item.name, unitPriceTetri: item.price_tetri }); setBumps((b) => ({ ...b, [item.id]: (b[item.id] ?? 0) + 1 })); };
           return (
-            <FadeIn index={index}>
-              <View style={{ flexDirection: 'row', gap: 12, backgroundColor: colors.white, borderRadius: radius.card, padding: 10, shadowColor: colors.ink, shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: 6 } }}>
-                <View style={{ width: 104, height: 104, borderRadius: 16, overflow: 'hidden', backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' }}>
-                  {img ? <Image source={img} style={{ width: '100%', height: '100%' }} /> : <Text style={{ color: colors.yellow, fontSize: 11, textAlign: 'center', fontFamily: fontFamily.extrabold }}>ფოტო{'\n'}არ არის</Text>}
+            <FadeIn index={index} style={{ flex: 1 }}>
+              <View style={{ backgroundColor: colors.white, borderRadius: radius.card, overflow: 'hidden', shadowColor: colors.ink, shadowOpacity: 0.1, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } }}>
+                <View style={{ height: 118, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center' }}>
+                  {img ? <Image source={img} style={{ width: '100%', height: '100%' }} resizeMode="cover" /> : <Text style={{ color: colors.yellow, fontSize: 11, textAlign: 'center', fontFamily: fontFamily.extrabold }}>ფოტო{'\n'}არ არის</Text>}
+                  {item.old_price_tetri ? <View style={{ position: 'absolute', left: 8, top: 8, backgroundColor: colors.red, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2 }}><Text style={{ color: colors.white, fontFamily: fontFamily.extrabold, fontSize: 11 }}>-{Math.round((1 - item.price_tetri / item.old_price_tetri) * 100)}%</Text></View> : null}
                 </View>
-                <View style={{ flex: 1, gap: 4, minWidth: 0 }}>
-                  <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.ink }}>{item.name}</Text>
-                  {item.description_ka && <Text numberOfLines={2} style={{ fontFamily: fontFamily.regular, fontSize: 12, color: colors.muted, lineHeight: 17 }}>{item.description_ka}</Text>}
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
+                <View style={{ padding: 10, gap: 4 }}>
+                  <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.ink }}>{item.name}</Text>
+                  {item.description_ka ? <Text numberOfLines={2} style={{ fontFamily: fontFamily.regular, fontSize: 11, color: colors.muted, lineHeight: 15, minHeight: 30 }}>{item.description_ka}</Text> : <View style={{ minHeight: 30 }} />}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
                     <View>
                       <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.red }}>{formatGel(item.price_tetri)}</Text>
-                      {item.old_price_tetri ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: colors.muted, textDecorationLine: 'line-through' }}>{formatGel(item.old_price_tetri)}</Text> : null}
+                      {item.old_price_tetri ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 11, color: colors.muted, textDecorationLine: 'line-through' }}>{formatGel(item.old_price_tetri)}</Text> : null}
                     </View>
-                    <Pressable accessibilityRole="button" accessibilityLabel={`${ka.menu.add}: ${item.name}`} onPress={() => add({ productId: item.id, name: item.name, unitPriceTetri: item.price_tetri })}
-                      style={({ pressed }) => ({ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', transform: [{ scale: pressed ? 0.88 : 1 }] })}>
-                      <Text style={{ color: colors.white, fontSize: 24, fontFamily: fontFamily.extrabold, marginTop: -2 }}>+</Text>
-                    </Pressable>
+                    <View>
+                      <PressScale accessibilityRole="button" accessibilityLabel={`${ka.menu.add}: ${item.name}`} onPress={onAdd} scaleTo={0.8}
+                        style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center' }}>
+                        <Text style={{ color: colors.white, fontSize: 24, fontFamily: fontFamily.extrabold, marginTop: -2 }}>+</Text>
+                      </PressScale>
+                      <FloatUp trigger={bumps[item.id] ?? 0} />
+                    </View>
                   </View>
                 </View>
               </View>
@@ -101,9 +120,9 @@ export default function Menu() {
           );
         }} />
       {count > 0 && (
-        <View style={{ position: 'absolute', left: 20, right: 20, bottom: 24 }}>
-          <FadeIn><Button title={`${ka.cart.title} · ${count} · ${formatGel(subtotal)}`} onPress={() => router.push('/cart')} variant="ink" /></FadeIn>
-        </View>
+        <SlideUp style={{ position: 'absolute', left: 20, right: 20, bottom: 24 }}>
+          <Bump value={count}><Button title={`🛒  ${ka.cart.title} · ${count} · ${formatGel(subtotal)}`} onPress={() => router.push('/cart')} variant="ink" /></Bump>
+        </SlideUp>
       )}
     </View>
   );
