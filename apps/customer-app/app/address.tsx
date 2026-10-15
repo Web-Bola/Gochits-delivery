@@ -18,24 +18,35 @@ export default function Address() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function save() {
+  // lat/lng given = fixed test point (dev only); otherwise the device location is used.
+  async function save(fixed?: { lat: number; lng: number }) {
     setBusy(true); setError(null);
     try {
-      const perm = await Location.requestForegroundPermissionsAsync();
-      if (perm.status !== 'granted') { setError(ka.errors.generic); return; }
-      const pos = await Location.getCurrentPositionAsync({});
-      const { latitude: lat, longitude: lng } = pos.coords;
+      let lat: number; let lng: number;
+      if (fixed) {
+        ({ lat, lng } = fixed);
+      } else {
+        const perm = await Location.requestForegroundPermissionsAsync();
+        if (perm.status !== 'granted') { setError(ka.address.locationDenied); return; }
+        const pos = await Promise.race([
+          Location.getCurrentPositionAsync({}),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('location_timeout')), 10000)),
+        ]);
+        lat = pos.coords.latitude; lng = pos.coords.longitude;
+      }
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) { router.replace('/login'); return; }
       const { data, error: e } = await supabase.from('addresses').insert({
         user_id: u.user.id, street, entrance: entrance || null, floor: floor || null, apartment: apartment || null,
         location: `SRID=4326;POINT(${lng} ${lat})`,
       }).select('id').single();
-      if (e || !data) { setError(ka.errors.generic); return; }
+      if (e || !data) { console.warn('address insert failed', e); setError(__DEV__ ? `${ka.errors.generic} (${e?.message ?? ''})` : ka.errors.generic); return; }
       setAddress({ id: data.id, street, lat, lng });
       router.push('/branches');
-    } catch {
-      setError(ka.errors.generic);
+    } catch (err) {
+      console.warn('address save failed', err);
+      const timeout = err instanceof Error && err.message === 'location_timeout';
+      setError(timeout ? ka.address.locationTimeout : ka.errors.generic);
     } finally {
       setBusy(false);
     }
@@ -50,7 +61,8 @@ export default function Address() {
       <Field label={ka.address.apartment} value={apartment} onChangeText={setApartment} />
       <Body muted>{ka.branch.hint}</Body>
       {error && <Text accessibilityLiveRegion="polite" style={{ color: '#D8141C' }}>{error}</Text>}
-      <Button title={ka.address.save} onPress={save} disabled={street.trim().length < 3 || busy} />
+      <Button title={busy ? ka.address.working : ka.address.save} onPress={() => save()} disabled={street.trim().length < 3 || busy} />
+      {__DEV__ && <Button variant="outline" title="ტესტი: დიღმის ცენტრი" onPress={() => save({ lat: 41.755, lng: 44.765 })} disabled={street.trim().length < 3 || busy} />}
     </Screen>
   );
 }
