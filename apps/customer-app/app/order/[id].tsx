@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { formatGel, TERMINAL_STATUSES, type OrderStatus } from '@gochits/shared';
 import { errorText, ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
-import { BackButton, Button, ErrorText, Screen } from '../../src/components/ui';
+import { BackButton, Button, ErrorText, Screen, StateView } from '../../src/components/ui';
 import { Bump, Confetti, PressScale } from '../../src/components/fx';
 import { Icon } from '../../src/components/Icon';
 import { TrackScene } from '../../src/components/TrackScene';
@@ -24,7 +24,7 @@ const INK = colors.ink;
 
 interface Item { product_id: string; name_snapshot: string; quantity: number; unit_price_tetri: number; note: string | null }
 interface Row {
-  number: string; status: OrderStatus; total_tetri: number; subtotal_tetri: number; delivery_fee_tetri: number; discount_tetri: number; promo_code: string | null;
+  created_at: string; number: string; status: OrderStatus; total_tetri: number; subtotal_tetri: number; delivery_fee_tetri: number; discount_tetri: number; promo_code: string | null;
   payment_method: 'card' | 'cash'; payment_status: string; notes: string | null; order_items: Item[]; branches: { name: string; phone: string | null } | null;
 }
 
@@ -46,7 +46,7 @@ export default function OrderScreen() {
 
   const load = useCallback(async () => {
     const [o, r] = await Promise.all([
-      supabase.from('orders').select('number,status,total_tetri,subtotal_tetri,delivery_fee_tetri,discount_tetri,promo_code,payment_method,payment_status,notes,order_items(product_id,name_snapshot,quantity,unit_price_tetri,note),branches(name,phone)').eq('id', id).single(),
+      supabase.from('orders').select('created_at,number,status,total_tetri,subtotal_tetri,delivery_fee_tetri,discount_tetri,promo_code,payment_method,payment_status,notes,order_items(product_id,name_snapshot,quantity,unit_price_tetri,note),branches(name,phone)').eq('id', id).single(),
       supabase.from('order_ratings').select('stars').eq('order_id', id).maybeSingle(),
     ]);
     if (o.error || !o.data) { if (!row) setFailed(true); return; }
@@ -98,7 +98,7 @@ export default function OrderScreen() {
     try { await reorder(String(id)); router.replace('/cart'); } catch { setError(ka.errors.generic); } finally { setBusy(false); }
   }
 
-  if (failed) return <Screen><BackButton onPress={() => router.replace('/orders')} /><Text style={{ color: '#FFF4E0', fontFamily: fontFamily.semibold }}>{ka.order.loadFail}</Text><Button title={ka.common.retry} onPress={load} variant="ink" /></Screen>;
+  if (failed) return <Screen><BackButton onPress={() => router.replace('/orders')} /><StateView tone="error" icon="clock" title={ka.order.loadFail} hint={ka.errors.network} actionTitle={ka.common.retry} onAction={load} /></Screen>;
   if (!row) return <Screen><ActivityIndicator color={colors.yellow} /></Screen>;
 
   const stepIdx = STEP_OF[row.status];
@@ -110,6 +110,8 @@ export default function OrderScreen() {
   const scene = SCENE_OF[row.status] ?? 'shop';
   const out = row.status === 'out_for_delivery';
   const card = { backgroundColor: theme.surface, borderRadius: 18, padding: 14, gap: 9 } as const;
+  const mins = Math.max(0, Math.round((Date.now() - new Date(row.created_at).getTime()) / 60000));
+  const sentAgo = mins < 1 ? 'ახლახან გაიგზავნა' : mins < 60 ? `გაიგზავნა ${mins} წთ-ის წინ` : null;
   const muted = { fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted } as const;
 
   return (
@@ -127,6 +129,7 @@ export default function OrderScreen() {
       </View>
       <View style={{ flex: 1, marginTop: -22, backgroundColor: theme.bg, borderTopLeftRadius: 26, borderTopRightRadius: 26 }}>
         <ScrollView contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: 40 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          {!finished && sentAgo ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: theme.muted }}>{sentAgo} · განახლდება ავტომატურად</Text> : null}
           {bad ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 18, color: colors.red }}>{STATUS_LABEL[row.status]}</Text> : null}
 
           {stepIdx !== undefined && (

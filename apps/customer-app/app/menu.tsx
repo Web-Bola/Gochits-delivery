@@ -4,7 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { formatGel, productQuantity } from '@gochits/shared';
 import { ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
-import { Body, Button } from '../src/components/ui';
+import { Body, Button, StateView } from '../src/components/ui';
 import { Icon, categoryIcon } from '../src/components/Icon';
 import { TabBar } from '../src/components/TabBar';
 import { Bump, Shimmer, SlideUp } from '../src/components/fx';
@@ -190,12 +190,7 @@ export default function MenuScreen() {
     return (
       <View style={{ flex: 1, backgroundColor: theme.bg }}>
         {header}
-        <View style={{ padding: 30, alignItems: 'center', gap: 14 }}>
-          <Icon name="clock" size={56} color={colors.yellow} />
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{ka.menu.loadFail}</Text>
-          <Body muted>{ka.errors.network}</Body>
-          <Button title={ka.common.retry} onPress={load} variant="ink" />
-        </View>
+        <View style={{ padding: 20 }}><StateView tone="error" icon="clock" title={ka.menu.loadFail} hint={ka.errors.network} actionTitle={ka.common.retry} onAction={load} /></View>
         <TabBar />
       </View>
     );

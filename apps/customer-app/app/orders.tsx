@@ -5,7 +5,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { formatGel, TERMINAL_STATUSES, type OrderStatus } from '@gochits/shared';
 import { ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
-import { Body, Button, Card, ErrorText, FadeIn, Header } from '../src/components/ui';
+import { Body, Card, ErrorText, FadeIn, Header, StateView } from '../src/components/ui';
 import { TabBar } from '../src/components/TabBar';
 import { Float } from '../src/components/fx';
 import { supabase } from '../src/lib/supabase';
@@ -69,16 +69,9 @@ export default function Orders() {
       <Header title={ka.orders.title} />
       {!rows ? <ActivityIndicator color={colors.yellow} style={{ marginTop: 40 }} /> : (
         <ScrollView contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: 110 }}>
-          {failed && <Body>{ka.errors.network}</Body>}
+          {failed && <StateView tone="error" icon="clock" title={ka.errors.network} actionTitle={ka.common.retry} onAction={load} />}
           {msg && <ErrorText>{msg}</ErrorText>}
-          {rows.length === 0 && !failed && (
-            <View style={{ alignItems: 'center', gap: 12, paddingTop: 50 }}>
-              <Float amplitude={8}><View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: theme.surface, alignItems: 'center', justifyContent: 'center' }}><Icon name="receipt" size={44} color={colors.yellow} /></View></Float>
-              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 18, color: theme.text }}>{ka.orders.empty}</Text>
-              <Body muted>{ka.orders.emptyHint}</Body>
-              <Button title={ka.orders.toMenu} onPress={() => router.replace('/menu')} variant="ink" />
-            </View>
-          )}
+          {rows.length === 0 && !failed && <StateView icon="receipt" title={ka.orders.empty} hint={ka.orders.emptyHint} actionTitle={ka.orders.toMenu} onAction={() => router.replace('/menu')} />}
           {current.length > 0 && <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{ka.orders.active}</Text>}
           {current.map(card)}
           {past.length > 0 && <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text, marginTop: 6 }}>{ka.orders.past}</Text>}

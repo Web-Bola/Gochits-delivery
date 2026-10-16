@@ -124,6 +124,20 @@ export function Button({ title, onPress, disabled, variant = 'red' }: { title: s
   );
 }
 
+/** Friendly empty / error state: round icon, title, hint, optional action. */
+export function StateView({ icon, title, hint, actionTitle, onAction, tone = 'empty' }: { icon: Parameters<typeof Icon>[0]['name']; title: string; hint?: string; actionTitle?: string; onAction?: () => void; tone?: 'empty' | 'error' }) {
+  return (
+    <View style={{ alignItems: 'center', gap: 12, paddingTop: 50, paddingHorizontal: 12 }} accessibilityLiveRegion="polite">
+      <View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: theme.surface, alignItems: 'center', justifyContent: 'center', borderWidth: tone === 'error' ? 2 : 0, borderColor: colors.red }}>
+        <Icon name={icon} size={44} color={tone === 'error' ? colors.red : colors.yellow} />
+      </View>
+      <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 18, color: theme.text, textAlign: 'center' }}>{title}</Text>
+      {hint ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 14, color: theme.muted, textAlign: 'center', lineHeight: 20 }}>{hint}</Text> : null}
+      {actionTitle && onAction ? <View style={{ alignSelf: 'stretch', marginTop: 6 }}><Button title={actionTitle} onPress={onAction} variant="ink" /></View> : null}
+    </View>
+  );
+}
+
 export function Field({ label, ...p }: TextInputProps & { label: string }) {
   return (
     <View style={{ gap: 6 }}>

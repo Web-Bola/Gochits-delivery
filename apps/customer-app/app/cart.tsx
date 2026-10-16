@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { formatGel } from '@gochits/shared';
 import { errorText, ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
-import { Body, Button, Card, ErrorText, FadeIn, Header, Screen } from '../src/components/ui';
+import { Body, Button, Card, ErrorText, FadeIn, Header, Screen, StateView } from '../src/components/ui';
 import { PressScale } from '../src/components/fx';
 import { Photo, Stepper } from '../src/components/product';
 import { Icon } from '../src/components/Icon';
@@ -71,14 +71,7 @@ export default function Cart() {
           </Card>
         ) : null}
 
-        {lines.length === 0 && (
-          <View style={{ alignItems: 'center', gap: 10, paddingTop: 50 }}>
-            <View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: theme.surface, alignItems: 'center', justifyContent: 'center' }}><Icon name="bag" size={44} color={colors.yellow} /></View>
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 18, color: theme.text }}>{ka.cart.empty}</Text>
-            <Body muted>{ka.cart.emptyHint}</Body>
-            <Button title={ka.orders.toMenu} variant="ink" onPress={() => router.replace('/menu')} />
-          </View>
-        )}
+        {lines.length === 0 && <StateView icon="bag" title={ka.cart.empty} hint={ka.cart.emptyHint} actionTitle={ka.orders.toMenu} onAction={() => router.replace('/menu')} />}
 
         {lines.map((l, i) => (
           <FadeIn key={l.key} index={i}>

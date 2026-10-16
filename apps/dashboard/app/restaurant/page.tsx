@@ -78,6 +78,12 @@ export default function Orders() {
     const ch = supabase.channel('orders-' + branch.id).on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `branch_id=eq.${branch.id}` }, () => { load(); }).subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [branch, load]);
+  const waiting = orders.filter((o) => o.status === 'placed').length;
+  useEffect(() => {
+    if (!sound || waiting === 0) return;
+    const t = setInterval(beep, 10000); // keep reminding until the order is accepted
+    return () => clearInterval(t);
+  }, [sound, waiting]);
   useEffect(() => {
     const n = orders.filter((o) => o.status === 'placed').length;
     document.title = n > 0 ? `(${n}) ახალი შეკვეთა · Gochit's` : "Gochit's პანელი";
@@ -111,6 +117,12 @@ export default function Orders() {
       {branch && !branch.accepts_orders ? <div className="err">ამ ფილიალში შეკვეთების მიღება გაჩერებულია. მომხმარებლები ახალ შეკვეთას ვერ გააკეთებენ.</div> : null}
       {error ? <div className="err">{error}</div> : null}
       {note}
+      {waiting > 0 ? (
+        <div className="alertbar">
+          <div><b>{waiting} ახალი შეკვეთა ელოდება დადასტურებას</b><span>დააჭირე „მიღება“ ან „უარყოფა“</span></div>
+          {!sound ? <button className="ghost" onClick={() => { setSound(true); beep(); }}>🔔 ხმის ჩართვა</button> : null}
+        </div>
+      ) : !sound ? <div className="soundhint">ხმა გამორთულია. ჩართე, რომ ახალი შეკვეთა არ გამოგეპაროს <button className="ghost" onClick={() => { setSound(true); beep(); }}>🔔 ჩართვა</button></div> : null}
       <div className="board">
         {COLS.map((c) => {
           const list = orders.filter((o) => c.statuses.includes(o.status));

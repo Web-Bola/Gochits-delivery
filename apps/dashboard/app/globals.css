@@ -70,3 +70,10 @@ tbody tr:last-child td { border-bottom: 0; }
 .ocard .note { font-size: 13px; background: var(--yellow-soft); border-radius: 10px; padding: 7px 10px; }
 .ocard .acts { display: flex; gap: 8px; flex-wrap: wrap; } .ocard .acts button { flex: 1; padding: 10px 12px; }
 .ocard hr { border: 0; border-top: 1px solid var(--border); margin: 0; width: 100%; }
+
+.alertbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--yellow); color: var(--ink); border-radius: 14px; padding: 14px 18px; }
+.alertbar div { display: flex; flex-direction: column; gap: 2px; } .alertbar b { font-size: 18px; } .alertbar span { font-size: 13px; opacity: .8; }
+.soundhint { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.ocard.fresh { border-width: 2px; }
+.ocard .num { font-size: 20px; }
+.ocard .acts button { padding: 14px 12px; font-size: 16px; }
