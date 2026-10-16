@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '../src/components/Icon';
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { formatGel, toOrderItems, type BranchOption } from '@gochits/shared';
 import { errorText, ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
-import { Body, Button, Card, ErrorText, Field, Header, Screen } from '../src/components/ui';
+import { Body, Button, ErrorText, Header, Screen } from '../src/components/ui';
 import { supabase } from '../src/lib/supabase';
 import { useDemoMode } from '../src/lib/demo';
 import { registerForPush } from '../src/lib/push';
@@ -29,6 +29,7 @@ export default function Checkout() {
   const [method, setMethod] = useState<Method>('card');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pickAddr, setPickAddr] = useState(false);
 
   const loadAddrs = useCallback(async () => {
     const { data, error: e } = await supabase.rpc('my_addresses');
@@ -98,24 +99,6 @@ export default function Checkout() {
     </View>
   );
 
-  const option = (m: Method, icon: string, title: string, enabled: boolean, hint?: string) => {
-    const on = chosen === m;
-    return (
-      <Pressable key={m} accessibilityRole="radio" accessibilityState={{ selected: on, disabled: !enabled }} disabled={!enabled} onPress={() => setMethod(m)}>
-        <Card selected={on} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, opacity: enabled ? 1 : 0.45 }}>
-          <View style={{ width: 46, height: 36, borderRadius: 9, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}><Icon name={icon} size={22} color={colors.yellow} /></View>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{title}</Text>
-            {hint ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{hint}</Text> : null}
-          </View>
-          <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: on ? colors.yellow : theme.border, alignItems: 'center', justifyContent: 'center' }}>
-            {on && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.yellow }} />}
-          </View>
-        </Card>
-      </Pressable>
-    );
-  };
-
   const detail = (a: Pick<AddrRow, 'entrance' | 'floor' | 'apartment'>) => [a.entrance && `${ka.address.entrance} ${a.entrance}`, a.floor && `${ka.address.floor} ${a.floor}`, a.apartment && `${ka.address.apartment} ${a.apartment}`].filter(Boolean).join(' · ');
   const addrKey = (a: { street: string; entrance?: string | null; floor?: string | null; apartment?: string | null; lat: number; lng: number }) => `${a.street}|${a.entrance}|${a.floor}|${a.apartment}|${a.lat.toFixed(5)}|${a.lng.toFixed(5)}`;
   const uniqueAddrs = (addrs ?? []).filter((a, i, arr) => arr.findIndex((b) => addrKey(b) === addrKey(a)) === i);
@@ -128,66 +111,113 @@ export default function Checkout() {
     return { tone: 'ok' as const, text: `${ka.checkout.ok} · +${here.extra_minutes} ${'წთ'}` };
   }, [address, checking, options, here, others.length]);
 
+  const picked = uniqueAddrs.find((a) => address?.id === a.id || (!!address && addrKey(address) === addrKey(a))) ?? null;
+  const showList = pickAddr || !picked;
+  const eta = here ? 25 + here.extra_minutes : null;
+  const tone = status?.tone;
+  const toneColor = tone === 'bad' ? '#FF7A7F' : tone === 'ok' ? '#3DDC84' : theme.muted;
+
+  const sectionTitle = (n: number, t: string) => (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 6 }}>
+      <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.ink }}>{n}</Text>
+      </View>
+      <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{t}</Text>
+    </View>
+  );
+  const tile = (m: Method, icon: string, title: string, enabled: boolean, hint?: string) => {
+    const on = chosen === m;
+    return (
+      <Pressable key={m} accessibilityRole="radio" accessibilityState={{ selected: on, disabled: !enabled }} disabled={!enabled} onPress={() => setMethod(m)}
+        style={{ flex: 1, minHeight: 112, borderRadius: 18, padding: 14, gap: 8, backgroundColor: on ? 'rgba(255,204,2,0.1)' : theme.surface, borderWidth: 2, borderColor: on ? colors.yellow : 'transparent', opacity: enabled ? 1 : 0.4 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Icon name={icon} size={26} color={colors.yellow} />
+          <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: on ? colors.yellow : theme.border, alignItems: 'center', justifyContent: 'center' }}>
+            {on && <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: colors.yellow }} />}
+          </View>
+        </View>
+        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{title}</Text>
+        {hint ? <Text numberOfLines={3} style={{ fontFamily: fontFamily.regular, fontSize: 11.5, color: theme.muted, lineHeight: 16 }}>{hint}</Text> : null}
+      </Pressable>
+    );
+  };
+
   return (
     <Screen scroll>
-      <Header back title={ka.checkout.title} />
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 16, paddingVertical: 12, paddingHorizontal: 14 }}>
-          <Icon name="store" size={22} color={colors.yellow} />
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.checkout.branch}</Text>
-            <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{branch?.name ?? ''}</Text>
-          </View>
-          <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 40, justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{ka.branch.change}</Text></Pressable>
-        </View>
+      <Header back title={ka.checkout.title} subtitle={branch?.name} right={
+        <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}>
+          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{ka.checkout.changeBranch}</Text>
+        </Pressable>} />
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 20, gap: 14, paddingBottom: 24 }}>
 
-        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{ka.checkout.addressTitle}</Text>
+        {sectionTitle(1, ka.checkout.addressTitle)}
         {!addrs ? <ActivityIndicator color={colors.yellow} /> : (
           <>
-            {addrs.length === 0 && <Body muted>{ka.checkout.noAddress}</Body>}
-            {uniqueAddrs.map((a) => {
-              const on = address?.id === a.id || (!!address && addrKey(address) === addrKey(a));
-              const d = detail(a);
-              return (
-                <Pressable key={a.id} accessibilityRole="radio" accessibilityState={{ selected: on }} onPress={() => setAddress({ id: a.id, street: a.street, lat: a.lat, lng: a.lng, entrance: a.entrance, floor: a.floor, apartment: a.apartment } satisfies DeliveryAddress)}>
-                  <Card selected={on} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                    <Icon name="pin" size={22} color={colors.yellow} />
-                    <View style={{ flex: 1 }}>
-                      <Text numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{a.street}</Text>
-                      {d ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{d}</Text> : null}
-                    </View>
-                    <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: on ? colors.yellow : theme.border, alignItems: 'center', justifyContent: 'center' }}>
-                      {on && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: colors.yellow }} />}
-                    </View>
-                  </Card>
+            {picked && !showList ? (
+              <View style={{ backgroundColor: theme.surface, borderRadius: 18, padding: 14, gap: 12 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,204,2,0.14)', alignItems: 'center', justifyContent: 'center' }}><Icon name="pin" size={22} color={colors.yellow} /></View>
+                  <View style={{ flex: 1 }}>
+                    <Text numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{picked.street}</Text>
+                    {detail(picked) ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{detail(picked)}</Text> : null}
+                  </View>
+                  {<Pressable accessibilityRole="button" onPress={() => setPickAddr(true)} style={{ minHeight: 40, justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{ka.branch.change}</Text></Pressable>}
+                </View>
+                {status ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: tone === 'bad' ? 'rgba(216,20,28,0.12)' : tone === 'ok' ? 'rgba(61,220,132,0.1)' : theme.surface2, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9 }}>
+                    <Icon name={tone === 'bad' ? 'x' : tone === 'ok' ? 'check' : 'clock'} size={17} color={toneColor} strokeWidth={2.4} />
+                    <Text style={{ flex: 1, fontFamily: fontFamily.semibold, fontSize: 13, color: theme.text, lineHeight: 18 }}>{status.text}</Text>
+                  </View>
+                ) : null}
+                {tone === 'bad' && !here ? others.map((o) => (
+                  <Pressable key={o.branch_id} accessibilityRole="button" onPress={() => setBranch({ id: o.branch_id, name: o.branch_name })}
+                    style={{ minHeight: 44, borderRadius: 22, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}>
+                    <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.ink }}>{ka.checkout.switchTo}: {o.branch_name}</Text>
+                  </Pressable>
+                )) : null}
+                {here && eta ? (
+                  <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 16, paddingHorizontal: 11, paddingVertical: 6 }}><Icon name="clock" size={14} color={colors.yellow} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>~{eta} წთ</Text></View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 16, paddingHorizontal: 11, paddingVertical: 6 }}><Icon name="bike" size={14} color={colors.yellow} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>{fee === null ? '—' : fee === 0 ? '0.00 ₾' : formatGel(fee)}</Text></View>
+                  </View>
+                ) : null}
+              </View>
+            ) : (
+              <View style={{ gap: 10 }}>
+                {uniqueAddrs.length === 0 ? <Body muted>{ka.checkout.noAddress}</Body> : null}
+                {uniqueAddrs.map((a) => {
+                  const on = !!picked && picked.id === a.id;
+                  return (
+                    <Pressable key={a.id} accessibilityRole="radio" accessibilityState={{ selected: on }}
+                      onPress={() => { setAddress({ id: a.id, street: a.street, lat: a.lat, lng: a.lng, entrance: a.entrance, floor: a.floor, apartment: a.apartment } satisfies DeliveryAddress); setPickAddr(false); }}
+                      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 16, padding: 14, borderWidth: 2, borderColor: on ? colors.yellow : 'transparent' }}>
+                      <Icon name="pin" size={20} color={on ? colors.yellow : theme.muted} />
+                      <View style={{ flex: 1 }}>
+                        <Text numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{a.street}</Text>
+                        {detail(a) ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{detail(a)}</Text> : null}
+                      </View>
+                    </Pressable>
+                  );
+                })}
+                <Pressable accessibilityRole="button" onPress={() => router.push('/address')} style={{ minHeight: 48, borderRadius: 16, borderWidth: 2, borderColor: theme.border, borderStyle: 'dashed', flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="plus" size={18} color={colors.yellow} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{ka.checkout.addAddress}</Text>
                 </Pressable>
-              );
-            })}
-            <Button variant="outline" title={`+ ${ka.checkout.addAddress}`} onPress={() => router.push('/address')} />
+              </View>
+            )}
           </>
         )}
 
-        {status ? (
-          <View style={{ backgroundColor: status.tone === 'bad' ? 'rgba(216,20,28,0.12)' : status.tone === 'ok' ? 'rgba(61,220,132,0.1)' : theme.surface, borderRadius: 16, padding: 14, gap: 10 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Icon name={status.tone === 'bad' ? 'x' : status.tone === 'ok' ? 'check' : 'clock'} size={20} color={status.tone === 'bad' ? '#FF7A7F' : status.tone === 'ok' ? '#3DDC84' : theme.muted} strokeWidth={2.4} />
-              <Text style={{ flex: 1, fontFamily: fontFamily.semibold, fontSize: 14, color: theme.text, lineHeight: 20 }}>{status.text}</Text>
-            </View>
-            {status.tone === 'bad' && !here && others.map((o) => (
-              <Pressable key={o.branch_id} accessibilityRole="button" onPress={() => setBranch({ id: o.branch_id, name: o.branch_name })}
-                style={{ minHeight: 44, borderRadius: 22, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}>
-                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.ink }}>{ka.checkout.switchTo}: {o.branch_name}</Text>
-              </Pressable>
-            ))}
-          </View>
-        ) : null}
+        {sectionTitle(2, ka.checkout.payment)}
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          {tile('card', 'card', ka.checkout.card, cardOk, cardOk ? ka.payment.note : ka.payment.demoOff)}
+          {tile('cash', 'cash', ka.checkout.cash, cashOk, cashOk ? undefined : ka.checkout.cashOff)}
+        </View>
 
-        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{ka.checkout.payment}</Text>
-        {option('card', 'card', ka.checkout.card, cardOk, cardOk ? ka.payment.note : ka.payment.demoOff)}
-        {option('cash', 'cash', ka.checkout.cash, cashOk, cashOk ? undefined : ka.checkout.cashOff)}
-        <Field label={ka.checkout.notes} value={notes} onChangeText={setNotes} multiline maxLength={300} />
+        {sectionTitle(3, ka.checkout.notes)}
+        <TextInput accessibilityLabel={ka.checkout.notes} value={notes} onChangeText={setNotes} multiline maxLength={300} placeholder="…" placeholderTextColor={theme.muted}
+          style={[{ minHeight: 76, borderRadius: 16, backgroundColor: theme.surface, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 12, fontFamily: fontFamily.regular, fontSize: 14, color: theme.text, textAlignVertical: 'top' }, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
 
-        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{ka.checkout.yourOrder}</Text>
+        {sectionTitle(4, ka.checkout.yourOrder)}
         <View style={{ backgroundColor: theme.surface, borderRadius: 18, padding: 16, gap: 8 }}>
           {lines.map((l) => (
             <View key={l.key} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
@@ -204,6 +234,7 @@ export default function Checkout() {
         </View>
         {(error || promoMsg) && <ErrorText>{error ?? promoMsg}</ErrorText>}
       </ScrollView>
+
       <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, gap: 10, backgroundColor: theme.bg, borderTopWidth: 1, borderTopColor: theme.border }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
           <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: theme.muted }}>{ka.checkout.total}</Text>
