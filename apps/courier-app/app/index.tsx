@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Linking, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { Image, Linking, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { supabase } from '../src/supabase';
-import { Btn, Card, Icon, T, c, gel } from '../src/ui';
+import { Btn, Icon, Line, Pad, Perf, Stamp, Stripe, T, Ticket, c, gel } from '../src/ui';
 import { FullMap } from '../src/FullMap';
 import { Slide } from '../src/Slide';
 import { embedUrl, pointUrl, routeUrl, type Pt } from '../src/mapHtml';
@@ -24,31 +24,37 @@ const msg = (e: string) => /already_taken/.test(e) ? 'ეს შეკვეთ�
 const STEPS = [0, 1, 2, 3];
 const stepOf = (s: string) => (s === 'out_for_delivery' ? 3 : s === 'ready_for_pickup' ? 2 : s === 'preparing' || s === 'accepted' ? 1 : 0);
 
-const Row = ({ label, value, color = c.ink, strong }: { label: string; value: string; color?: string; strong?: boolean }) => (
-  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 12 }}>
-    <T size={16} color={c.muted}>{label}</T><T size={strong ? 22 : 17} weight="extrabold" color={color}>{value}</T>
-  </View>
-);
-
 const mapOf = (j: Job) => {
   const A: Pt | null = j.branch_lat != null && j.branch_lng != null ? { lat: j.branch_lat, lng: j.branch_lng } : null;
   return embedUrl(A, { lat: j.dest_lat, lng: j.dest_lng });
 };
 const MapBox = ({ url, h = 220 }: { url: string; h?: number }) => (
-  <View style={{ height: h, borderRadius: 16, overflow: 'hidden', backgroundColor: c.soft }}><FullMap url={url} /></View>
+  <View style={{ height: h, borderRadius: 4, borderWidth: 2, borderColor: c.pInk, overflow: 'hidden', backgroundColor: '#E8DFC4' }}><FullMap url={url} /></View>
+);
+const numOf = (n: string) => n.replace(/^.*-0*/, '') || n;
+
+const Marker = ({ ch }: { ch: string }) => (
+  <View style={{ width: 30, height: 30, borderRadius: 6, backgroundColor: c.pInk, alignItems: 'center', justifyContent: 'center' }}><T size={16} weight="extrabold" color={c.yellow}>{ch}</T></View>
 );
 
-/** Two stops: pick up, drop off. */
+/** A -> B with a dotted line between the markers, like a map legend. */
 function Stops({ j, full }: { j: Job; full: boolean }) {
   const a = j.address_snapshot ?? {};
   const detail = full ? [a.entrance && `სადარბაზო ${a.entrance}`, a.floor && `სართული ${a.floor}`, a.apartment && `ბინა ${a.apartment}`].filter(Boolean).join(', ') : '';
   return (
-    <View style={{ gap: 14 }}>
-      <View style={{ gap: 2 }}><T size={13} color={c.muted}>აიღე</T><T size={18} weight="extrabold">{j.branch_name}</T>{full && j.branch_address ? <T size={15} color={c.muted}>{j.branch_address}</T> : null}</View>
-      <View style={{ gap: 2 }}>
-        <T size={13} color={c.muted}>მიიტანე</T><T size={18} weight="extrabold">{a.street ?? '—'}</T>
-        {detail ? <T size={15} color={c.muted}>{detail}</T> : null}
-        {full && a.comment ? <T size={15} color={c.yellow}>კომენტარი: {a.comment}</T> : null}
+    <View style={{ flexDirection: 'row', gap: 12 }}>
+      <View style={{ alignItems: 'center' }}>
+        <Marker ch="ა" />
+        <View style={{ flex: 1, borderLeftWidth: 3, borderStyle: 'dotted', borderColor: c.pInk, marginVertical: 3 }} />
+        <Marker ch="ბ" />
+      </View>
+      <View style={{ flex: 1, justifyContent: 'space-between', gap: 14 }}>
+        <View><T size={13} color={c.pMuted}>აიღე</T><T size={19} weight="extrabold" color={c.pInk}>{j.branch_name}</T>{full && j.branch_address ? <T size={15} color={c.pMuted}>{j.branch_address}</T> : null}</View>
+        <View>
+          <T size={13} color={c.pMuted}>მიიტანე</T><T size={19} weight="extrabold" color={c.pInk}>{a.street ?? '—'}</T>
+          {detail ? <T size={15} color={c.pMuted}>{detail}</T> : null}
+          {full && a.comment ? <T size={15} weight="extrabold" color={c.pRed}>კომენტარი: {a.comment}</T> : null}
+        </View>
       </View>
     </View>
   );
@@ -107,36 +113,47 @@ export default function Home() {
   const tabs = [['offers', 'ახალი', offers.length], ['mine', 'ჩემი', mine.length], ['done', 'დღეს', done.length]] as const;
   const route = (j: Job) => (j.branch_lat != null && j.branch_lng != null ? routeUrl({ lat: j.branch_lat, lng: j.branch_lng }, { lat: j.dest_lat, lng: j.dest_lng }) : pointUrl({ lat: j.dest_lat, lng: j.dest_lng }));
   const pinned = tab === 'mine' && current && (current.status === 'ready_for_pickup' || current.status === 'out_for_delivery') ? current : null;
+  const STEP_LABEL = ['მიღებული', 'მზადდება', 'მზადაა', 'გზაში'];
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg, alignItems: 'center' }}>
       <View style={{ flex: 1, width: '100%', maxWidth: 520 }}>
+        <View style={{ paddingTop: insets.top }}><Stripe height={12} /></View>
         {/* header */}
-        <View style={{ paddingTop: insets.top + 14, paddingHorizontal: 16, paddingBottom: 6, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <View style={{ gap: 2 }}>
-            <T size={24} weight="extrabold">კურიერი</T>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: error ? c.red : c.green }} />
-              <T size={14} color={c.muted}>{error ? 'კავშირი არ არის' : 'ონლაინ'}</T>
+        <View style={{ paddingTop: 12, paddingHorizontal: 16, paddingBottom: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+            <Image source={require('../assets/logo.png')} style={{ width: 76, height: 40 }} resizeMode="contain" />
+            <View style={{ flex: 1 }}>
+              <T size={15} weight="extrabold" color={c.yellow}>დღეს: {done.length} მიტანა · {gel(earned)}</T>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: error ? c.redText : c.green }} />
+                <T size={13} color={c.muted}>{error ? 'კავშირი არ არის' : 'ონლაინ'}</T>
+              </View>
             </View>
           </View>
-          <Pressable accessibilityRole="button" accessibilityLabel="გასვლა" onPress={() => supabase.auth.signOut({ scope: 'local' })} style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: c.soft, alignItems: 'center', justifyContent: 'center' }}>
+          <Pressable accessibilityRole="button" accessibilityLabel="გასვლა" onPress={() => supabase.auth.signOut({ scope: 'local' })} style={{ width: 48, height: 48, borderRadius: 8, borderWidth: 2, borderColor: c.line, alignItems: 'center', justifyContent: 'center' }}>
             <Icon name="out" color={c.ink} size={22} />
           </Pressable>
         </View>
 
         {/* tabs */}
-        <View style={{ flexDirection: 'row', paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: c.line }}>
-          {tabs.map(([k, label, n]) => (
-            <Pressable key={k} accessibilityRole="tab" onPress={() => { setTab(k); setSel(null); setConfirmRelease(null); }} style={{ flex: 1, minHeight: 52, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, borderBottomWidth: 3, borderBottomColor: tab === k ? c.yellow : 'transparent', marginBottom: -1 }}>
-              <T size={17} weight="extrabold" color={tab === k ? c.ink : c.muted}>{label}</T>
-              {n > 0 && k !== 'done' ? <View style={{ minWidth: 24, height: 24, borderRadius: 12, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: c.yellow }}><T size={13} weight="extrabold" color={c.dark}>{String(n)}</T></View> : null}
-            </Pressable>
-          ))}
+        <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingBottom: 14 }}>
+          {tabs.map(([k, label, n]) => {
+            const on = tab === k;
+            return (
+              <Pressable key={k} accessibilityRole="tab" onPress={() => { setTab(k); setSel(null); setConfirmRelease(null); }} style={{ flex: 1 }}>
+                {on ? <View style={{ position: 'absolute', left: 4, top: 4, right: -4, bottom: -4, borderRadius: 8, backgroundColor: c.red }} /> : null}
+                <View style={{ minHeight: 52, borderRadius: 8, borderWidth: 2, borderColor: on ? c.pInk : c.line, backgroundColor: on ? c.yellow : 'transparent', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}>
+                  <T size={17} weight="extrabold" color={on ? c.pInk : c.ink}>{label}</T>
+                  {n > 0 && k !== 'done' ? <View style={{ minWidth: 24, height: 24, borderRadius: 12, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? c.pInk : c.red }}><T size={13} weight="extrabold" color={on ? c.yellow : '#fff'}>{String(n)}</T></View> : null}
+                </View>
+              </Pressable>
+            );
+          })}
         </View>
 
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 30, gap: 14 }} refreshControl={<RefreshControl refreshing={refreshing} tintColor={c.yellow} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} />}>
-          {error ? <View style={{ backgroundColor: c.redSoft, borderRadius: 14, padding: 14 }}><T size={15} color={c.red}>{error}</T></View> : null}
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 30, gap: 18 }} refreshControl={<RefreshControl refreshing={refreshing} tintColor={c.yellow} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} />}>
+          {error ? <View style={{ borderWidth: 2, borderColor: c.redText, borderRadius: 8, padding: 14 }}><T size={15} color={c.redText}>{error}</T></View> : null}
 
           {tab === 'offers' && (
             <>
@@ -144,33 +161,40 @@ export default function Home() {
                 const cash = j.payment_method === 'cash';
                 const showMap = mapOpen === j.id;
                 return (
-                  <Card key={j.id}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <Ticket key={j.id}>
+                    <Pad style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                       <View>
-                        <T size={13} color={c.muted}>შენი საფასური</T>
-                        <T size={34} weight="extrabold" color={c.yellow}>{gel(j.delivery_fee_tetri)}</T>
+                        <T size={13} color={c.pMuted}>შეკვეთა</T>
+                        <T size={40} weight="extrabold" color={c.pInk} style={{ lineHeight: 46 }}>№{numOf(j.number)}</T>
                       </View>
-                      <View style={{ alignItems: 'flex-end', gap: 2 }}>
-                        <T size={15} color={c.muted}>№{j.number}{km(j.distance_m) ? ` · ${km(j.distance_m)}` : ''}</T>
-                        <T size={15} weight="extrabold" color={cash ? c.ink : c.green}>{cash ? `ნაღდი ${gel(j.total_tetri)}` : 'გადახდილია'}</T>
+                      <Stamp text={cash ? `ნაღდი ${gel(j.total_tetri)}` : 'გადახდილია'} color={cash ? c.pRed : c.pGreen} />
+                    </Pad>
+                    <Perf />
+                    <Pad>
+                      <Stops j={j} full={false} />
+                      {showMap ? <MapBox url={mapOf(j)} h={200} /> : null}
+                      <Pressable onPress={() => setMapOpen(showMap ? null : j.id)} style={{ minHeight: 40, justifyContent: 'center' }}>
+                        <T size={15} weight="extrabold" color={c.pInk} style={{ textDecorationLine: 'underline' }}>{showMap ? 'რუკის დამალვა' : 'რუკის ნახვა'}</T>
+                      </Pressable>
+                    </Pad>
+                    <Perf />
+                    <Pad>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                        <View><T size={13} color={c.pMuted}>შენი საფასური</T><T size={36} weight="extrabold" color={c.pInk} style={{ lineHeight: 42 }}>{gel(j.delivery_fee_tetri)}</T></View>
+                        {km(j.distance_m) ? <T size={17} weight="extrabold" color={c.pInk}>{km(j.distance_m)}</T> : null}
                       </View>
-                    </View>
-                    <Stops j={j} full={false} />
-                    {showMap ? <MapBox url={mapOf(j)} h={200} /> : null}
-                    <Pressable onPress={() => setMapOpen(showMap ? null : j.id)} style={{ minHeight: 44, justifyContent: 'center' }}>
-                      <T size={15} weight="extrabold" color={c.muted}>{showMap ? 'რუკის დამალვა' : 'რუკის ნახვა'}</T>
-                    </Pressable>
-                    <View style={{ flexDirection: 'row', gap: 10 }}>
-                      <Btn title="გამოტოვება" kind="ghost" onPress={() => act(j.id, 'courier_decline')} style={{ flex: 1 }} />
-                      <Btn title="აღება" busy={busyId === j.id} onPress={() => act(j.id, 'courier_accept', () => { setTab('mine'); setSel(j.id); })} style={{ flex: 1.6 }} />
-                    </View>
-                  </Card>
+                      <View style={{ flexDirection: 'row', gap: 10 }}>
+                        <Btn title="გამოტოვება" kind="line" onPress={() => act(j.id, 'courier_decline')} style={{ flex: 1 }} />
+                        <Btn title="აღება" kind="ink" busy={busyId === j.id} onPress={() => act(j.id, 'courier_accept', () => { setTab('mine'); setSel(j.id); })} style={{ flex: 1.5 }} />
+                      </View>
+                    </Pad>
+                  </Ticket>
                 );
               })}
               {offers.length === 0 && !error ? (
                 <View style={{ alignItems: 'center', gap: 8, paddingVertical: 60 }}>
-                  <Icon name="box" size={44} color={c.muted} />
-                  <T size={19} weight="extrabold">ახალი შეკვეთა ჯერ არ არის</T>
+                  <Icon name="box" size={44} color={c.yellow} />
+                  <T size={20} weight="extrabold">ახალი შეკვეთა ჯერ არ არის</T>
                   <T size={15} color={c.muted} style={{ textAlign: 'center' }}>როცა რესტორანი შეკვეთას დაადასტურებს, აქ გამოჩნდება</T>
                 </View>
               ) : null}
@@ -184,57 +208,68 @@ export default function Home() {
                 const dead = j.status === 'cancelled' || j.status === 'rejected';
                 const step = stepOf(j.status);
                 const cash = j.payment_method === 'cash';
+                const say = step === 2 ? 'მზადაა, აიღე რესტორანში' : step === 3 ? 'მიიტანე მომხმარებელთან' : 'რესტორანი ამზადებს';
                 return (
-                  <>
-                    {dead ? (
-                      <View style={{ backgroundColor: c.redSoft, borderRadius: 16, padding: 16 }}><T size={20} weight="extrabold" color={c.red}>შეკვეთა გაუქმდა</T></View>
-                    ) : (
-                      <View style={{ backgroundColor: step === 2 ? c.greenSoft : c.sheet, borderWidth: 1, borderColor: step === 2 ? c.green : c.line, borderRadius: 20, padding: 16, gap: 12 }}>
-                        <T size={13} color={c.muted}>№{j.number}</T>
-                        <T size={22} weight="extrabold" color={step === 2 ? c.green : c.ink}>{step === 2 ? 'მზადაა, აიღე რესტორანში' : step === 3 ? 'მიიტანე მომხმარებელთან' : 'რესტორანი ამზადებს'}</T>
-                        <View style={{ flexDirection: 'row', gap: 5 }}>
-                          {STEPS.map((i) => <View key={i} style={{ flex: 1, height: 6, borderRadius: 3, backgroundColor: i <= step ? (step === 2 ? c.green : c.yellow) : c.line }} />)}
+                  <Ticket>
+                    <Pad style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <View><T size={13} color={c.pMuted}>შეკვეთა</T><T size={40} weight="extrabold" color={c.pInk} style={{ lineHeight: 46 }}>№{numOf(j.number)}</T></View>
+                      {dead ? <Stamp text="გაუქმდა" color={c.pRed} /> : <Stamp text={cash ? 'ნაღდი' : 'გადახდილია'} color={cash ? c.pRed : c.pGreen} />}
+                    </Pad>
+                    {!dead ? (
+                      <Pad>
+                        <View style={{ alignSelf: 'flex-start', backgroundColor: c.yellow, paddingHorizontal: 8, paddingVertical: 3 }}><T size={20} weight="extrabold" color={c.pInk}>{say}</T></View>
+                        <View style={{ flexDirection: 'row', gap: 6 }}>
+                          {STEP_LABEL.map((l, i) => (
+                            <View key={l} style={{ flex: 1, gap: 4 }}>
+                              <View style={{ height: 10, borderRadius: 2, borderWidth: 2, borderColor: c.pInk, backgroundColor: i < step ? c.pInk : i === step ? c.yellow : 'transparent' }} />
+                              <T size={12} weight={i === step ? 'extrabold' : 'regular'} color={i <= step ? c.pInk : c.pMuted}>{l}</T>
+                            </View>
+                          ))}
                         </View>
-                      </View>
-                    )}
+                      </Pad>
+                    ) : null}
                     {!dead ? (
                       <>
-                        <MapBox url={mapOf(j)} />
-                        <Card><Stops j={j} full /></Card>
-                        <View style={{ flexDirection: 'row', gap: 10 }}>
-                          <Btn title="დარეკვა" icon="phone" kind="ghost" disabled={!j.phone} onPress={() => j.phone && Linking.openURL(`tel:${j.phone}`)} style={{ flex: 1 }} />
-                          <Btn title="მარშრუტი" icon="map" onPress={() => Linking.openURL(route(j))} style={{ flex: 1 }} />
-                        </View>
-                        <Card style={{ paddingVertical: 4, gap: 0 }}>
-                          <Row label="შეკვეთა" value={gel(j.total_tetri)} />
-                          <View style={{ height: 1, backgroundColor: c.line }} />
-                          <Row label={cash ? 'აიღე ნაღდი' : 'გადახდა'} value={cash ? gel(j.total_tetri) : 'გადახდილია'} color={cash ? c.yellow : c.green} strong />
-                          <View style={{ height: 1, backgroundColor: c.line }} />
-                          <Row label="შენი საფასური" value={gel(j.delivery_fee_tetri)} />
-                        </Card>
-                        {j.status !== 'out_for_delivery' && confirmRelease === j.id ? (
+                        <Perf />
+                        <Pad>
+                          <MapBox url={mapOf(j)} />
+                          <Stops j={j} full />
                           <View style={{ flexDirection: 'row', gap: 10 }}>
-                            <Btn title="არა" kind="ghost" onPress={() => setConfirmRelease(null)} style={{ flex: 1 }} />
-                            <Btn title="დიახ, უარი" busy={busyId === j.id} onPress={() => act(j.id, 'courier_release')} style={{ flex: 2 }} />
+                            <Btn title="დარეკვა" icon="phone" kind="line" disabled={!j.phone} onPress={() => j.phone && Linking.openURL(`tel:${j.phone}`)} style={{ flex: 1 }} />
+                            <Btn title="მარშრუტი" icon="map" kind="ink" onPress={() => Linking.openURL(route(j))} style={{ flex: 1 }} />
                           </View>
-                        ) : null}
-                        {j.status !== 'out_for_delivery' && confirmRelease !== j.id ? (
-                          <Pressable onPress={() => setConfirmRelease(j.id)} style={{ minHeight: 48, alignItems: 'center', justifyContent: 'center' }}><T size={15} color={c.muted} style={{ textDecorationLine: 'underline' }}>უარი ამ შეკვეთაზე</T></Pressable>
-                        ) : null}
+                        </Pad>
+                        <Perf />
+                        <Pad style={{ gap: 8 }}>
+                          <Line label="შეკვეთა" value={gel(j.total_tetri)} />
+                          <Line label={cash ? 'აიღე ნაღდი' : 'გადახდა'} value={cash ? gel(j.total_tetri) : 'გადახდილია'} strong color={cash ? c.pRed : c.pGreen} />
+                          <Line label="შენი საფასური" value={gel(j.delivery_fee_tetri)} />
+                        </Pad>
+                        <Pad>
+                          {j.status !== 'out_for_delivery' && confirmRelease === j.id ? (
+                            <View style={{ flexDirection: 'row', gap: 10 }}>
+                              <Btn title="არა" kind="line" onPress={() => setConfirmRelease(null)} style={{ flex: 1 }} />
+                              <Btn title="დიახ, უარი" kind="ink" busy={busyId === j.id} onPress={() => act(j.id, 'courier_release')} style={{ flex: 2 }} />
+                            </View>
+                          ) : null}
+                          {j.status !== 'out_for_delivery' && confirmRelease !== j.id ? (
+                            <Pressable onPress={() => setConfirmRelease(j.id)} style={{ minHeight: 44, justifyContent: 'center' }}><T size={15} color={c.pMuted} style={{ textDecorationLine: 'underline' }}>უარი ამ შეკვეთაზე</T></Pressable>
+                          ) : null}
+                        </Pad>
                       </>
                     ) : null}
-                  </>
+                  </Ticket>
                 );
               })() : null}
               {mine.filter((j) => j.id !== current?.id).map((j) => (
-                <Pressable key={j.id} onPress={() => setSel(j.id)} style={{ backgroundColor: c.sheet, borderWidth: 1, borderColor: c.line, borderRadius: 16, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <View style={{ flex: 1 }}><T size={16} weight="extrabold">№{j.number}</T><T size={14} color={c.muted}>{j.address_snapshot?.street ?? ''}</T></View>
-                  <T size={14} weight="extrabold" color={c.yellow}>გახსნა</T>
+                <Pressable key={j.id} onPress={() => setSel(j.id)} style={{ borderWidth: 2, borderColor: c.line, borderRadius: 8, padding: 16, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <View style={{ flex: 1 }}><T size={18} weight="extrabold">№{numOf(j.number)}</T><T size={14} color={c.muted}>{j.address_snapshot?.street ?? ''}</T></View>
+                  <T size={15} weight="extrabold" color={c.yellow}>გახსნა</T>
                 </Pressable>
               ))}
               {mine.length === 0 && !error ? (
                 <View style={{ alignItems: 'center', gap: 8, paddingVertical: 60 }}>
-                  <T size={19} weight="extrabold">აღებული შეკვეთა არ გაქვს</T>
+                  <T size={20} weight="extrabold">აღებული შეკვეთა არ გაქვს</T>
                   <T size={15} color={c.muted} style={{ textAlign: 'center' }}>აირჩიე შეკვეთა „ახალი“ ჩანართიდან</T>
                 </View>
               ) : null}
@@ -242,31 +277,36 @@ export default function Home() {
           )}
 
           {tab === 'done' && (
-            <>
-              <View style={{ backgroundColor: c.yellow, borderRadius: 20, padding: 18 }}>
-                <T size={15} color={c.dark}>შენი საფასური დღეს</T>
-                <T size={40} weight="extrabold" color={c.dark}>{gel(earned)}</T>
-              </View>
-              <View style={{ flexDirection: 'row', gap: 12 }}>
-                <View style={{ flex: 1, backgroundColor: c.sheet, borderWidth: 1, borderColor: c.line, borderRadius: 20, padding: 16 }}><T size={14} color={c.muted}>მიტანილი</T><T size={28} weight="extrabold">{String(done.length)}</T></View>
-                <View style={{ flex: 1.4, backgroundColor: c.sheet, borderWidth: 1, borderColor: c.line, borderRadius: 20, padding: 16 }}><T size={14} color={c.muted}>აღებული ნაღდი</T><T size={28} weight="extrabold">{gel(cashDone)}</T></View>
-              </View>
-              {done.map((d) => (
-                <View key={d.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: c.line }}>
-                  <View><T size={17} weight="extrabold">№{d.number}</T><T size={14} color={c.muted}>{new Date(d.updated_at).toLocaleTimeString('ka-GE', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tbilisi' })} · {d.payment_method === 'cash' ? 'ნაღდი' : 'ბარათი'}</T></View>
-                  <T size={17} weight="extrabold">{gel(d.total_tetri)}</T>
-                </View>
-              ))}
-              {done.length === 0 ? <T size={16} color={c.muted} style={{ textAlign: 'center', paddingVertical: 30 }}>დღეს ჯერ არაფერი მიგიტანია</T> : null}
-            </>
+            <Ticket>
+              <Pad>
+                <T size={13} color={c.pMuted}>დღის შეჯამება</T>
+                <Line label="მიტანილი" value={String(done.length)} />
+                <Line label="აღებული ნაღდი" value={gel(cashDone)} />
+              </Pad>
+              <Perf />
+              <Pad>
+                <T size={13} color={c.pMuted}>შენი საფასური დღეს</T>
+                <T size={48} weight="extrabold" color={c.pInk} style={{ lineHeight: 54 }}>{gel(earned)}</T>
+              </Pad>
+              {done.length > 0 ? <Perf /> : null}
+              <Pad style={{ gap: 8 }}>
+                {done.map((d) => (
+                  <Line key={d.id} label={`№${numOf(d.number)} · ${new Date(d.updated_at).toLocaleTimeString('ka-GE', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tbilisi' })} · ${d.payment_method === 'cash' ? 'ნაღდი' : 'ბარათი'}`} value={gel(d.total_tetri)} />
+                ))}
+                {done.length === 0 ? <T size={16} color={c.pMuted}>დღეს ჯერ არაფერი მიგიტანია</T> : null}
+              </Pad>
+            </Ticket>
           )}
         </ScrollView>
 
         {pinned ? (
-          <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: insets.bottom + 14, backgroundColor: c.bg, borderTopWidth: 1, borderTopColor: c.line }}>
-            {pinned.status === 'ready_for_pickup'
-              ? <Slide label="გადაასრიალე: აღებულია" busy={busyId === pinned.id} onConfirm={() => act(pinned.id, 'courier_pickup')} />
-              : <Slide label="გადაასრიალე: მიტანილია" busy={busyId === pinned.id} onConfirm={() => act(pinned.id, 'courier_mark_delivered')} />}
+          <View style={{ backgroundColor: c.bg }}>
+            <Stripe height={8} />
+            <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: insets.bottom + 14 }}>
+              {pinned.status === 'ready_for_pickup'
+                ? <Slide label="გადაასრიალე: აღებულია" busy={busyId === pinned.id} onConfirm={() => act(pinned.id, 'courier_pickup')} />
+                : <Slide label="გადაასრიალე: მიტანილია" busy={busyId === pinned.id} onConfirm={() => act(pinned.id, 'courier_mark_delivered')} />}
+            </View>
           </View>
         ) : null}
       </View>

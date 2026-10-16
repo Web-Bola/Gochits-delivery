@@ -3,8 +3,11 @@ import { ActivityIndicator, Pressable, Text, View, type TextStyle, type ViewStyl
 import Svg, { Path } from 'react-native-svg';
 import { colors, fontFamily } from '@gochits/ui-tokens';
 
-/** Courier app palette: warm black, one yellow accent, green only for "go" actions. */
-export const c = { bg: '#0E0C0B', sheet: '#181514', soft: '#221E1C', line: '#2D2825', ink: '#F4EEE6', muted: '#A09489', dark: '#0E0C0B', green: '#4BC27D', greenSoft: '#16281E', red: '#FF7A6B', redSoft: '#2B1715', yellow: colors.yellow } as const;
+/** Courier palette. Dark counter, paper order tickets, brand yellow and red. */
+export const c = {
+  bg: '#140E0B', line: '#3A2A24', ink: '#F4EEE6', muted: '#B3A596', yellow: colors.yellow, red: '#D81F26', redText: '#FF7A6B', green: '#4BC27D',
+  paper: '#FFF1CC', pInk: '#1A0D0B', pMuted: '#7A6A55', pGreen: '#1F8F4E', pRed: '#C4161C',
+} as const;
 
 export const gel = (tetri: number) => `₾${(tetri / 100).toFixed(2)}`;
 
@@ -16,23 +19,68 @@ const PATHS = {
   box: 'M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8',
 } as const;
 export function Icon({ name, size = 22, color = '#F4EEE6' }: { name: keyof typeof PATHS; size?: number; color?: string }) {
-  return <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><Path d={PATHS[name]} /></Svg>;
+  return <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round"><Path d={PATHS[name]} /></Svg>;
 }
 
 export function T({ children, size = 15, weight = 'regular', color = c.ink, style }: { children: ReactNode; size?: number; weight?: 'regular' | 'semibold' | 'extrabold'; color?: string; style?: TextStyle }) {
   return <Text style={[{ fontFamily: fontFamily[weight], fontSize: size, color }, style]}>{children}</Text>;
 }
 
-export function Btn({ title, onPress, icon, kind = 'primary', busy, disabled, style }: { title: string; onPress: () => void; icon?: keyof typeof PATHS; kind?: 'primary' | 'ghost' | 'green'; busy?: boolean; disabled?: boolean; style?: ViewStyle }) {
-  const bg = kind === 'primary' ? c.yellow : kind === 'green' ? c.green : c.soft;
-  const fg = kind === 'ghost' ? c.ink : c.dark;
+/** Black and yellow hazard stripe from the Gochit's cover (static). */
+export function Stripe({ height = 10 }: { height?: number }) {
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} disabled={busy || disabled} style={({ pressed }) => [{ minHeight: 58, borderRadius: 16, backgroundColor: bg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingHorizontal: 16, opacity: disabled ? 0.4 : pressed ? 0.85 : 1 }, style]}>
-      {busy ? <ActivityIndicator color={fg} /> : (<>{icon ? <Icon name={icon} color={fg} /> : null}<T size={17} weight="extrabold" color={fg}>{title}</T></>)}
+    <View style={{ height, overflow: 'hidden', backgroundColor: c.yellow }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <View style={{ flexDirection: 'row', width: 1600, marginLeft: -20 }}>
+        {Array.from({ length: 110 }).map((_, i) => <View key={i} style={{ width: 14, height, backgroundColor: i % 2 === 0 ? '#1A0D0B' : c.yellow, transform: [{ skewX: '-40deg' }] }} />)}
+      </View>
+    </View>
+  );
+}
+
+/** 'ink' = black button with yellow text (on paper), 'primary' = yellow with black text (on the dark counter). */
+export function Btn({ title, onPress, icon, kind = 'primary', busy, disabled, style }: { title: string; onPress: () => void; icon?: keyof typeof PATHS; kind?: 'primary' | 'ink' | 'line' | 'lineDark'; busy?: boolean; disabled?: boolean; style?: ViewStyle }) {
+  const bg = kind === 'primary' ? c.yellow : kind === 'ink' ? c.pInk : 'transparent';
+  const fg = kind === 'primary' ? c.pInk : kind === 'ink' ? c.yellow : kind === 'line' ? c.pInk : c.ink;
+  const border = kind === 'line' ? c.pInk : kind === 'lineDark' ? c.line : bg;
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress} disabled={busy || disabled} style={({ pressed }) => [{ minHeight: 58, borderRadius: 8, borderWidth: 2, borderColor: border, backgroundColor: bg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingHorizontal: 14, opacity: disabled ? 0.35 : pressed ? 0.85 : 1 }, style]}>
+      {busy ? <ActivityIndicator color={fg} /> : (<>{icon ? <Icon name={icon} color={fg} size={22} /> : null}<T size={17} weight="extrabold" color={fg}>{title}</T></>)}
     </Pressable>
   );
 }
 
-export function Card({ children, style }: { children: ReactNode; style?: ViewStyle }) {
-  return <View style={[{ backgroundColor: c.sheet, borderRadius: 20, padding: 16, gap: 14, borderWidth: 1, borderColor: c.line }, style]}>{children}</View>;
+/** Paper order ticket with square corners. Use <Perf /> inside to cut it into sections. */
+export function Ticket({ children, style }: { children: ReactNode; style?: ViewStyle }) {
+  return <View style={[{ backgroundColor: c.paper, borderRadius: 6, paddingVertical: 16, gap: 14 }, style]}>{children}</View>;
+}
+export function Pad({ children, style }: { children: ReactNode; style?: ViewStyle }) {
+  return <View style={[{ paddingHorizontal: 16, gap: 12 }, style]}>{children}</View>;
+}
+/** Perforation: dashed line with half-circle notches at both edges. */
+export function Perf() {
+  return (
+    <View style={{ height: 20, justifyContent: 'center' }}>
+      <View style={{ borderTopWidth: 2, borderStyle: 'dashed', borderColor: c.pMuted, marginHorizontal: 14, opacity: 0.6 }} />
+      <View style={{ position: 'absolute', left: -10, width: 20, height: 20, borderRadius: 10, backgroundColor: c.bg }} />
+      <View style={{ position: 'absolute', right: -10, width: 20, height: 20, borderRadius: 10, backgroundColor: c.bg }} />
+    </View>
+  );
+}
+/** Rubber-stamp label. */
+export function Stamp({ text, color }: { text: string; color: string }) {
+  return (
+    <View style={{ borderWidth: 3, borderColor: color, borderRadius: 6, paddingHorizontal: 10, paddingVertical: 5, transform: [{ rotate: '-3deg' }] }}>
+      <T size={16} weight="extrabold" color={color}>{text}</T>
+    </View>
+  );
+}
+/** Receipt line: label ........ value */
+export function Line({ label, value, strong, color = c.pInk }: { label: string; value: string; strong?: boolean; color?: string }) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+      <T size={strong ? 18 : 16} weight={strong ? 'extrabold' : 'regular'} color={c.pInk}>{label}</T>
+      <View style={{ flex: 1, borderBottomWidth: 2, borderStyle: 'dotted', borderColor: c.pMuted, marginHorizontal: 6, marginBottom: 6 }} />
+      <T size={strong ? 24 : 17} weight="extrabold" color={color}>{value}</T>
+    </View>
+  );
 }
