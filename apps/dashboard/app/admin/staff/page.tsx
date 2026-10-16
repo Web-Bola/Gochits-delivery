@@ -63,7 +63,7 @@ export default function StaffPage() {
       </table></div></div>
       <div className="card stack">
         <h2>კურიერები</h2>
-        <p className="small muted">კურიერი შედის <b>/login</b>-ზე და ხედავს მხოლოდ რესტორნიდან გადმოცემულ შეკვეთებს, სადაც აჭერს „მიტანილია“-ს. ჯერ Supabase-ში შექმენი მომხმარებელი (Add user), მერე ჩაწერე ელფოსტა.</p>
+        <p className="small muted">კურიერი შედის ცალკე <b>კურიერის აპში</b> (ტელეფონზე) და ხედავს მხოლოდ რესტორნიდან გადმოცემულ შეკვეთებს, სადაც აჭერს „მიტანილია“-ს. ჯერ Supabase-ში შექმენი მომხმარებელი (Add user), მერე ჩაწერე ელფოსტა.</p>
         <div className="row"><input type="email" value={cmail} onChange={(e) => setCmail(e.target.value)} placeholder="courier@example.com" style={{ maxWidth: 320 }} /><button disabled={busy} onClick={addCourier}>კურიერის დამატება</button></div>
         <div className="tblwrap"><table><tbody>
           {data?.couriers.map((c) => <tr key={c.user_id}><td>{c.email}</td><td><button className="ghost" disabled={busy} onClick={() => removeCourier(c)}>მოხსნა</button></td></tr>)}

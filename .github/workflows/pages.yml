@@ -39,13 +39,23 @@ jobs:
           node -e "const f='app.json',j=JSON.parse(require('fs').readFileSync(f));j.expo.experiments={...(j.expo.experiments||{}),baseUrl:'/${{ github.event.repository.name }}/app'};require('fs').writeFileSync(f,JSON.stringify(j,null,2))"
           npx expo export --platform web --output-dir dist
           cp dist/index.html dist/404.html
+      - name: Build courier app
+        working-directory: apps/courier-app
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+        run: |
+          node -e "const f='app.json',j=JSON.parse(require('fs').readFileSync(f));j.expo.experiments={...(j.expo.experiments||{}),baseUrl:'/${{ github.event.repository.name }}/courier'};require('fs').writeFileSync(f,JSON.stringify(j,null,2))"
+          npx expo export --platform web --output-dir dist
+          cp dist/index.html dist/404.html
       - name: Assemble site
         run: |
           mkdir -p site
           cp -r apps/dashboard/out site/panel
           cp -r apps/customer-app/dist site/app
+          cp -r apps/courier-app/dist site/courier
           cp site/panel/index.html site/panel/404.html 2>/dev/null || true
-          printf '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gochit'"'"'s</title><body style="font-family:sans-serif;padding:24px"><h2>Gochit'"'"'s</h2><p><a href="app/">აპი</a></p><p><a href="panel/restaurant/">რესტორნის პანელი</a></p><p><a href="panel/courier/">კურიერი</a></p><p><a href="panel/admin/">ადმინი</a></p>' > site/index.html
+          printf '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gochit'"'"'s</title><body style="font-family:sans-serif;padding:24px"><h2>Gochit'"'"'s</h2><p><a href="app/">აპი</a></p><p><a href="panel/restaurant/">რესტორნის პანელი</a></p><p><a href="courier/">კურიერის აპი</a></p><p><a href="panel/admin/">ადმინი</a></p>' > site/index.html
           touch site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }

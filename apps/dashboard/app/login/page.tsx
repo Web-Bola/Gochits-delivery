@@ -18,8 +18,8 @@ export default function Login() {
     const { data: p } = await supabase.from('profiles').select('role').eq('id', u.user?.id ?? '').maybeSingle();
     setBusy(false);
     const next = new URLSearchParams(window.location.search).get('next');
-    const dest = next === '/restaurant' || next === '/admin' || next === '/courier' ? next : '/admin';
-    router.replace(p?.role === 'super_admin' ? dest : p?.role === 'courier' ? '/courier' : '/restaurant');
+    const dest = next === '/restaurant' || next === '/admin' ? next : '/admin';
+    router.replace(p?.role === 'super_admin' ? dest : '/restaurant');
   };
   return (
     <div className="login">

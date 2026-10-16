@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Gochit's კურიერი",
+    "slug": "gochits-courier",
+    "scheme": "gochits-courier",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "icon": "./assets/icon.png",
+    "plugins": ["expo-router", "expo-secure-store"],
+    "ios": { "bundleIdentifier": "ge.gochits.courier", "supportsTablet": false },
+    "android": { "package": "ge.gochits.courier", "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#FFCC02" } },
+    "web": { "bundler": "metro", "output": "single", "favicon": "./assets/logo.png" },
+    "splash": { "image": "./assets/logo.png", "resizeMode": "contain", "backgroundColor": "#FFCC02" }
+  }
+}

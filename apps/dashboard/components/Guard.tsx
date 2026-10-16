@@ -14,15 +14,14 @@ const ICON: Record<string, string> = {
   cog: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z',
 };
 const NAV_R = [['/restaurant', 'შეკვეთები', 'bag'], ['/restaurant/history', 'ისტორია', 'home'], ['/restaurant/menu', 'მენიუ და მარაგი', 'tag']] as const;
-const NAV_C = [['/courier', 'მიტანები', 'pin']] as const;
 const NAV_A = [
   ['/admin', 'მთავარი', 'home'], ['/admin/branches', 'ფილიალები', 'store'], ['/admin/zones', 'ზონები და მიტანა', 'pin'],
   ['/admin/products', 'პროდუქტები და ფასები', 'bag'], ['/admin/promos', 'პრომო კოდები', 'tag'], ['/admin/staff', 'თანამშრომლები', 'user'], ['/admin/settings', 'პარამეტრები', 'cog'],
 ] as const;
 
 /** Signs the user in (redirects to /login) and only lets super admins through. */
-export function Guard({ children, area = 'admin' }: { children: ReactNode; area?: 'admin' | 'restaurant' | 'courier' }) {
-  const NAV = area === 'admin' ? NAV_A : area === 'courier' ? NAV_C : NAV_R;
+export function Guard({ children, area = 'admin' }: { children: ReactNode; area?: 'admin' | 'restaurant' }) {
+  const NAV = area === 'admin' ? NAV_A : NAV_R;
   const router = useRouter();
   const path = usePathname();
   const [state, setState] = useState<'load' | 'denied' | 'ok'>('load');
@@ -39,7 +38,7 @@ export function Guard({ children, area = 'admin' }: { children: ReactNode; area?
       if (!alive) return;
       setEmail(user.email ?? '');
       setIsAdmin(p?.role === 'super_admin');
-      setState(p?.role === 'super_admin' || (area === 'restaurant' && p?.role === 'restaurant_staff') || (area === 'courier' && p?.role === 'courier') ? 'ok' : 'denied');
+      setState(p?.role === 'super_admin' || (area === 'restaurant' && p?.role === 'restaurant_staff') ? 'ok' : 'denied');
     })();
     return () => { alive = false; };
   }, [router, area]);
@@ -66,7 +65,6 @@ export function Guard({ children, area = 'admin' }: { children: ReactNode; area?
           <div className="small muted" style={{ padding: '0 6px', wordBreak: 'break-all' }}>{email}</div>
           {area !== 'admin' && isAdmin ? <Link href="/admin" className="small" style={{ padding: '0 6px', color: 'var(--yellow)' }}>← ადმინ პანელი</Link> : null}
           {area === 'admin' ? <Link href="/restaurant" className="small" style={{ padding: '0 6px', color: 'var(--yellow)' }}>რესტორნის პანელი →</Link> : null}
-          {area === 'admin' ? <Link href="/courier" className="small" style={{ padding: '0 6px', color: 'var(--yellow)' }}>კურიერის გვერდი →</Link> : null}
           <button className="ghost" onClick={out}>გასვლა</button>
         </div>
       </aside>
