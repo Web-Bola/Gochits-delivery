@@ -117,6 +117,8 @@ export default function Checkout() {
   };
 
   const detail = (a: Pick<AddrRow, 'entrance' | 'floor' | 'apartment'>) => [a.entrance && `${ka.address.entrance} ${a.entrance}`, a.floor && `${ka.address.floor} ${a.floor}`, a.apartment && `${ka.address.apartment} ${a.apartment}`].filter(Boolean).join(' · ');
+  const addrKey = (a: { street: string; entrance?: string | null; floor?: string | null; apartment?: string | null; lat: number; lng: number }) => `${a.street}|${a.entrance}|${a.floor}|${a.apartment}|${a.lat.toFixed(5)}|${a.lng.toFixed(5)}`;
+  const uniqueAddrs = (addrs ?? []).filter((a, i, arr) => arr.findIndex((b) => addrKey(b) === addrKey(a)) === i);
   const status = useMemo(() => {
     if (!address) return null;
     if (checking || !options) return { tone: 'muted' as const, text: ka.checkout.checking };
@@ -129,17 +131,22 @@ export default function Checkout() {
   return (
     <Screen scroll>
       <Header back title={ka.checkout.title} />
-      <ScrollView contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
-        <Card>{row(ka.checkout.branch, branch?.name ?? '')}
-          <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 36, justifyContent: 'center' }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{ka.branch.change}</Text></Pressable>
-        </Card>
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 16, paddingVertical: 12, paddingHorizontal: 14 }}>
+          <Icon name="store" size={22} color={colors.yellow} />
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.checkout.branch}</Text>
+            <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{branch?.name ?? ''}</Text>
+          </View>
+          <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 40, justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{ka.branch.change}</Text></Pressable>
+        </View>
 
         <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{ka.checkout.addressTitle}</Text>
         {!addrs ? <ActivityIndicator color={colors.yellow} /> : (
           <>
             {addrs.length === 0 && <Body muted>{ka.checkout.noAddress}</Body>}
-            {addrs.map((a) => {
-              const on = address?.id === a.id;
+            {uniqueAddrs.map((a) => {
+              const on = address?.id === a.id || (!!address && addrKey(address) === addrKey(a));
               const d = detail(a);
               return (
                 <Pressable key={a.id} accessibilityRole="radio" accessibilityState={{ selected: on }} onPress={() => setAddress({ id: a.id, street: a.street, lat: a.lat, lng: a.lng, entrance: a.entrance, floor: a.floor, apartment: a.apartment } satisfies DeliveryAddress)}>
@@ -161,12 +168,18 @@ export default function Checkout() {
         )}
 
         {status ? (
-          <Card style={{ borderColor: status.tone === 'bad' ? colors.red : status.tone === 'ok' ? '#2E7D4F' : theme.border, gap: 8 }}>
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{status.text}</Text>
+          <View style={{ backgroundColor: status.tone === 'bad' ? 'rgba(216,20,28,0.12)' : status.tone === 'ok' ? 'rgba(61,220,132,0.1)' : theme.surface, borderRadius: 16, padding: 14, gap: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <Icon name={status.tone === 'bad' ? 'x' : status.tone === 'ok' ? 'check' : 'clock'} size={20} color={status.tone === 'bad' ? '#FF7A7F' : status.tone === 'ok' ? '#3DDC84' : theme.muted} strokeWidth={2.4} />
+              <Text style={{ flex: 1, fontFamily: fontFamily.semibold, fontSize: 14, color: theme.text, lineHeight: 20 }}>{status.text}</Text>
+            </View>
             {status.tone === 'bad' && !here && others.map((o) => (
-              <Button key={o.branch_id} variant="ink" title={`${ka.checkout.switchTo}: ${o.branch_name}`} onPress={() => setBranch({ id: o.branch_id, name: o.branch_name })} />
+              <Pressable key={o.branch_id} accessibilityRole="button" onPress={() => setBranch({ id: o.branch_id, name: o.branch_name })}
+                style={{ minHeight: 44, borderRadius: 22, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}>
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.ink }}>{ka.checkout.switchTo}: {o.branch_name}</Text>
+              </Pressable>
             ))}
-          </Card>
+          </View>
         ) : null}
 
         <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{ka.checkout.payment}</Text>
@@ -174,18 +187,30 @@ export default function Checkout() {
         {option('cash', 'cash', ka.checkout.cash, cashOk, cashOk ? undefined : ka.checkout.cashOff)}
         <Field label={ka.checkout.notes} value={notes} onChangeText={setNotes} multiline maxLength={300} />
 
-        <Card>
+        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{ka.checkout.yourOrder}</Text>
+        <View style={{ backgroundColor: theme.surface, borderRadius: 18, padding: 16, gap: 8 }}>
+          {lines.map((l) => (
+            <View key={l.key} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+              <Text numberOfLines={2} style={{ flex: 1, fontFamily: fontFamily.regular, fontSize: 14, color: theme.text }}>{l.quantity}× {l.name}</Text>
+              <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: theme.text }}>{formatGel(l.unitPriceTetri * l.quantity)}</Text>
+            </View>
+          ))}
+          <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 4 }} />
           {row(ka.cart.subtotal, formatGel(subtotal))}
           {discount > 0 ? row(`${ka.cart.discount} ${promo?.code ?? ''}`, `−${formatGel(discount)}`, false, true) : null}
-          {row(ka.checkout.delivery, fee === null ? '—' : fee === 0 ? '0.00 ₾' : formatGel(fee))}
-          {row(ka.checkout.total, fee === null ? formatGel(subtotal - discount) : formatGel(subtotal - discount + fee), true)}
-          {belowMin > 0 ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.red }}>{ka.checkout.minLeft} {formatGel(belowMin)}</Text> : null}
+          {row(ka.checkout.delivery, fee === null ? '—' : fee === 0 ? formatGel(0) : formatGel(fee))}
+          {belowMin > 0 ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#FF7A7F' }}>{ka.checkout.minLeft} {formatGel(belowMin)}</Text> : null}
           {untilFree > 0 ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: colors.yellow }}>{ka.checkout.freeFrom} {formatGel(untilFree)}</Text> : null}
-          <Body muted>{ka.checkout.deliveryServer}</Body>
-        </Card>
+        </View>
         {(error || promoMsg) && <ErrorText>{error ?? promoMsg}</ErrorText>}
-        <Button title={busy ? '...' : chosen === 'card' ? ka.checkout.pay : ka.checkout.place} onPress={place} disabled={!canPlace} />
       </ScrollView>
+      <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, gap: 10, backgroundColor: theme.bg, borderTopWidth: 1, borderTopColor: theme.border }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: theme.muted }}>{ka.checkout.total}</Text>
+          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 22, color: theme.text }}>{formatGel(subtotal - discount + (fee ?? 0))}</Text>
+        </View>
+        <Button title={busy ? '...' : chosen === 'card' ? ka.checkout.pay : ka.checkout.place} onPress={place} disabled={!canPlace} />
+      </View>
     </Screen>
   );
 }

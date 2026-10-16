@@ -161,7 +161,12 @@ export default function Cart() {
                   <Body muted>{ka.cart.discount}</Body><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.yellow }}>−{formatGel(discount)}</Text>
                 </View>
               ) : null}
-              <Body muted>{ka.branch.hint}</Body>
+              <View style={{ height: 1, backgroundColor: theme.border }} />
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{ka.checkout.total}</Text>
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 22, color: theme.text }}>{formatGel(subtotal - discount)}</Text>
+              </View>
+              <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.checkout.deliveryAtCheckout}</Text>
             </Card>
             <Button title={`${ka.cart.checkout} · ${formatGel(subtotal - discount)}`} onPress={() => router.push('/checkout')} disabled={anyGone} />
           </>

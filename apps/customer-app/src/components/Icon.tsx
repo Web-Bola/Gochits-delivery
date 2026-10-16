@@ -1,4 +1,5 @@
 import { createElement } from 'react';
+import { Platform } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 /** Line icons (24x24 grid) from the approved demo. Markup is kept as compact strings and turned into svg elements on first use. */
@@ -54,7 +55,7 @@ const TAG = { path: Path, circle: Circle, rect: Rect } as const;
 
 export function Icon({ name, size = 22, color = '#FFF4E0', fill, strokeWidth = 2 }: { name: IconName; size?: number; color?: string; fill?: string; strokeWidth?: number }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill={fill ?? 'none'} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill={fill ?? 'none'} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" {...(Platform.OS === 'web' ? {} : { accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const })}>
       {parse(name).map((e, i) => createElement(TAG[e.tag] as never, { key: i, ...camel(e.props) }))}
     </Svg>
   );
