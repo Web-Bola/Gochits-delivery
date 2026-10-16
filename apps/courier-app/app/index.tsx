@@ -106,7 +106,7 @@ export default function Home() {
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <View style={{ backgroundColor: colors.yellow, paddingTop: insets.top + 10, paddingBottom: 14, paddingHorizontal: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
         <Image source={require('../assets/logo.png')} style={{ width: 96, height: 48 }} resizeMode="contain" />
-        <Pressable accessibilityRole="button" accessibilityLabel="გასვლა" onPress={() => supabase.auth.signOut()} style={{ padding: 10 }}><Icon name="out" color={colors.ink} /></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="გასვლა" onPress={() => supabase.auth.signOut({ scope: 'local' })} style={{ padding: 10 }}><Icon name="out" color={colors.ink} /></Pressable>
       </View>
       <View style={{ flexDirection: 'row', gap: 8, padding: 14 }}>
         {([['offers', `ახალი · ${offers.length}`], ['mine', `ჩემი · ${mine.length}`], ['done', `დღეს · ${done.length}`]] as const).map(([k, label]) => (

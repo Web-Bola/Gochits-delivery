@@ -65,7 +65,7 @@ export default function Profile() {
     setAddrs((l) => l.filter((x) => x.id !== id));
   }
   async function logout() {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: 'local' });
     resetAll();
     router.replace('/login');
   }

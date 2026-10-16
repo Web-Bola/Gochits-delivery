@@ -21,7 +21,7 @@ export default function Login() {
     const { data, error: e } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     if (e || !data.user) { setBusy(false); setError('ელფოსტა ან პაროლი არასწორია'); return; }
     const { data: p } = await supabase.from('profiles').select('role').eq('id', data.user.id).maybeSingle();
-    if (p?.role !== 'courier' && p?.role !== 'super_admin') { await supabase.auth.signOut(); setBusy(false); setError('ამ ანგარიშს კურიერის უფლება არ აქვს'); return; }
+    if (p?.role !== 'courier' && p?.role !== 'super_admin') { await supabase.auth.signOut({ scope: 'local' }); setBusy(false); setError('ამ ანგარიშს კურიერის უფლება არ აქვს'); return; }
     setBusy(false);
     router.replace('/');
   }

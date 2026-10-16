@@ -43,7 +43,7 @@ export function Guard({ children, area = 'admin' }: { children: ReactNode; area?
     return () => { alive = false; };
   }, [router, area]);
 
-  const out = async () => { await supabase.auth.signOut(); router.replace('/login'); };
+  const out = async () => { await supabase.auth.signOut({ scope: 'local' }); router.replace('/login'); };
 
   if (!configured) return <div className="main"><div className="err">NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY არ არის შევსებული (.env.local).</div></div>;
   if (state === 'load') return <div className="main muted">იტვირთება…</div>;
