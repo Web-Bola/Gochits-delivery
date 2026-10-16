@@ -54,7 +54,7 @@ export function Guard({ children, area = 'admin' }: { children: ReactNode; area?
   return (
     <div className="shell">
       <aside className="side">
-        <div className="brand"><img src="/logo.png" alt="Gochit's" /></div>
+        <div className="brand"><img src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/logo.png`} alt="Gochit's" /></div>
         <nav className="nav">
           {NAV.map(([href, label, ic]) => (
             <Link key={href} href={href} className={path === href ? 'on' : ''}>
