@@ -1,0 +1,23 @@
+{
+  "name": "@gochits/dashboard",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.3",
+    "next": "15.5.4",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "~19.2.0",
+    "@types/react-dom": "~19.2.0",
+    "typescript": "~5.9.2"
+  }
+}
