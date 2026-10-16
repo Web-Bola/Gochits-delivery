@@ -21,10 +21,10 @@ export function Slide({ label, onConfirm, busy }: { label: string; onConfirm: ()
     },
   })).current;
   return (
-    <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={{ height: 64, borderRadius: 10, backgroundColor: '#FFCC02', justifyContent: 'center' }}>
-      <Animated.Text style={{ position: 'absolute', alignSelf: 'center', paddingLeft: 52, color: '#1A0D0B', fontFamily: fontFamily.extrabold, fontSize: 17, opacity: x.interpolate({ inputRange: [0, Math.max(1, max * 0.6)], outputRange: [1, 0], extrapolate: 'clamp' }) }}>{busy ? '…' : label}</Animated.Text>
-      <Animated.View {...pan.panHandlers} style={{ position: 'absolute', left: 4, width: 56, height: 56, borderRadius: 7, backgroundColor: '#1A0D0B', alignItems: 'center', justifyContent: 'center', transform: [{ translateX: x }] }}>
-        <Icon name="check" color="#FFCC02" size={26} />
+    <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={{ height: 64, borderRadius: 16, backgroundColor: '#12A150', justifyContent: 'center' }}>
+      <Animated.Text style={{ position: 'absolute', alignSelf: 'center', paddingLeft: 52, color: '#fff', fontFamily: fontFamily.extrabold, fontSize: 17, opacity: x.interpolate({ inputRange: [0, Math.max(1, max * 0.6)], outputRange: [1, 0], extrapolate: 'clamp' }) }}>{busy ? '…' : label}</Animated.Text>
+      <Animated.View {...pan.panHandlers} style={{ position: 'absolute', left: 4, width: 56, height: 56, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', transform: [{ translateX: x }] }}>
+        <Icon name="check" color="#12A150" size={26} />
       </Animated.View>
     </View>
   );

@@ -22,12 +22,12 @@ function AuthGuard() {
 
 export default function Layout() {
   const [loaded] = useFonts({ NotoSansGeorgian_400Regular, NotoSansGeorgian_600SemiBold, NotoSansGeorgian_800ExtraBold });
-  if (!loaded) return <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#0E0C0B' }}><ActivityIndicator color={'#FFCC02'} /></View>;
+  if (!loaded) return <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#FFFFFF' }}><ActivityIndicator color={'#FFCC02'} /></View>;
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <AuthGuard />
-      <Stack screenOptions={{ headerShown: false, animation: 'fade', contentStyle: { backgroundColor: '#0E0C0B' } }} />
+      <Stack screenOptions={{ headerShown: false, animation: 'fade', contentStyle: { backgroundColor: '#FFFFFF' } }} />
     </SafeAreaProvider>
   );
 }
