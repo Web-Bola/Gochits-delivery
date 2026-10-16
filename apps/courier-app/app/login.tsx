@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Image, KeyboardAvoidingView, Platform, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, fontFamily } from '@gochits/ui-tokens';
+import { fontFamily } from '@gochits/ui-tokens';
 import { supabase } from '../src/supabase';
 import { Btn, T, c } from '../src/ui';
 
-const input = { height: 56, borderRadius: 28, backgroundColor: c.soft, color: c.ink, fontFamily: fontFamily.regular, fontSize: 16, paddingHorizontal: 22 } as const;
+const input = { height: 60, borderRadius: 16, backgroundColor: c.soft, borderWidth: 1, borderColor: c.line, color: c.ink, fontFamily: fontFamily.regular, fontSize: 17, paddingHorizontal: 18 } as const;
 
 export default function Login() {
   const router = useRouter();
@@ -27,17 +27,16 @@ export default function Login() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.yellow, alignItems: 'center' }}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, width: '100%', maxWidth: 520 }}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: insets.top }}>
-          <Image source={require('../assets/logo.png')} style={{ width: 230, height: 122 }} resizeMode="contain" />
-          <T size={16} weight="extrabold" color={colors.ink} style={{ marginTop: 6, letterSpacing: 1 }}>კურიერი</T>
+    <View style={{ flex: 1, backgroundColor: c.bg, alignItems: 'center' }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, width: '100%', maxWidth: 480, paddingHorizontal: 20 }}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: insets.top, gap: 10 }}>
+          <Image source={require('../assets/logo.png')} style={{ width: 200, height: 106 }} resizeMode="contain" />
+          <T size={18} color={c.muted}>კურიერის აპი</T>
         </View>
-        <View style={{ backgroundColor: c.sheet, borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: insets.bottom + 24, gap: 12 }}>
-          <T size={22} weight="extrabold">შესვლა</T>
+        <View style={{ paddingBottom: insets.bottom + 28, gap: 12 }}>
           <TextInput style={input} placeholder="ელფოსტა" placeholderTextColor={c.muted} autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} />
           <TextInput style={input} placeholder="პაროლი" placeholderTextColor={c.muted} secureTextEntry autoComplete="password" value={password} onChangeText={setPassword} onSubmitEditing={signIn} />
-          {error ? <T color={c.red} size={14}>{error}</T> : null}
+          {error ? <T color={c.red} size={15}>{error}</T> : null}
           <Btn title="შესვლა" onPress={signIn} busy={busy} disabled={!email.trim() || !password} />
         </View>
       </KeyboardAvoidingView>
