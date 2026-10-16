@@ -13,6 +13,7 @@ export function Slide({ label, onConfirm, busy }: { label: string; onConfirm: ()
   const pan = useRef(PanResponder.create({
     onStartShouldSetPanResponder: () => !state.current.busy,
     onMoveShouldSetPanResponder: () => !state.current.busy,
+    onPanResponderTerminationRequest: () => false,
     onPanResponderMove: (_, g) => x.setValue(Math.min(Math.max(0, g.dx), state.current.max)),
     onPanResponderRelease: (_, g) => {
       if (state.current.max > 0 && g.dx > state.current.max * 0.8) { Animated.timing(x, { toValue: state.current.max, duration: 120, useNativeDriver: false }).start(() => { state.current.onConfirm(); setTimeout(() => x.setValue(0), 600); }); }

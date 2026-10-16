@@ -21,7 +21,7 @@ interface Done { id: string; number: string; total_tetri: number; delivery_fee_t
 const dayStart = () => new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tbilisi' })}T00:00:00+04:00`).toISOString();
 const km = (m: number | null) => (m == null ? null : m < 1000 ? `${m} მ` : `${(m / 1000).toFixed(1)} კმ`);
 const buzz = () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
-const msg = (e: string) => /already_taken/.test(e) ? 'ეს შეკვეთა უკვე სხვა კურიერმა აიღო' : /not_available/.test(e) ? 'შეკვეთა აღარ არის ხელმისაწვდომი' : /too_late/.test(e) ? 'უკვე გზაშია, ვეღარ დააბრუნებ' : /not_ready/.test(e) ? 'შეკვეთა ჯერ მზად არ არის' : /forbidden/.test(e) ? 'ამ ანგარიშს კურიერის უფლება არ აქვს' : e;
+const msg = (e: string) => /already_taken/.test(e) ? 'ეს შეკვეთა უკვე სხვა კურიერმა აიღო' : /not_available/.test(e) ? 'შეკვეთა აღარ არის ხელმისაწვდომი' : /too_late/.test(e) ? 'უკვე გზაშია, ვეღარ დააბრუნებ' : /not_ready/.test(e) ? 'შეკვეთა ჯერ მზად არ არის' : /could not find the function|schema cache/.test(e) ? 'ბაზა ჯერ არ არის განახლებული (გაუშვი ახალი SQL მიგრაცია Supabase-ში)' : /forbidden/.test(e) ? 'ამ ანგარიშს კურიერის უფლება არ აქვს' : e;
 const STEPS = ['აღებულია', 'მზადდება', 'მზადაა', 'გზაშია'];
 const stepOf = (s: string) => (s === 'out_for_delivery' ? 3 : s === 'ready_for_pickup' ? 2 : s === 'preparing' || s === 'accepted' ? 1 : 0);
 
@@ -227,8 +227,9 @@ export default function Home() {
                             <Btn title={j.full_name ?? 'მომხმარებელი'} icon="phone" kind="ghost" disabled={!j.phone} onPress={() => j.phone && Linking.openURL(`tel:${j.phone}`)} style={{ flex: 1 }} />
                             <Btn title="მარშრუტი" icon="map" kind="primary" onPress={() => Linking.openURL(route(j))} style={{ flex: 1 }} />
                           </View>
+                          {error ? <T size={13} color={c.red}>{error}</T> : null}
                           {j.status === 'ready_for_pickup' ? (
-                            <Btn title="აღებულია, გავდივარ" icon="check" kind="green" busy={busyId === j.id} onPress={() => act(j.id, 'courier_pickup')} />
+                            <Slide label="გადაასრიალე: აღებულია" busy={busyId === j.id} onConfirm={() => act(j.id, 'courier_pickup')} />
                           ) : j.status === 'out_for_delivery' ? (
                             <Slide label="გადაასრიალე: მიტანილია" busy={busyId === j.id} onConfirm={() => act(j.id, 'courier_mark_delivered')} />
                           ) : null}
