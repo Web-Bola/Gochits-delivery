@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Image, Linking, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Image, Linking, PanResponder, Platform, Pressable, RefreshControl, ScrollView, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { colors, theme } from '@gochits/ui-tokens';
+import { colors } from '@gochits/ui-tokens';
 import { supabase } from '../src/supabase';
-import { Btn, Card, Icon, T, gel } from '../src/ui';
-import { RouteMap } from '../src/RouteMap';
-import { pointUrl, routeUrl } from '../src/mapHtml';
+import { Btn, Icon, T, c, gel } from '../src/ui';
+import { FullMap } from '../src/FullMap';
+import { Slide } from '../src/Slide';
+import { pointUrl, routeUrl, type MapPt } from '../src/mapHtml';
 
 interface Snap { street?: string; entrance?: string | null; floor?: string | null; apartment?: string | null; comment?: string | null }
 interface Job {
@@ -19,51 +20,49 @@ interface Done { id: string; number: string; total_tetri: number; payment_method
 
 const dayStart = () => new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tbilisi' })}T00:00:00+04:00`).toISOString();
 const km = (m: number | null) => (m == null ? null : m < 1000 ? `${m} მ` : `${(m / 1000).toFixed(1)} კმ`);
-const cooking = (s: string) => ['placed', 'accepted', 'preparing'].includes(s);
 const buzz = () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
 const msg = (e: string) => /already_taken/.test(e) ? 'ეს შეკვეთა უკვე სხვა კურიერმა აიღო' : /not_available/.test(e) ? 'შეკვეთა აღარ არის ხელმისაწვდომი' : /too_late/.test(e) ? 'უკვე გზაშია, ვეღარ დააბრუნებ' : /forbidden/.test(e) ? 'ამ ანგარიშს კურიერის უფლება არ აქვს' : e;
+const STEPS = ['აღებულია', 'მზადდება', 'მზადაა', 'გზაშია'];
+const stepOf = (s: string) => (s === 'out_for_delivery' ? 3 : s === 'ready_for_pickup' ? 2 : s === 'preparing' || s === 'accepted' ? 1 : 0);
 
-function Status({ job }: { job: Job }) {
-  const s = job.status;
-  const [bg, fg, text] = s === 'out_for_delivery' ? ['#173D2A', '#7be0a5', 'გზაშია, მიიტანე მომხმარებელთან'] : s === 'ready_for_pickup' ? ['#2E9E5B', '#fff', 'მზადაა! აიღე შეკვეთა რესტორანში'] : s === 'cancelled' || s === 'rejected' ? [colors.red, '#fff', 'შეკვეთა გაუქმდა'] : [theme.surface2, theme.text, 'რესტორანი ამზადებს, მოემზადე'];
-  return <View style={{ borderRadius: 14, padding: 12, backgroundColor: bg }}><T size={15} weight="extrabold" color={fg}>{text}</T></View>;
-}
+const Chip = ({ children, bg = c.soft, fg = c.ink }: { children: string; bg?: string; fg?: string }) => (
+  <View style={{ backgroundColor: bg, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 }}><T size={13} weight="extrabold" color={fg}>{children}</T></View>
+);
 
-function Pay({ job }: { job: Job }) {
-  const cash = job.payment_method === 'cash';
+/** A -> B route as a vertical timeline. */
+function Trip({ j, full }: { j: Job; full: boolean }) {
+  const a = j.address_snapshot ?? {};
+  const detail = full ? [a.entrance && `სადარბაზო ${a.entrance}`, a.floor && `სართული ${a.floor}`, a.apartment && `ბინა ${a.apartment}`].filter(Boolean).join(' · ') : '';
   return (
-    <View style={{ borderRadius: 14, padding: 12, backgroundColor: cash ? colors.yellow : '#173D2A', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-      <T size={15} weight="extrabold" color={cash ? colors.ink : '#7be0a5'}>{cash ? 'აიღე ნაღდი ფული' : 'გადახდილია ბარათით'}</T>
-      {cash ? <T size={22} weight="extrabold" color={colors.ink}>{gel(job.total_tetri)}</T> : null}
-    </View>
-  );
-}
-
-const pts = (j: Job) => (j.branch_lat != null && j.branch_lng != null ? { a: { lat: j.branch_lat, lng: j.branch_lng }, b: { lat: j.dest_lat, lng: j.dest_lng } } : null);
-
-function MapBlock({ j, open, onToggle }: { j: Job; open: boolean; onToggle: (id: string) => void }) {
-  const p = pts(j);
-  return (
-    <View style={{ gap: 10 }}>
-      {p && open ? <RouteMap a={p.a} b={p.b} labelA={`A · ${j.branch_name}`} labelB="B · მომხმარებელი" /> : null}
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <Btn title={open ? 'რუკის დამალვა' : 'რუკა'} icon="map" kind="ghost" onPress={() => onToggle(j.id)} style={{ flex: 1 }} disabled={!p} />
-        <Btn title="მარშრუტი" icon="map" kind="ghost" onPress={() => Linking.openURL(p ? routeUrl(p.a, p.b) : pointUrl({ lat: j.dest_lat, lng: j.dest_lng }))} style={{ flex: 1 }} />
+    <View style={{ flexDirection: 'row', gap: 12 }}>
+      <View style={{ alignItems: 'center', paddingTop: 4 }}>
+        <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: c.yellow, borderWidth: 3, borderColor: c.ink }} />
+        <View style={{ flex: 1, width: 2, backgroundColor: c.line, marginVertical: 4 }} />
+        <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: c.green }} />
       </View>
-      {!p ? <T size={12} color={theme.muted}>ფილიალის კოორდინატი არ არის მითითებული ადმინ პანელში, ამიტომ რუკაზე A წერტილი არ ჩანს.</T> : null}
+      <View style={{ flex: 1, gap: 14 }}>
+        <View><T size={12} color={c.muted}>აიღე</T><T size={16} weight="extrabold">{j.branch_name}</T>{j.branch_address ? <T size={13} color={c.muted}>{j.branch_address}</T> : null}</View>
+        <View>
+          <T size={12} color={c.muted}>მიიტანე</T><T size={16} weight="extrabold">{a.street ?? '—'}</T>
+          {detail ? <T size={13} color={c.muted}>{detail}</T> : null}
+          {full && a.comment ? <T size={13} color="#B5790A">💬 {a.comment}</T> : null}
+        </View>
+      </View>
     </View>
   );
 }
 
 export default function Home() {
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
   const [tab, setTab] = useState<'offers' | 'mine' | 'done'>('offers');
   const [feed, setFeed] = useState<Job[]>([]);
   const [done, setDone] = useState<Done[]>([]);
   const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [confirm, setConfirm] = useState<string | null>(null);
-  const [mapOpen, setMapOpen] = useState<Set<string>>(new Set());
+  const [open, setOpen] = useState(false);
+  const [sel, setSel] = useState<string | null>(null);
+  const [confirmRelease, setConfirmRelease] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const known = useRef<Map<string, string> | null>(null);
 
@@ -92,7 +91,7 @@ export default function Home() {
   async function act(id: string, fn: string, after?: () => void) {
     setBusyId(id);
     const r = await supabase.rpc(fn, { p_order_id: id });
-    setBusyId(null); setConfirm(null);
+    setBusyId(null); setConfirmRelease(null);
     if (r.error) setError(msg(r.error.message)); else { setError(''); after?.(); buzz(); }
     await load();
   }
@@ -100,124 +99,158 @@ export default function Home() {
   const offers = feed.filter((j) => !j.mine);
   const mine = feed.filter((j) => j.mine);
   const cashDone = done.filter((d) => d.payment_method === 'cash').reduce((s, d) => s + d.total_tetri, 0);
-  const toggleMap = (id: string) => setMapOpen((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const list = tab === 'offers' ? offers : tab === 'mine' ? mine : [];
+  const current = list.find((j) => j.id === sel) ?? (tab === 'mine' ? mine[0] : undefined);
+
+  const points = useMemo<MapPt[]>(() => {
+    const pt = (j: Job): MapPt[] => [
+      ...(j.branch_lat != null && j.branch_lng != null ? [{ lat: j.branch_lat, lng: j.branch_lng, label: j.branch_name, kind: 'A' as const }] : []),
+      { lat: j.dest_lat, lng: j.dest_lng, label: j.address_snapshot?.street ?? 'მისამართი', kind: 'B' as const },
+    ];
+    if (tab === 'done') return [];
+    if (current) return pt(current);
+    return offers.flatMap((j) => (j.branch_lat != null && j.branch_lng != null ? [{ lat: j.branch_lat, lng: j.branch_lng, label: j.branch_name, kind: 'O' as const }] : []));
+  }, [tab, current, offers]);  // eslint-disable-line react-hooks/exhaustive-deps
+
+  // bottom sheet: tap or drag the handle
+  const sheetH = Math.round(height * (open ? 0.66 : 0.4));
+  const pan = useRef(PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onPanResponderRelease: (_, g) => { if (g.dy < -25) setOpen(true); else if (g.dy > 25) setOpen(false); else setOpen((o) => !o); },
+  })).current;
+
+  const tabs = [['offers', 'ახალი', offers.length], ['mine', 'ჩემი', mine.length], ['done', 'დღეს', done.length]] as const;
+  const route = (j: Job) => (j.branch_lat != null && j.branch_lng != null ? routeUrl({ lat: j.branch_lat, lng: j.branch_lng }, { lat: j.dest_lat, lng: j.dest_lng }) : pointUrl({ lat: j.dest_lat, lng: j.dest_lng }));
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <View style={{ backgroundColor: colors.yellow, paddingTop: insets.top + 10, paddingBottom: 14, paddingHorizontal: 18, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
-        <Image source={require('../assets/logo.png')} style={{ width: 96, height: 48 }} resizeMode="contain" />
-        <Pressable accessibilityRole="button" accessibilityLabel="გასვლა" onPress={() => supabase.auth.signOut({ scope: 'local' })} style={{ padding: 10 }}><Icon name="out" color={colors.ink} /></Pressable>
-      </View>
-      <View style={{ flexDirection: 'row', gap: 8, padding: 14 }}>
-        {([['offers', `ახალი · ${offers.length}`], ['mine', `ჩემი · ${mine.length}`], ['done', `დღეს · ${done.length}`]] as const).map(([k, label]) => (
-          <Pressable key={k} onPress={() => setTab(k)} style={{ flex: 1, minHeight: 46, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: tab === k ? colors.yellow : theme.surface, borderWidth: 1, borderColor: tab === k ? colors.yellow : theme.border }}>
-            <T size={14} weight="extrabold" color={tab === k ? colors.ink : theme.text}>{label}</T>
+    <View style={{ flex: 1, backgroundColor: '#EFE9DA', alignItems: 'center' }}>
+      <View style={{ flex: 1, width: '100%', maxWidth: 520, overflow: 'hidden' }}>
+        <FullMap points={points} />
+
+        {/* floating top bar */}
+        <View pointerEvents="box-none" style={{ position: 'absolute', top: insets.top + 10, left: 14, right: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ backgroundColor: c.sheet, borderRadius: 999, paddingVertical: 6, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 8, shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 4 }}>
+            <Image source={require('../assets/logo.png')} style={{ width: 62, height: 30 }} resizeMode="contain" />
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: error ? c.red : c.green }} />
+          </View>
+          <Pressable accessibilityRole="button" accessibilityLabel="გასვლა" onPress={() => supabase.auth.signOut({ scope: 'local' })} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.sheet, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 4 }}>
+            <Icon name="out" color={c.ink} size={20} />
           </Pressable>
-        ))}
-      </View>
-      <ScrollView contentContainerStyle={{ padding: 14, paddingTop: 0, paddingBottom: insets.bottom + 24, gap: 14 }} refreshControl={<RefreshControl refreshing={refreshing} tintColor={colors.yellow} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} />}>
-        {error ? <Card style={{ borderColor: colors.red }}><T color="#ff8a80">{error}</T></Card> : null}
+        </View>
 
-        {tab === 'offers' && (
-          <>
-            {offers.map((j) => (
-              <Card key={j.id}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <T size={20} weight="extrabold">№{j.number}</T>
-                  <T size={13} color={cooking(j.status) ? theme.muted : '#7be0a5'}>{cooking(j.status) ? 'მზადდება' : 'მზადაა'}</T>
-                </View>
-                <View style={{ gap: 4 }}>
-                  <T size={13} color={theme.muted}>A · აიღე: {j.branch_name}{j.branch_address ? `, ${j.branch_address}` : ''}</T>
-                  <T size={13} color={theme.muted}>B · მიიტანე:</T>
-                  <T size={18} weight="extrabold">{j.address_snapshot?.street ?? '—'}</T>
-                  {km(j.distance_m) ? <T size={14} color={colors.yellow}>მანძილი: {km(j.distance_m)}</T> : null}
-                </View>
-                <Pay job={j} />
-                <MapBlock j={j} open={mapOpen.has(j.id)} onToggle={toggleMap} />
-                <View style={{ flexDirection: 'row', gap: 10 }}>
-                  <Btn title="გამოტოვება" kind="ghost" busy={busyId === j.id + 'd'} onPress={() => act(j.id, 'courier_decline')} style={{ flex: 1 }} />
-                  <Btn title="აღება" icon="check" busy={busyId === j.id} onPress={() => act(j.id, 'courier_accept', () => setTab('mine'))} style={{ flex: 2 }} />
-                </View>
-              </Card>
+        {/* bottom sheet */}
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: sheetH, backgroundColor: c.sheet, borderTopLeftRadius: 28, borderTopRightRadius: 28, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 14, shadowOffset: { width: 0, height: -4 }, elevation: 12 }}>
+          <View {...pan.panHandlers} style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 6 }}><View style={{ width: 44, height: 5, borderRadius: 3, backgroundColor: c.line }} /></View>
+          <View style={{ flexDirection: 'row', marginHorizontal: 16, marginBottom: 10, backgroundColor: c.soft, borderRadius: 999, padding: 4 }}>
+            {tabs.map(([k, label, n]) => (
+              <Pressable key={k} onPress={() => { setTab(k); setSel(null); setConfirmRelease(null); if (k === 'mine') setOpen(true); }} style={{ flex: 1, minHeight: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6, backgroundColor: tab === k ? c.sheet : 'transparent' }}>
+                <T size={14} weight="extrabold" color={tab === k ? c.ink : c.muted}>{label}</T>
+                {n > 0 ? <View style={{ minWidth: 20, height: 20, borderRadius: 10, paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center', backgroundColor: k === 'offers' ? colors.red : c.yellow }}><T size={11} weight="extrabold" color={k === 'offers' ? '#fff' : c.ink}>{String(n)}</T></View> : null}
+              </Pressable>
             ))}
-            {offers.length === 0 && !error ? (
-              <View style={{ alignItems: 'center', gap: 10, paddingTop: 60 }}>
-                <Icon name="box" size={44} color={theme.muted} />
-                <T size={16} weight="semibold" color={theme.muted}>ახალი შეკვეთა ჯერ არ არის</T>
-                <T size={13} color={theme.muted}>როცა შეკვეთა შემოვა, აქ თავისით გამოჩნდება</T>
-              </View>
-            ) : null}
-          </>
-        )}
+          </View>
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: insets.bottom + 20, gap: 14 }} refreshControl={<RefreshControl refreshing={refreshing} tintColor={colors.ink} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} />}>
+            {error ? <View style={{ backgroundColor: '#FDE6E6', borderRadius: 14, padding: 12 }}><T size={14} color={c.red}>{error}</T></View> : null}
 
-        {tab === 'mine' && (
-          <>
-            {mine.map((j) => {
-              const a = j.address_snapshot ?? {};
-              const detail = [a.entrance && `სადარბაზო ${a.entrance}`, a.floor && `სართული ${a.floor}`, a.apartment && `ბინა ${a.apartment}`].filter(Boolean).join(' · ');
-              const dead = j.status === 'cancelled' || j.status === 'rejected';
-              return (
-                <Card key={j.id}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <T size={20} weight="extrabold">№{j.number}</T>
-                    <T size={13} color={theme.muted}>{km(j.distance_m) ?? ''}</T>
+            {tab === 'offers' && (
+              <>
+                {offers.map((j) => {
+                  const isSel = current?.id === j.id;
+                  const cash = j.payment_method === 'cash';
+                  return (
+                    <Pressable key={j.id} onPress={() => { setSel(isSel ? null : j.id); if (!isSel) setOpen(true); }} style={{ borderRadius: 22, padding: 14, gap: 12, backgroundColor: isSel ? '#FFF8DB' : c.soft, borderWidth: 2, borderColor: isSel ? c.yellow : 'transparent' }}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <T size={18} weight="extrabold">№{j.number}</T>
+                        <View style={{ flexDirection: 'row', gap: 6 }}>
+                          {km(j.distance_m) ? <Chip>{km(j.distance_m) as string}</Chip> : null}
+                          <Chip bg={cash ? c.yellow : c.greenSoft} fg={cash ? c.ink : c.green}>{cash ? `ნაღდი ${gel(j.total_tetri)}` : 'ბარათი'}</Chip>
+                        </View>
+                      </View>
+                      <Trip j={j} full={false} />
+                      {isSel ? (
+                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                          <Btn title="გამოტოვება" kind="ghost" onPress={() => act(j.id, 'courier_decline', () => setSel(null))} style={{ flex: 1 }} />
+                          <Btn title="აღება" icon="check" busy={busyId === j.id} onPress={() => act(j.id, 'courier_accept', () => { setTab('mine'); setSel(j.id); })} style={{ flex: 2 }} />
+                        </View>
+                      ) : null}
+                    </Pressable>
+                  );
+                })}
+                {offers.length === 0 && !error ? (
+                  <View style={{ alignItems: 'center', gap: 8, paddingVertical: 30 }}>
+                    <Icon name="box" size={40} color={c.line} />
+                    <T size={16} weight="extrabold">ახალი შეკვეთა ჯერ არ არის</T>
+                    <T size={13} color={c.muted}>როცა შეკვეთა შემოვა, აქ თავისით გამოჩნდება</T>
                   </View>
-                  <Status job={j} />
-                  {!dead && (
-                    <>
-                      <View style={{ gap: 4 }}>
-                        <T size={13} color={theme.muted}>A · აიღე: {j.branch_name}{j.branch_address ? `, ${j.branch_address}` : ''}</T>
-                        <T size={13} color={theme.muted}>B · მიიტანე:</T>
-                        <T size={19} weight="extrabold">{a.street ?? '—'}</T>
-                        {detail ? <T size={15} color={theme.muted}>{detail}</T> : null}
-                        {a.comment ? <T size={14} color={colors.yellow}>💬 {a.comment}</T> : null}
-                      </View>
-                      <Pay job={j} />
-                      <MapBlock j={j} open={!mapOpen.has(j.id)} onToggle={toggleMap} />
-                      <View style={{ flexDirection: 'row', gap: 10 }}>
-                        <Btn title="მომხმარებელი" icon="phone" kind="ghost" disabled={!j.phone} onPress={() => j.phone && Linking.openURL(`tel:${j.phone}`)} style={{ flex: 1 }} />
-                      </View>
-                      {j.full_name ? <T size={13} color={theme.muted}>{j.full_name}{j.phone ? ` · ${j.phone}` : ''}</T> : null}
-                      {j.status === 'out_for_delivery' ? (
-                        confirm === j.id ? (
-                          <View style={{ gap: 8 }}>
-                            <T size={15} weight="semibold" style={{ textAlign: 'center' }}>დარწმუნებული ხარ, რომ მიტანილია?</T>
-                            <View style={{ flexDirection: 'row', gap: 10 }}>
-                              <Btn title="არა" kind="ghost" onPress={() => setConfirm(null)} style={{ flex: 1 }} />
-                              <Btn title="დიახ, მიტანილია" kind="green" icon="check" busy={busyId === j.id} onPress={() => act(j.id, 'courier_mark_delivered')} style={{ flex: 2 }} />
-                            </View>
-                          </View>
-                        ) : <Btn title="მიტანილია" icon="check" onPress={() => setConfirm(j.id)} />
-                      ) : (
-                        confirm === j.id + 'r' ? (
-                          <View style={{ flexDirection: 'row', gap: 10 }}>
-                            <Btn title="არა" kind="ghost" onPress={() => setConfirm(null)} style={{ flex: 1 }} />
-                            <Btn title="დიახ, უარი" busy={busyId === j.id} onPress={() => act(j.id, 'courier_release')} style={{ flex: 2 }} />
-                          </View>
-                        ) : <Btn title="უარი ამ შეკვეთაზე" kind="ghost" onPress={() => setConfirm(j.id + 'r')} />
-                      )}
-                    </>
-                  )}
-                </Card>
-              );
-            })}
-            {mine.length === 0 && !error ? <T color={theme.muted} style={{ textAlign: 'center', paddingTop: 40 }}>აღებული შეკვეთა არ გაქვს. „ახალი“-დან აიღე.</T> : null}
-          </>
-        )}
+                ) : null}
+              </>
+            )}
 
-        {tab === 'done' && (
-          <>
-            <Card><View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><T color={theme.muted}>დღეს მიტანილი</T><T weight="extrabold">{done.length}</T></View><View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><T color={theme.muted}>აღებული ნაღდი ფული</T><T weight="extrabold" color={colors.yellow}>{gel(cashDone)}</T></View></Card>
-            {done.map((d) => (
-              <Card key={d.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <View><T weight="extrabold">№{d.number}</T><T size={13} color={theme.muted}>{new Date(d.updated_at).toLocaleTimeString('ka-GE', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tbilisi' })} · {d.payment_method === 'cash' ? 'ნაღდი' : 'ბარათი'}</T></View>
-                <T weight="extrabold">{gel(d.total_tetri)}</T>
-              </Card>
-            ))}
-            {done.length === 0 ? <T color={theme.muted} style={{ textAlign: 'center', paddingTop: 30 }}>დღეს ჯერ არაფერი მიგიტანია</T> : null}
-          </>
-        )}
-      </ScrollView>
+            {tab === 'mine' && (
+              <>
+                {mine.map((j) => {
+                  const dead = j.status === 'cancelled' || j.status === 'rejected';
+                  const step = stepOf(j.status);
+                  const cash = j.payment_method === 'cash';
+                  const isCur = current?.id === j.id;
+                  return (
+                    <Pressable key={j.id} onPress={() => setSel(j.id)} style={{ borderRadius: 22, padding: 14, gap: 14, backgroundColor: c.soft, borderWidth: 2, borderColor: isCur ? c.yellow : 'transparent' }}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <T size={18} weight="extrabold">№{j.number}</T>
+                        <Chip bg={cash ? c.yellow : c.greenSoft} fg={cash ? c.ink : c.green}>{cash ? `აიღე ${gel(j.total_tetri)}` : 'გადახდილია'}</Chip>
+                      </View>
+                      {dead ? (
+                        <View style={{ backgroundColor: '#FDE6E6', borderRadius: 14, padding: 12 }}><T size={15} weight="extrabold" color={c.red}>შეკვეთა გაუქმდა</T></View>
+                      ) : (
+                        <>
+                          <View style={{ gap: 6 }}>
+                            <View style={{ flexDirection: 'row', gap: 4 }}>
+                              {STEPS.map((_, i) => <View key={i} style={{ flex: 1, height: 6, borderRadius: 3, backgroundColor: i <= step ? (step === 2 ? c.green : c.yellow) : c.line }} />)}
+                            </View>
+                            <T size={14} weight="extrabold" color={step === 2 ? c.green : c.ink}>{step === 2 ? 'მზადაა! აიღე შეკვეთა რესტორანში' : step === 3 ? 'გზაშია, მიიტანე მომხმარებელთან' : 'რესტორანი ამზადებს, მოემზადე'}</T>
+                          </View>
+                          <Trip j={j} full />
+                          <View style={{ flexDirection: 'row', gap: 10 }}>
+                            <Btn title={j.full_name ?? 'მომხმარებელი'} icon="phone" kind="ghost" disabled={!j.phone} onPress={() => j.phone && Linking.openURL(`tel:${j.phone}`)} style={{ flex: 1 }} />
+                            <Btn title="მარშრუტი" icon="map" kind="primary" onPress={() => Linking.openURL(route(j))} style={{ flex: 1 }} />
+                          </View>
+                          {j.status === 'out_for_delivery' ? (
+                            <Slide label="გადაასრიალე: მიტანილია" busy={busyId === j.id} onConfirm={() => act(j.id, 'courier_mark_delivered')} />
+                          ) : confirmRelease === j.id ? (
+                            <View style={{ flexDirection: 'row', gap: 10 }}>
+                              <Btn title="არა" kind="ghost" onPress={() => setConfirmRelease(null)} style={{ flex: 1 }} />
+                              <Btn title="დიახ, უარი" busy={busyId === j.id} onPress={() => act(j.id, 'courier_release')} style={{ flex: 2 }} />
+                            </View>
+                          ) : (
+                            <Pressable onPress={() => setConfirmRelease(j.id)} style={{ alignItems: 'center', padding: 6 }}><T size={13} color={c.muted} style={{ textDecorationLine: 'underline' }}>უარი ამ შეკვეთაზე</T></Pressable>
+                          )}
+                        </>
+                      )}
+                    </Pressable>
+                  );
+                })}
+                {mine.length === 0 && !error ? <T color={c.muted} style={{ textAlign: 'center', paddingVertical: 30 }}>აღებული შეკვეთა არ გაქვს. „ახალი“-დან აიღე.</T> : null}
+              </>
+            )}
+
+            {tab === 'done' && (
+              <>
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <View style={{ flex: 1, backgroundColor: c.soft, borderRadius: 20, padding: 14 }}><T size={12} color={c.muted}>მიტანილი</T><T size={28} weight="extrabold">{String(done.length)}</T></View>
+                  <View style={{ flex: 1.4, backgroundColor: c.yellow, borderRadius: 20, padding: 14 }}><T size={12} color={c.ink}>აღებული ნაღდი</T><T size={28} weight="extrabold">{gel(cashDone)}</T></View>
+                </View>
+                {done.map((d) => (
+                  <View key={d.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: c.line }}>
+                    <View><T weight="extrabold">№{d.number}</T><T size={13} color={c.muted}>{new Date(d.updated_at).toLocaleTimeString('ka-GE', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tbilisi' })} · {d.payment_method === 'cash' ? 'ნაღდი' : 'ბარათი'}</T></View>
+                    <T weight="extrabold">{gel(d.total_tetri)}</T>
+                  </View>
+                ))}
+                {done.length === 0 ? <T color={c.muted} style={{ textAlign: 'center', paddingVertical: 20 }}>დღეს ჯერ არაფერი მიგიტანია</T> : null}
+              </>
+            )}
+          </ScrollView>
+        </View>
+      </View>
     </View>
   );
 }

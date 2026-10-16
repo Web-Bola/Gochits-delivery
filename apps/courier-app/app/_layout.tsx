@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, NotoSansGeorgian_400Regular, NotoSansGeorgian_600SemiBold, NotoSansGeorgian_800ExtraBold } from '@expo-google-fonts/noto-sans-georgian';
-import { colors, theme } from '@gochits/ui-tokens';
+import { colors } from '@gochits/ui-tokens';
 import { supabase } from '../src/supabase';
 
 /** Navigation only: signed-out users go to the login screen. The server (RLS + role checks) is the real protection. */
@@ -25,9 +25,9 @@ export default function Layout() {
   if (!loaded) return <View style={{ flex: 1, justifyContent: 'center', backgroundColor: colors.yellow }}><ActivityIndicator color={colors.ink} /></View>;
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <AuthGuard />
-      <Stack screenOptions={{ headerShown: false, animation: 'fade', contentStyle: { backgroundColor: theme.bg } }} />
+      <Stack screenOptions={{ headerShown: false, animation: 'fade', contentStyle: { backgroundColor: '#EFE9DA' } }} />
     </SafeAreaProvider>
   );
 }

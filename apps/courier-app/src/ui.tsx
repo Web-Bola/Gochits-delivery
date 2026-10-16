@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, Text, View, type TextStyle, type ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { colors, fontFamily, theme } from '@gochits/ui-tokens';
+import { colors, fontFamily } from '@gochits/ui-tokens';
+
+/** Courier app palette: light sheet over a map, brand yellow as accent. */
+export const c = { sheet: '#FFFFFF', ink: colors.ink, muted: '#85766C', soft: '#F6F1E4', line: '#ECE4D2', green: '#2E9E5B', greenSoft: '#E3F4EA', red: colors.red, yellow: colors.yellow } as const;
 
 export const gel = (tetri: number) => `₾${(tetri / 100).toFixed(2)}`;
 
@@ -16,20 +19,20 @@ export function Icon({ name, size = 22, color = colors.ink }: { name: keyof type
   return <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><Path d={PATHS[name]} /></Svg>;
 }
 
-export function T({ children, size = 15, weight = 'regular', color = theme.text, style }: { children: ReactNode; size?: number; weight?: 'regular' | 'semibold' | 'extrabold'; color?: string; style?: TextStyle }) {
+export function T({ children, size = 15, weight = 'regular', color = c.ink, style }: { children: ReactNode; size?: number; weight?: 'regular' | 'semibold' | 'extrabold'; color?: string; style?: TextStyle }) {
   return <Text style={[{ fontFamily: fontFamily[weight], fontSize: size, color }, style]}>{children}</Text>;
 }
 
 export function Btn({ title, onPress, icon, kind = 'primary', busy, disabled, style }: { title: string; onPress: () => void; icon?: keyof typeof PATHS; kind?: 'primary' | 'ghost' | 'green'; busy?: boolean; disabled?: boolean; style?: ViewStyle }) {
-  const bg = kind === 'primary' ? colors.yellow : kind === 'green' ? '#2E9E5B' : 'transparent';
-  const fg = kind === 'ghost' ? theme.text : kind === 'green' ? colors.white : colors.ink;
+  const bg = kind === 'primary' ? colors.yellow : kind === 'green' ? '#2E9E5B' : c.soft;
+  const fg = kind === 'green' ? colors.white : colors.ink;
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} disabled={busy || disabled} style={({ pressed }) => [{ minHeight: 54, borderRadius: 16, backgroundColor: bg, borderWidth: kind === 'ghost' ? 1 : 0, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 16, opacity: disabled ? 0.5 : pressed ? 0.85 : 1 }, style]}>
+    <Pressable accessibilityRole="button" onPress={onPress} disabled={busy || disabled} style={({ pressed }) => [{ minHeight: 54, borderRadius: 27, backgroundColor: bg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 16, opacity: disabled ? 0.5 : pressed ? 0.85 : 1 }, style]}>
       {busy ? <ActivityIndicator color={fg} /> : (<>{icon ? <Icon name={icon} color={fg} /> : null}<T size={16} weight="extrabold" color={fg}>{title}</T></>)}
     </Pressable>
   );
 }
 
 export function Card({ children, style }: { children: ReactNode; style?: ViewStyle }) {
-  return <View style={[{ backgroundColor: theme.surface, borderRadius: 22, borderWidth: 1, borderColor: theme.border, padding: 16, gap: 12 }, style]}>{children}</View>;
+  return <View style={[{ backgroundColor: c.soft, borderRadius: 20, padding: 14, gap: 12 }, style]}>{children}</View>;
 }

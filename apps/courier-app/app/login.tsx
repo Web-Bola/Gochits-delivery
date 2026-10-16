@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Image, KeyboardAvoidingView, Platform, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, fontFamily, theme } from '@gochits/ui-tokens';
+import { colors, fontFamily } from '@gochits/ui-tokens';
 import { supabase } from '../src/supabase';
-import { Btn, T } from '../src/ui';
+import { Btn, T, c } from '../src/ui';
 
-const input = { height: 54, borderRadius: 16, backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, color: theme.text, fontFamily: fontFamily.regular, fontSize: 16, paddingHorizontal: 16 } as const;
+const input = { height: 56, borderRadius: 28, backgroundColor: c.soft, color: c.ink, fontFamily: fontFamily.regular, fontSize: 16, paddingHorizontal: 22 } as const;
 
 export default function Login() {
   const router = useRouter();
@@ -27,17 +27,20 @@ export default function Login() {
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, backgroundColor: theme.bg }}>
-      <View style={{ backgroundColor: colors.yellow, paddingTop: insets.top + 36, paddingBottom: 36, alignItems: 'center', borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }}>
-        <Image source={require('../assets/logo.png')} style={{ width: 180, height: 96 }} resizeMode="contain" />
-        <T size={15} weight="extrabold" color={colors.ink} style={{ marginTop: 8 }}>კურიერი</T>
-      </View>
-      <View style={{ padding: 24, gap: 14 }}>
-        <TextInput style={input} placeholder="ელფოსტა" placeholderTextColor={theme.muted} autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} />
-        <TextInput style={input} placeholder="პაროლი" placeholderTextColor={theme.muted} secureTextEntry autoComplete="password" value={password} onChangeText={setPassword} onSubmitEditing={signIn} />
-        {error ? <T color="#ff8a80" size={14}>{error}</T> : null}
-        <Btn title="შესვლა" onPress={signIn} busy={busy} disabled={!email.trim() || !password} />
-      </View>
-    </KeyboardAvoidingView>
+    <View style={{ flex: 1, backgroundColor: colors.yellow, alignItems: 'center' }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, width: '100%', maxWidth: 520 }}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: insets.top }}>
+          <Image source={require('../assets/logo.png')} style={{ width: 230, height: 122 }} resizeMode="contain" />
+          <T size={16} weight="extrabold" color={colors.ink} style={{ marginTop: 6, letterSpacing: 1 }}>კურიერი</T>
+        </View>
+        <View style={{ backgroundColor: c.sheet, borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: insets.bottom + 24, gap: 12 }}>
+          <T size={22} weight="extrabold">შესვლა</T>
+          <TextInput style={input} placeholder="ელფოსტა" placeholderTextColor={c.muted} autoCapitalize="none" autoComplete="email" keyboardType="email-address" value={email} onChangeText={setEmail} />
+          <TextInput style={input} placeholder="პაროლი" placeholderTextColor={c.muted} secureTextEntry autoComplete="password" value={password} onChangeText={setPassword} onSubmitEditing={signIn} />
+          {error ? <T color={c.red} size={14}>{error}</T> : null}
+          <Btn title="შესვლა" onPress={signIn} busy={busy} disabled={!email.trim() || !password} />
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
