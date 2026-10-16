@@ -5,10 +5,9 @@ import { formatGel, TERMINAL_STATUSES, type OrderStatus } from '@gochits/shared'
 import { errorText, ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { BackButton, Button, ErrorText, Screen } from '../../src/components/ui';
-import { Bump, Confetti, Float, PressScale } from '../../src/components/fx';
+import { Bump, Confetti, PressScale } from '../../src/components/fx';
 import { Icon } from '../../src/components/Icon';
-import { SvgMarkup } from '../../src/components/SvgMarkup';
-import { SCENES, SCENE_BASE } from '../../src/components/sceneMarkup';
+import { TrackScene } from '../../src/components/TrackScene';
 import { supabase } from '../../src/lib/supabase';
 import { useDemoMode } from '../../src/lib/demo';
 import { useReorder } from '../../src/lib/reorder';
@@ -43,6 +42,7 @@ export default function OrderScreen() {
   const [stars, setStars] = useState(0);
   const [comment, setComment] = useState('');
   const [rated, setRated] = useState(false);
+  const [dev, setDev] = useState(false); // test panel: long-press the order number (works only while the server's test switch is on)
 
   const load = useCallback(async () => {
     const [o, r] = await Promise.all([
@@ -107,7 +107,7 @@ export default function OrderScreen() {
   const canCancel = row.status === 'pending_payment' || (row.status === 'placed' && row.payment_status !== 'paid');
   const phone = row.branches?.phone ?? null;
   const [h1, h2] = HEAD_OF[row.status] ?? [STATUS_LABEL[row.status], ''];
-  const scene = SCENES[SCENE_OF[row.status] ?? 'shop'] ?? '';
+  const scene = SCENE_OF[row.status] ?? 'shop';
   const out = row.status === 'out_for_delivery';
   const card = { backgroundColor: theme.surface, borderRadius: 18, padding: 14, gap: 9 } as const;
   const muted = { fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted } as const;
@@ -117,9 +117,9 @@ export default function OrderScreen() {
       <View>
         <View style={{ position: 'absolute', left: 16, right: 16, top: 16, zIndex: 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <BackButton onPress={() => router.replace('/orders')} />
-          <View style={{ backgroundColor: 'rgba(26,13,11,0.88)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 7 }}><Text style={{ color: colors.yellow, fontFamily: fontFamily.extrabold, fontSize: 12 }}>№{row.number}</Text></View>
+          <Pressable accessibilityRole="text" delayLongPress={900} onLongPress={() => setDev((d) => !d)} style={{ backgroundColor: 'rgba(26,13,11,0.88)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 7 }}><Text style={{ color: colors.yellow, fontFamily: fontFamily.extrabold, fontSize: 12 }}>№{row.number}</Text></Pressable>
         </View>
-        <Float amplitude={3} duration={2600}><SvgMarkup markup={SCENE_BASE + scene} viewBox="0 0 360 210" width="100%" height={190} slice /></Float>
+        <TrackScene scene={scene} />
         <View style={{ paddingHorizontal: 20, paddingTop: 6, paddingBottom: 38 }}>
           <Bump value={row.status}><Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 27, color: INK }}>{h1}</Text></Bump>
           {h2 ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: INK }}>{h2}</Text> : null}
@@ -206,7 +206,7 @@ export default function OrderScreen() {
             </View>
           </View>
 
-          {demo && !finished && row.status !== 'pending_payment' && (
+          {demo && dev && !finished && row.status !== 'pending_payment' && (
             <View style={{ gap: 10, backgroundColor: theme.surface, borderRadius: 18, padding: 14, borderWidth: 1, borderColor: theme.border }}>
               <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.yellow, letterSpacing: 0.5 }}>{ka.order.demoBanner}</Text>
               <Button variant="ink" title={busy ? '...' : ka.order.demoNext} onPress={advance} disabled={busy} />

@@ -1,88 +1,74 @@
-import { useEffect, useState } from 'react';
-import { Icon } from '../src/components/Icon';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { formatGel } from '@gochits/shared';
 import { errorText, ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
-import { Body, Button, Card, ErrorText, FadeIn, Header, Screen } from '../src/components/ui';
-import { Float, Pulse } from '../src/components/fx';
+import { Button, ErrorText, Header, Screen } from '../src/components/ui';
+import { Icon } from '../src/components/Icon';
+import { PayOverlay, type PayPhase } from '../src/components/PayOverlay';
 import { supabase } from '../src/lib/supabase';
 import { useDemoMode } from '../src/lib/demo';
 
-type Phase = 'ready' | 'processing' | 'failed';
+interface Info { total_tetri: number; number: string; count: number }
 
-/** DEMO payment. There are NO card inputs: nothing real is collected. The buttons only simulate the provider's answer. */
+/**
+ * Card step. No card data is collected here (the real provider's page will replace the button later).
+ * Until a provider is connected the server only accepts the payment while app_settings.demo_mode is on; otherwise the button stays disabled.
+ */
 export default function Payment() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const demo = useDemoMode();
-  const [total, setTotal] = useState<number | null>(null);
-  const [phase, setPhase] = useState<Phase>('ready');
+  const enabled = useDemoMode();
+  const [info, setInfo] = useState<Info | null>(null);
+  const [phase, setPhase] = useState<PayPhase | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const busy = useRef(false);
 
   useEffect(() => {
-    supabase.from('orders').select('total_tetri').eq('id', id).single().then(({ data }) => data && setTotal((data as { total_tetri: number }).total_tetri));
+    supabase.from('orders').select('total_tetri,number,order_items(quantity)').eq('id', id).single().then(({ data }) => {
+      if (!data) return;
+      const d = data as unknown as { total_tetri: number; number: string; order_items: { quantity: number }[] };
+      setInfo({ total_tetri: d.total_tetri, number: d.number, count: (d.order_items ?? []).reduce((n, i) => n + i.quantity, 0) });
+    });
   }, [id]);
 
-  async function pay(success: boolean) {
-    setPhase('processing'); setError(null);
-    await new Promise((r) => setTimeout(r, 1600));
-    const { error: e } = await supabase.rpc('demo_pay_order', { p_order_id: id, p_success: success });
-    if (e) { setError(errorText(e.message)); setPhase('ready'); return; }
-    if (success) router.replace({ pathname: '/order/[id]', params: { id: String(id) } });
-    else setPhase('failed');
+  async function pay() {
+    if (busy.current) return;
+    busy.current = true; setPhase('processing'); setError(null);
+    await new Promise((r) => setTimeout(r, 1500));
+    const { error: e } = await supabase.rpc('demo_pay_order', { p_order_id: id, p_success: true });
+    busy.current = false;
+    if (e) { setError(errorText(e.message)); setPhase('fail'); return; }
+    setPhase('ok');
   }
 
-  if (total === null || demo === null) return <Screen><ActivityIndicator color={colors.yellow} /></Screen>;
+  if (!info || enabled === null) return <Screen><ActivityIndicator color={colors.yellow} /></Screen>;
+  const amount = formatGel(info.total_tetri);
   return (
     <Screen scroll>
       <Header title={ka.payment.title} />
       <View style={{ padding: 20, gap: 14 }}>
-        <View style={{ backgroundColor: colors.yellow, borderRadius: 16, padding: 12 }}>
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.ink, textAlign: 'center' }}>{ka.payment.banner}</Text>
-        </View>
-        <FadeIn>
-          <Float amplitude={5}>
-            <View style={{ height: 190, borderRadius: 22, padding: 20, justifyContent: 'space-between', backgroundColor: colors.red, overflow: 'hidden' }}>
-              <View style={{ position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: 'rgba(255,255,255,0.12)', right: -60, top: -70 }} />
-              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 18, color: colors.white }}>Gochit's DEMO</Text>
-              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 22, letterSpacing: 3, color: colors.white }}>•••• •••• •••• 0000</Text>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: colors.white }}>NO REAL CARD</Text>
-                <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: colors.white }}>MM/YY</Text>
-              </View>
+        <View style={{ backgroundColor: theme.surface, borderRadius: 18, padding: 16, gap: 10 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ width: 46, height: 36, borderRadius: 9, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}><Icon name="card" size={22} color={colors.yellow} /></View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{ka.checkout.card}</Text>
+              <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.payment.note}</Text>
             </View>
-          </Float>
-        </FadeIn>
-        <Card>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Body muted>{ka.checkout.total}</Body>
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.yellow }}>{formatGel(total)}</Text>
           </View>
-          <Body muted>{ka.payment.note}</Body>
-        </Card>
-        {phase === 'processing' && (
-          <View style={{ alignItems: 'center', justifyContent: 'center', height: 90 }}>
-            <Pulse size={70} color={colors.yellow} /><ActivityIndicator color={colors.yellow} size="large" />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><Text style={{ fontFamily: fontFamily.regular, fontSize: 14, color: theme.muted }}>{ka.payment.order}</Text><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>№{info.number}</Text></View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: theme.border, paddingTop: 10 }}>
+            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{ka.payment.toPay}</Text><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 19, color: theme.text }}>{amount}</Text>
           </View>
-        )}
-        {phase === 'failed' && (
-          <Card style={{ borderColor: colors.red, alignItems: 'center' }}>
-            <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center' }}><Icon name="x" size={32} color={colors.white} strokeWidth={3} /></View>
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{ka.payment.failedTitle}</Text>
-          </Card>
-        )}
+        </View>
         {error && <ErrorText>{error}</ErrorText>}
-        {phase === 'ready' && (
-          <>
-            <Button title={ka.payment.success} onPress={() => pay(true)} disabled={!demo} />
-            <Button variant="outline" title={ka.payment.fail} onPress={() => pay(false)} disabled={!demo} />
-            {!demo && <ErrorText>{ka.payment.demoOff}</ErrorText>}
-          </>
-        )}
-        {phase === 'failed' && <Button title={ka.orders.toMenu} onPress={() => router.replace('/menu')} />}
+        <Button title={`${ka.payment.payBtn} · ${amount}`} onPress={pay} disabled={!enabled || phase === 'processing'} />
+        <Button variant="outline" title={ka.payment.cancelBack} onPress={() => router.replace('/menu')} />
+        {!enabled && <ErrorText>{ka.payment.demoOff}</ErrorText>}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}><Icon name="lock" size={14} color={theme.muted} /><Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.payment.note}</Text></View>
       </View>
+      {phase ? <PayOverlay phase={phase} amount={amount} number={info.number} count={info.count} onTrack={() => router.replace({ pathname: '/order/[id]', params: { id: String(id) } })} onRetry={() => setPhase(null)} onMenu={() => router.replace('/menu')} /> : null}
     </Screen>
   );
 }

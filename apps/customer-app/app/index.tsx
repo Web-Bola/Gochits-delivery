@@ -1,66 +1,66 @@
-import { useEffect, useRef, useState } from 'react';
-import { Animated, Image, Pressable, Text, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { Animated, Easing, Image, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { colors, fontFamily } from '@gochits/ui-tokens';
+import { colors } from '@gochits/ui-tokens';
 import { supabase } from '../src/lib/supabase';
-import { Float, ND, useLoop } from '../src/components/fx';
+import { ND, useReduceMotion } from '../src/components/fx';
 
-/** Opening screen from the first design: yellow, drifting seeds, logo pop, loading bar and a "start" button. */
+const MIN_MS = 2100;
+
+/** Opening screen from the design: yellow, logo bobbing inside a rotating dashed ring with orbiting dots, loading bar; then straight to the menu (signed in) or login. */
 export default function Splash() {
   const router = useRouter();
+  const reduce = useReduceMotion();
   const pop = useRef(new Animated.Value(0)).current;
-  const rise = useRef(new Animated.Value(0)).current;
-  const bar = useLoop(1600);
-  const [busy, setBusy] = useState(false);
+  const bob = useRef(new Animated.Value(0)).current;
+  const ring = useRef(new Animated.Value(0)).current;
+  const armA = useRef(new Animated.Value(0)).current;
+  const armB = useRef(new Animated.Value(0)).current;
+  const armC = useRef(new Animated.Value(0)).current;
+  const bar = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.spring(pop, { toValue: 1, friction: 4, tension: 60, useNativeDriver: ND }).start();
-    Animated.timing(rise, { toValue: 1, duration: 700, delay: 1000, useNativeDriver: ND }).start();
-  }, [pop, rise]);
+    Animated.spring(pop, { toValue: 1, friction: 5, tension: 60, useNativeDriver: ND }).start();
+    Animated.timing(bar, { toValue: 1, duration: MIN_MS, easing: Easing.bezier(0.4, 0, 0.2, 1), useNativeDriver: ND }).start();
+    if (reduce) return;
+    const spin = (v: Animated.Value, ms: number) => { const a = Animated.loop(Animated.timing(v, { toValue: 1, duration: ms, easing: Easing.linear, useNativeDriver: ND })); a.start(); return a; };
+    const b = Animated.loop(Animated.sequence([Animated.timing(bob, { toValue: 1, duration: 800, easing: Easing.inOut(Easing.sin), useNativeDriver: ND }), Animated.timing(bob, { toValue: 0, duration: 800, easing: Easing.inOut(Easing.sin), useNativeDriver: ND })]));
+    b.start();
+    const loops = [spin(ring, 14000), spin(armA, 3000), spin(armB, 4600), spin(armC, 6000), b];
+    return () => loops.forEach((l) => l.stop());
+  }, [pop, bob, ring, armA, armB, armC, bar, reduce]);
 
-  async function start() {
-    setBusy(true);
-    try {
-      const { data } = await supabase.auth.getSession();
-      router.replace(data.session ? '/menu' : '/login');
-    } catch {
-      router.replace('/login');
-    }
-  }
+  useEffect(() => {
+    let alive = true;
+    const started = Date.now();
+    (async () => {
+      let signedIn = false;
+      try { signedIn = !!(await supabase.auth.getSession()).data.session; } catch { signedIn = false; }
+      const wait = Math.max(0, MIN_MS + 250 - (Date.now() - started));
+      setTimeout(() => { if (alive) router.replace(signedIn ? '/menu' : '/login'); }, wait);
+    })();
+    return () => { alive = false; };
+  }, [router]);
 
-  const seed = (left: number, top: number, d: number, sc = 1) => <Seed key={`${left}-${top}`} left={left} top={top} d={d} sc={sc} />;
-  const up = { opacity: rise, transform: [{ translateY: rise.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }] };
-  return (
-    <View style={{ flex: 1, backgroundColor: colors.yellow, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', gap: 28, padding: 32 }}>
-      {seed(46, 90, 4400)}{seed(300, 150, 5600, 0.7)}{seed(70, 610, 6200, 0.9)}{seed(320, 690, 4900)}{seed(210, 60, 5100, 0.6)}
-      <View style={{ position: 'absolute', left: -90, bottom: -110, width: 320, height: 320, borderRadius: 160, backgroundColor: colors.orange, opacity: 0.9 }} />
-      <View style={{ position: 'absolute', right: -70, top: -80, width: 220, height: 220, borderRadius: 110, backgroundColor: '#FFE066' }} />
-      <Float amplitude={10} duration={1700}>
-        <Animated.View style={{ opacity: pop, transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] }) }, { rotate: pop.interpolate({ inputRange: [0, 1], outputRange: ['-8deg', '0deg'] }) }] }}>
-          <Image source={require('../assets/logo.png')} style={{ width: 280, height: 280 }} resizeMode="contain" accessibilityLabel="Gochit's" />
-        </Animated.View>
-      </Float>
-      <Animated.View style={[{ alignItems: 'center', gap: 14, width: '100%' }, up]}>
-        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 22, color: colors.ink }}>მოგესალმებით</Text>
-        <View style={{ width: 180, height: 8, borderRadius: 8, backgroundColor: 'rgba(26,13,11,0.15)', overflow: 'hidden' }}>
-          <Animated.View style={{ width: 70, height: 8, borderRadius: 8, backgroundColor: colors.red, transform: [{ translateX: bar.interpolate({ inputRange: [0, 1], outputRange: [-70, 180] }) }] }} />
-        </View>
-      </Animated.View>
-      <Animated.View style={[{ width: '100%' }, up]}>
-        <Pressable accessibilityRole="button" onPress={start} disabled={busy}
-          style={({ pressed }) => ({ minHeight: 56, borderRadius: 28, backgroundColor: colors.ink, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 10, opacity: busy ? 0.6 : 1, transform: [{ scale: pressed ? 0.97 : 1 }] })}>
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 18, color: colors.yellow }}>დაწყება</Text>
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 20, color: colors.yellow }}>→</Text>
-        </Pressable>
-      </Animated.View>
-    </View>
+  const turn = (v: Animated.Value, dir: 1 | -1 = 1, from = 0) => ({ transform: [{ rotate: v.interpolate({ inputRange: [0, 1], outputRange: [`${from}deg`, `${from + dir * 360}deg`] }) }] });
+  const arm = (v: Animated.Value, dot: number, color: string, dir: 1 | -1 = 1, from = 0) => (
+    <Animated.View pointerEvents="none" style={[{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }, turn(v, dir, from)]}>
+      <View style={{ position: 'absolute', left: '50%', top: -dot / 2, width: dot, height: dot, marginLeft: -dot / 2, borderRadius: dot / 2, backgroundColor: color }} />
+    </Animated.View>
   );
-}
 
-function Seed({ left, top, d, sc }: { left: number; top: number; d: number; sc: number }) {
-  const v = useLoop(d);
   return (
-    <Animated.View pointerEvents="none" style={{ position: 'absolute', left, top, width: 14, height: 22, borderRadius: 11, backgroundColor: '#FFF6C9', opacity: 0.75,
-      transform: [{ scale: sc }, { translateX: v.interpolate({ inputRange: [0, 1], outputRange: [0, 18] }) }, { translateY: v.interpolate({ inputRange: [0, 1], outputRange: [0, -26] }) }, { rotate: v.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '40deg'] }) }] }} />
+    <View style={{ flex: 1, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center', gap: 34 }}>
+      <Animated.View style={{ width: 250, height: 250, alignItems: 'center', justifyContent: 'center', opacity: pop, transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] }) }] }}>
+        <Animated.View style={[{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, borderRadius: 125, borderWidth: 2, borderStyle: 'dashed', borderColor: 'rgba(26,13,11,0.28)' }, turn(ring)]} />
+        {arm(armA, 14, colors.red)}{arm(armB, 10, colors.ink, -1)}{arm(armC, 8, colors.white, 1, 120)}
+        <Animated.View style={{ transform: [{ translateY: bob.interpolate({ inputRange: [0, 1], outputRange: [0, -10] }) }] }}>
+          <Image source={require('../assets/logo.png')} style={{ width: 170, height: 170 }} resizeMode="contain" accessibilityLabel="Gochit's" />
+        </Animated.View>
+      </Animated.View>
+      <View style={{ width: 180, height: 6, borderRadius: 3, backgroundColor: 'rgba(26,13,11,0.18)', overflow: 'hidden' }}>
+        <Animated.View style={{ width: 180, height: 6, borderRadius: 3, backgroundColor: colors.ink, transform: [{ translateX: bar.interpolate({ inputRange: [0, 1], outputRange: [-180, 0] }) }] }} />
+      </View>
+    </View>
   );
 }
