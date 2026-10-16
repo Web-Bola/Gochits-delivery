@@ -17,7 +17,9 @@ export default function Login() {
     const { data: u } = await supabase.auth.getUser();
     const { data: p } = await supabase.from('profiles').select('role').eq('id', u.user?.id ?? '').maybeSingle();
     setBusy(false);
-    router.replace(p?.role === 'super_admin' ? '/admin' : '/restaurant');
+    const next = new URLSearchParams(window.location.search).get('next');
+    const dest = next === '/restaurant' || next === '/admin' ? next : '/admin';
+    router.replace(p?.role === 'super_admin' ? dest : '/restaurant');
   };
   return (
     <div className="login">

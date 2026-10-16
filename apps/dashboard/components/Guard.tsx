@@ -26,16 +26,18 @@ export function Guard({ children, area = 'admin' }: { children: ReactNode; area?
   const path = usePathname();
   const [state, setState] = useState<'load' | 'denied' | 'ok'>('load');
   const [email, setEmail] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     let alive = true;
     (async () => {
       const { data } = await supabase.auth.getSession();
       const user = data.session?.user;
-      if (!user) { router.replace('/login'); return; }
+      if (!user) { router.replace(`/login?next=${encodeURIComponent(area === 'restaurant' ? '/restaurant' : '/admin')}`); return; }
       const { data: p } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
       if (!alive) return;
       setEmail(user.email ?? '');
+      setIsAdmin(p?.role === 'super_admin');
       setState(p?.role === 'super_admin' || (area === 'restaurant' && p?.role === 'restaurant_staff') ? 'ok' : 'denied');
     })();
     return () => { alive = false; };
@@ -61,7 +63,9 @@ export function Guard({ children, area = 'admin' }: { children: ReactNode; area?
         </nav>
         <div className="who">
           <div className="small muted" style={{ padding: '0 6px', wordBreak: 'break-all' }}>{email}</div>
-          {area === 'restaurant' ? null : <Link href="/restaurant" className="small" style={{ padding: '0 6px', color: 'var(--yellow)' }}>რესტორნის პანელი →</Link>}
+          {area === 'restaurant'
+            ? (isAdmin ? <Link href="/admin" className="small" style={{ padding: '0 6px', color: 'var(--yellow)' }}>← ადმინ პანელი</Link> : null)
+            : <Link href="/restaurant" className="small" style={{ padding: '0 6px', color: 'var(--yellow)' }}>რესტორნის პანელი →</Link>}
           <button className="ghost" onClick={out}>გასვლა</button>
         </div>
       </aside>
