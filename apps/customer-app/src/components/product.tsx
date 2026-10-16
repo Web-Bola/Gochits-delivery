@@ -5,6 +5,7 @@ import { colors, fontFamily, radius, theme } from '@gochits/ui-tokens';
 import { Bump, FloatUp, PressScale } from './fx';
 import { menuImages } from '../lib/menuImages';
 import { discountPercent, type Product } from '../lib/menuData';
+import { Icon } from './Icon';
 
 export function photoOf(path: string | null) { return path ? menuImages[path] : undefined; }
 
@@ -87,4 +88,67 @@ export function ProductCard({ item, width, qty, fav, bumped, onAdd, onOpen, onFa
       </Pressable>
     </View>
   );
+}
+
+
+/** Red ribbon "-30%" on the corner of a photo (from the demo). */
+export function Ribbon({ off }: { off: number }) {
+  return (
+    <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 10, backgroundColor: colors.red, borderTopRightRadius: 6, borderBottomRightRadius: 6, paddingHorizontal: 9, paddingVertical: 3 }}>
+      <Text style={{ color: colors.white, fontFamily: fontFamily.extrabold, fontSize: 12 }}>-{off}%</Text>
+    </View>
+  );
+}
+
+/** White round add button; turns red and shows the quantity once the item is in the cart. */
+export function AddButton({ qty, onPress, label, size = 36 }: { qty: number; onPress: () => void; label: string; size?: number }) {
+  return (
+    <PressScale accessibilityRole="button" accessibilityLabel={label} onPress={onPress} scaleTo={0.8}
+      style={{ minWidth: size, height: size, paddingHorizontal: qty > 0 ? 8 : 0, borderRadius: size / 2, backgroundColor: qty > 0 ? colors.red : colors.white, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.45, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
+      {qty > 0 ? <Text style={{ color: colors.white, fontFamily: fontFamily.extrabold, fontSize: 15 }}>{qty}</Text> : <Icon name="plus" size={20} color={colors.ink} strokeWidth={2.4} />}
+    </PressScale>
+  );
+}
+
+/** One menu row from the demo: name, description and price on the left, photo with the add button on the right. */
+export function ProductRow({ item, qty, bumped, onAdd, onOpen }: { item: Product; qty: number; bumped: number; onAdd: () => void; onOpen: () => void }) {
+  const off = discountPercent(item);
+  const sold = !item.available;
+  return (
+    <View style={{ flexDirection: 'row', gap: 14, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+      <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={onOpen} style={{ flex: 1, minWidth: 0, gap: 4, opacity: sold ? 0.5 : 1 }}>
+        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text, lineHeight: 21 }}>{item.name}</Text>
+        {item.description_ka ? <Text numberOfLines={2} style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted, lineHeight: 19 }}>{item.description_ka}</Text> : null}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2, flexWrap: 'wrap' }}>
+          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{formatGel(item.price_tetri)}</Text>
+          {item.old_price_tetri ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted, textDecorationLine: 'line-through' }}>{formatGel(item.old_price_tetri)}</Text> : null}
+          {off && !sold ? <View style={{ backgroundColor: colors.yellow, borderRadius: 6, paddingHorizontal: 7, paddingVertical: 1 }}><Text style={{ color: colors.ink, fontFamily: fontFamily.extrabold, fontSize: 12 }}>-{off}%</Text></View> : null}
+          {sold ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.red }}>{ka.menu.soldOut}</Text> : null}
+        </View>
+      </Pressable>
+      <View style={{ width: 104, height: 104 }}>
+        <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={onOpen} style={{ flex: 1, opacity: sold ? 0.45 : 1 }}>
+          <Photo path={item.image_path} rounded={14} style={{ flex: 1 }} />
+        </Pressable>
+        {off && !sold ? <Ribbon off={off} /> : null}
+        {!sold ? (
+          <View style={{ position: 'absolute', right: -6, bottom: -6 }}>
+            <AddButton qty={qty} onPress={onAdd} label={`${ka.menu.add}: ${item.name}`} />
+            <FloatUp trigger={bumped} />
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+
+/** Soft dark gradient over a photo (stacked strips, so it works the same on phone and web without extra packages). */
+export function Scrim({ side, height, max = 0.85 }: { side: 'top' | 'bottom'; height: number; max?: number }) {
+  const n = 14;
+  const strips = Array.from({ length: n }, (_, i) => {
+    const t = side === 'bottom' ? (i + 1) / n : 1 - i / n;
+    return <View key={i} style={{ flex: 1, backgroundColor: `rgba(20,11,10,${(max * t * t).toFixed(3)})` }} />;
+  });
+  return <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, [side]: 0, height }}>{strips}</View>;
 }

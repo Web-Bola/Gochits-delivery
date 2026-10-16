@@ -2,8 +2,8 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { Animated, Easing, Image, Platform, Pressable, StyleSheet, Text, TextInput, View, type TextInputProps, type ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, fontFamily, minTouch, radius, theme } from '@gochits/ui-tokens';
-import { Float, ND, Pulse, PressScale, useReduceMotion } from './fx';
-import { menuImages } from '../lib/menuImages';
+import { Float, ND, PressScale, useReduceMotion } from './fx';
+import { Icon } from './Icon';
 
 const logo = require('../../assets/logo.png');
 
@@ -55,53 +55,35 @@ export function BackButton({ onPress }: { onPress?: () => void }) {
   const router = useRouter();
   return (
     <Pressable accessibilityRole="button" accessibilityLabel="უკან" onPress={onPress ?? (() => (router.canGoBack() ? router.back() : router.replace('/')))}
-      style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ color: colors.ink, fontSize: 22, fontFamily: fontFamily.extrabold, marginTop: -2 }}>←</Text>
+      style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}>
+      <Icon name="back" size={22} color={theme.text} />
     </Pressable>
   );
 }
 
-/** Dark header: optional back button, logo, title, right slot. Hazard stripe underneath. */
+/** Dark header: optional back button, logo, title, right slot. Thin divider underneath (as in the demo). */
 export function Header({ title, subtitle, back, showLogo, right }: { title?: string; subtitle?: string; back?: boolean; showLogo?: boolean; right?: ReactNode }) {
   return (
-    <View>
-      <View style={s.header}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          {back ? <BackButton /> : showLogo ? <Image source={logo} style={{ height: 46, width: 70 }} resizeMode="contain" accessibilityLabel="Gochit's" /> : <View />}
-          {right}
-        </View>
-        {title && <Text style={s.h1} accessibilityRole="header">{title}</Text>}
-        {subtitle && <Text style={s.sub}>{subtitle}</Text>}
+    <View style={[s.header, { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        {back ? <BackButton /> : showLogo ? <Image source={logo} style={{ height: 46, width: 70 }} resizeMode="contain" accessibilityLabel="Gochit's" /> : <View />}
+        {right}
       </View>
-      <Stripe height={8} />
+      {title && <Text style={s.h1} accessibilityRole="header">{title}</Text>}
+      {subtitle && <Text style={s.sub}>{subtitle}</Text>}
     </View>
   );
 }
 
-/** Big yellow hero with the logo, radar rings and floating burgers (login, otp). Content sits in a dark sheet below. */
+/** Yellow band with the logo and rounded bottom corners (login, otp); content sits on the dark page below, like the demo. */
 export function Hero({ children, small }: { children: ReactNode; small?: boolean }) {
-  const size = small ? 120 : 180;
-  const bubble = (key: string, pos: ViewStyle, d: number, sz: number) => (
-    <Float amplitude={12} duration={2000 + d} delay={d} style={{ position: 'absolute', ...pos }}>
-      <View style={{ width: sz, height: sz, borderRadius: sz / 2, overflow: 'hidden', borderWidth: 4, borderColor: colors.white, backgroundColor: colors.ink }}>
-        {menuImages[key] !== undefined && <Image source={menuImages[key]} style={{ width: '100%', height: '100%' }} />}
-      </View>
-    </Float>
-  );
+  const size = small ? 110 : 150;
   return (
-    <View style={{ flex: 1, backgroundColor: colors.yellow }}>
-      <View style={{ alignItems: 'center', justifyContent: 'center', paddingTop: 44, paddingBottom: 24, minHeight: small ? 200 : 290, overflow: 'hidden' }}>
-        <View style={{ position: 'absolute', width: 320, height: 320, borderRadius: 160, backgroundColor: '#FFD83A', top: -80, right: -90 }} />
-        <View style={{ position: 'absolute', width: 190, height: 190, borderRadius: 95, backgroundColor: colors.orange, opacity: 0.55, bottom: -70, left: -60 }} />
-        <Pulse size={size + 30} color={colors.ink} />
-        <Pulse size={size + 30} color={colors.red} delay={1300} />
-        {bubble('menu/01-double-smashed.jpg', { left: 18, top: 70 }, 0, small ? 54 : 70)}
-        {bubble('menu/05-giant-burger.jpg', { right: 20, top: 90 }, 500, small ? 48 : 62)}
-        {!small && bubble('menu/04-gochits-burger.jpg', { right: 56, bottom: 22 }, 900, 50)}
-        <Float amplitude={8} duration={2200}><Image source={logo} style={{ width: size, height: size }} resizeMode="contain" accessibilityLabel="Gochit's" /></Float>
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      <View style={{ height: small ? 170 : 210, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center', borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' }}>
+        <Float amplitude={6} duration={2200}><Image source={logo} style={{ width: size, height: size }} resizeMode="contain" accessibilityLabel="Gochit's" /></Float>
       </View>
-      <Stripe />
-      <View style={{ flex: 1, backgroundColor: theme.bg, padding: 24, gap: 14 }}>{children}</View>
+      <View style={{ flex: 1, padding: 20, gap: 14 }}>{children}</View>
     </View>
   );
 }

@@ -7,6 +7,7 @@ import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Body, Button, Card, ErrorText, FadeIn, Header, Screen } from '../src/components/ui';
 import { PressScale } from '../src/components/fx';
 import { Photo, Stepper } from '../src/components/product';
+import { Icon } from '../src/components/Icon';
 import { isExtraCategory, loadMenu, type Menu, type Product } from '../src/lib/menuData';
 import { supabase } from '../src/lib/supabase';
 import { usePromoSync, useCart } from '../src/state/cart';
@@ -57,9 +58,9 @@ export default function Cart() {
   const discount = promo?.discountTetri ?? 0;
   return (
     <Screen scroll>
-      <Header back title={ka.cart.title} right={lines.length > 0 ? (
+      <Header back title={ka.cart.title} subtitle={lines.length > 0 ? `${lines.reduce((n, l) => n + l.quantity, 0)} ${ka.cart.items} · ${branch?.name ?? ''}` : undefined} right={lines.length > 0 ? (
         <Pressable accessibilityRole="button" onPress={() => setConfirmClear(true)} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}>
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#FF6B6B' }}>{ka.cart.clear}</Text>
+          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.red }}>{ka.cart.clear}</Text>
         </Pressable>) : undefined} />
       <ScrollView contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
         {confirmClear ? (
@@ -72,7 +73,7 @@ export default function Cart() {
 
         {lines.length === 0 && (
           <View style={{ alignItems: 'center', gap: 10, paddingTop: 50 }}>
-            <Text style={{ fontSize: 60 }}>🛒</Text>
+            <View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: theme.surface, alignItems: 'center', justifyContent: 'center' }}><Icon name="bag" size={44} color={colors.yellow} /></View>
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 18, color: theme.text }}>{ka.cart.empty}</Text>
             <Body muted>{ka.cart.emptyHint}</Body>
             <Button title={ka.orders.toMenu} variant="ink" onPress={() => router.replace('/menu')} />
@@ -81,13 +82,13 @@ export default function Cart() {
 
         {lines.map((l, i) => (
           <FadeIn key={l.key} index={i}>
-            <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12 }}>
-              <Photo path={imageOf(l.productId)} style={{ width: 64, height: 64 }} rounded={16} />
+            <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10, borderRadius: 18, borderWidth: 0 }}>
+              <Photo path={imageOf(l.productId)} style={{ width: 78, height: 78 }} rounded={14} />
               <View style={{ flex: 1, gap: 2 }}>
                 <Text numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{l.name}</Text>
                 {isGone(l.productId) ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.red }}>{ka.menu.soldOut} · {ka.cart.removeIt}</Text> : null}
                 {l.note ? <Text numberOfLines={3} style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{l.note}</Text> : null}
-                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.yellow }}>{formatGel(l.unitPriceTetri * l.quantity)}</Text>
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{formatGel(l.unitPriceTetri * l.quantity)}</Text>
               </View>
               <Stepper value={l.quantity} onMinus={() => remove(l.key)} onPlus={() => add({ productId: l.productId, name: l.name, unitPriceTetri: l.unitPriceTetri, note: l.note })} />
             </Card>
@@ -110,15 +111,15 @@ export default function Cart() {
             </ScrollView>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
               {group.items.map((p) => (
-                <View key={p.id} style={{ width: 138, backgroundColor: theme.surface, borderRadius: 18, borderWidth: 1, borderColor: theme.border, overflow: 'hidden' }}>
-                  <Photo path={p.image_path} style={{ height: 84 }} rounded={0} />
-                  <View style={{ padding: 8, gap: 2 }}>
+                <View key={p.id} style={{ width: 128, backgroundColor: theme.surface, borderRadius: 16, padding: 8, gap: 6 }}>
+                  <Photo path={p.image_path} style={{ height: 78 }} rounded={12} />
+                  <View style={{ gap: 2 }}>
                     <Text numberOfLines={2} style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: theme.text, minHeight: 32 }}>{p.name}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{formatGel(p.price_tetri)}</Text>
+                      <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{formatGel(p.price_tetri)}</Text>
                       <PressScale accessibilityRole="button" accessibilityLabel={`${ka.menu.add}: ${p.name}`} onPress={() => add({ productId: p.id, name: p.name, unitPriceTetri: p.price_tetri })} scaleTo={0.8}
-                        style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={{ color: colors.white, fontSize: 20, fontFamily: fontFamily.extrabold, marginTop: -2 }}>+</Text>
+                        style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}>
+                        <Icon name="plus" size={18} color={colors.ink} strokeWidth={2.4} />
                       </PressScale>
                     </View>
                   </View>
@@ -134,9 +135,9 @@ export default function Cart() {
               <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{ka.cart.promo}</Text>
               {promo ? (
                 <Card selected style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <Text style={{ fontSize: 20 }}>🏷️</Text>
+                  <Icon name="star" size={20} color={colors.yellow} />
                   <Text style={{ flex: 1, fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{promo.code}  <Text style={{ color: colors.yellow }}>−{formatGel(promo.discountTetri)}</Text></Text>
-                  <Pressable accessibilityRole="button" onPress={() => setPromo(null)} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#FF6B6B' }}>{ka.cart.promoRemove}</Text></Pressable>
+                  <Pressable accessibilityRole="button" onPress={() => setPromo(null)} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.red }}>{ka.cart.promoRemove}</Text></Pressable>
                 </Card>
               ) : (
                 <View style={{ flexDirection: 'row', gap: 8 }}>
