@@ -32,20 +32,30 @@ select pg_temp.assert((select count(*) from admin_couriers()) = 1, 'courier list
 select set_config('request.jwt.claim.sub', 'c1c1c1c1-0000-0000-0000-000000000001', true);
 insert into addresses (id, user_id, street, location) values ('cccccccc-0000-0000-0000-000000000099', 'c1c1c1c1-0000-0000-0000-000000000001', 'x', st_geogfromtext('POINT(44.81 41.71)'));
 insert into ctx select 'o', create_order((select id from branches where code='B1'), 'cccccccc-0000-0000-0000-000000000099', '[{"product_id":"00000000-0000-0000-0000-000000000200","quantity":1}]'::jsonb, 'cash');
-select pg_temp.assert(pg_temp.err($q$select courier_deliveries()$q$) = 'forbidden', 'customer cannot list deliveries');
+select pg_temp.assert(pg_temp.err($q$select courier_feed()$q$) = 'forbidden', 'customer cannot list deliveries');
 select set_config('request.jwt.claim.sub', 'c3c3c3c3-0000-0000-0000-000000000003', true);
 select transition_order((select oid from ctx where k='o'), 'accepted');
 select transition_order((select oid from ctx where k='o'), 'preparing');
 select transition_order((select oid from ctx where k='o'), 'ready_for_pickup');
+select pg_temp.assert(pg_temp.err(format($q$select transition_order(%L, 'out_for_delivery')$q$, (select oid from ctx where k='o'))) = 'no_courier', 'cannot hand over before a courier accepts');
+select set_config('request.jwt.claim.sub', 'c4c4c4c4-0000-0000-0000-000000000004', true);
+select pg_temp.assert((select count(*) from courier_feed() where not mine) = 1, 'courier sees offer while order is only being prepared');
+select pg_temp.assert((select address_snapshot ? 'entrance' or phone is not null from courier_feed() limit 1) is not true, 'offer hides details');
+select courier_accept((select oid from ctx where k='o'));
+select pg_temp.assert((select count(*) from courier_feed() where mine) = 1, 'order is mine after accept');
+select set_config('request.jwt.claim.sub', 'c2c2c2c2-0000-0000-0000-000000000002', true);
+select pg_temp.assert(pg_temp.err(format($q$select courier_accept(%L)$q$, (select oid from ctx where k='o'))) = 'already_taken', 'second courier cannot take it');
+select set_config('request.jwt.claim.sub', 'c3c3c3c3-0000-0000-0000-000000000003', true);
+select pg_temp.assert((select count(*) from staff_order_couriers((select id from branches where code='B1'))) = 1, 'staff sees the courier');
 select transition_order((select oid from ctx where k='o'), 'out_for_delivery');
 select pg_temp.assert(pg_temp.err(format($q$select transition_order(%L, 'delivered')$q$, (select oid from ctx where k='o'))) like 'invalid_transition%', 'staff cannot mark delivered');
 select pg_temp.assert(pg_temp.err(format($q$select courier_mark_delivered(%L)$q$, (select oid from ctx where k='o'))) = 'forbidden', 'staff is not a courier');
 
 -- courier sees it and delivers
 select set_config('request.jwt.claim.sub', 'c4c4c4c4-0000-0000-0000-000000000004', true);
-select pg_temp.assert((select count(*) from courier_deliveries()) = 1, 'courier sees the order');
+select pg_temp.assert((select count(*) from courier_feed() where mine and status = 'out_for_delivery') = 1, 'courier sees the order on the way');
 select courier_mark_delivered((select oid from ctx where k='o'));
-select pg_temp.assert((select count(*) from courier_deliveries()) = 0, 'gone after delivery');
+select pg_temp.assert((select count(*) from courier_feed()) = 0, 'gone after delivery');
 reset role;
 select pg_temp.assert((select status = 'delivered' and payment_status = 'paid' and courier_id = 'c4c4c4c4-0000-0000-0000-000000000004' from orders where id = (select oid from ctx where k='o')), 'delivered, cash paid, courier recorded');
 rollback;

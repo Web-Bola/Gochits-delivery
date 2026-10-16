@@ -11,6 +11,7 @@ interface Order {
   id: string; number: string; status: string; payment_method: 'card' | 'cash'; payment_status: string; total_tetri: number; subtotal_tetri: number;
   delivery_fee_tetri: number; discount_tetri: number; notes: string | null; address_snapshot: Snap; created_at: string; order_items: Item[];
 }
+interface Courier { order_id: string; courier_name: string | null; courier_phone: string | null }
 interface Contact { order_id: string; phone: string | null; full_name: string | null }
 
 const COLS: { key: string; title: string; statuses: string[] }[] = [
@@ -39,6 +40,7 @@ export default function Orders() {
   const { branches, branch, setBranchId, reload: reloadBranches } = useBranch();
   const [orders, setOrders] = useState<Order[]>([]);
   const [contacts, setContacts] = useState<Record<string, Contact>>({});
+  const [couriers, setCouriers] = useState<Record<string, Courier>>({});
   const [error, setError] = useState('');
   const [sound, setSound] = useState(false);
   const [fresh, setFresh] = useState<Set<string>>(new Set());
@@ -56,6 +58,8 @@ export default function Orders() {
         .eq('branch_id', branch.id).gte('created_at', since).in('status', ['placed', 'accepted', 'preparing', 'ready_for_pickup']).order('created_at', { ascending: false }) as { data: Order[] | null; error: { message: string } | null });
       const c = ok(await supabase.rpc('staff_contacts', { p_branch: branch.id }) as { data: Contact[] | null; error: { message: string } | null });
       setContacts(Object.fromEntries(c.map((x) => [x.order_id, x])));
+      const cr = ok(await supabase.rpc('staff_order_couriers', { p_branch: branch.id }) as { data: Courier[] | null; error: { message: string } | null });
+      setCouriers(Object.fromEntries(cr.map((x) => [x.order_id, x])));
       setOrders(rows);
       setError('');
       const newIds = rows.filter((o) => o.status === 'placed').map((o) => o.id);
@@ -130,7 +134,8 @@ export default function Orders() {
                       <span className={`pill ${o.payment_method === 'card' ? 'ok' : 'warn'}`}>{o.payment_method === 'card' ? (o.payment_status === 'paid' ? 'ბარათით გადახდილია' : 'ბარათი: გადაუხდელი') : 'ნაღდი: მიიღეთ კურიერთან'}</span>
                       <b>{gel(o.total_tetri)}</b>
                     </div>
-                    <div className="acts">{(ACTIONS[o.status] ?? []).map(([label, to, cls]) => <button key={to} className={cls} disabled={busy} onClick={() => move(o, to)}>{label}</button>)}</div>
+                    {couriers[o.id] ? <div className="sub">🛵 კურიერი: <b style={{ color: 'var(--text)' }}>{couriers[o.id].courier_name}</b>{couriers[o.id].courier_phone ? ` · ${couriers[o.id].courier_phone}` : ''}</div> : <div className="sub">🛵 კურიერი ჯერ არ დაუდასტურებია</div>}
+                    <div className="acts">{(ACTIONS[o.status] ?? []).map(([label, to, cls]) => <button key={to} className={cls} disabled={busy || (to === 'out_for_delivery' && !couriers[o.id])} title={to === 'out_for_delivery' && !couriers[o.id] ? 'ჯერ კურიერმა უნდა დაადასტუროს' : undefined} onClick={() => move(o, to)}>{label}</button>)}</div>
                   </article>
                 );
               })}
