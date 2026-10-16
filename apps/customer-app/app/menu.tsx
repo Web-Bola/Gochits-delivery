@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Platform, Pressable, ScrollView, Text, TextInput, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { formatGel, productQuantity } from '@gochits/shared';
 import { ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
@@ -53,6 +53,18 @@ export default function MenuScreen() {
     if (!branch) { router.replace('/branches'); return; }
     load();
   }, [ready, branch, load, router]);
+
+  // open/closed can change while the screen stays mounted (hours edited, time passes): re-check every time we come back
+  useFocusEffect(useCallback(() => {
+    if (!branch) return;
+    let alive = true;
+    supabase.rpc('list_branches').then(({ data }) => {
+      if (!alive) return;
+      const me = ((data ?? []) as { id: string; is_open: boolean; accepts_orders: boolean; address: string | null }[]).find((b) => b.id === branch.id);
+      if (me) setState({ is_open: me.is_open, accepts_orders: me.accepts_orders, address: me.address });
+    });
+    return () => { alive = false; };
+  }, [branch]));
 
   const shown = useMemo(() => (menu?.categories ?? []).map((c) => ({ cat: c, list: (menu?.products ?? []).filter((p) => p.category_id === c.id) })).filter((x) => x.list.length > 0), [menu]);
   const deals = useMemo(() => (menu?.products ?? []).filter((p) => p.available && discountPercent(p) && photoOf(p.image_path)).slice(0, 6), [menu]);
