@@ -402,16 +402,548 @@ $$ begin
 end $$;
 create trigger on_auth_user_created after insert on auth.users for each row execute function handle_new_user();
 
+-- ===== migrations/0004_demo_mode.sql =====
+-- DEMO MODE: lets a demo (for the restaurant owners) simulate card payment and order progress.
+-- Safe by default: app_settings.demo_mode = 'false', and the demo_* functions refuse to run unless it is 'true'.
+-- Real payments (provider webhooks) and real staff status changes (transition_order) are unaffected.
+create table if not exists app_settings (
+  key text primary key,
+  value text not null
+);
+alter table app_settings enable row level security;
+create policy app_settings_read on app_settings for select using (true);
+create policy app_settings_admin on app_settings for all using (is_super_admin()) with check (is_super_admin());
+insert into app_settings (key, value) values ('demo_mode', 'false') on conflict (key) do nothing;
+
+create or replace function is_demo_mode() returns boolean
+language sql stable security definer set search_path = public as
+$$ select coalesce((select value = 'true' from app_settings where key = 'demo_mode'), false) $$;
+
+-- Simulated card payment for the customer's own pending order. No card data is ever collected.
+create or replace function demo_pay_order(p_order_id uuid, p_success boolean) returns void
+language plpgsql security definer set search_path = public as
+$$
+declare v_order orders;
+begin
+  if not is_demo_mode() then raise exception 'demo_disabled'; end if;
+  select * into v_order from orders where id = p_order_id and customer_id = auth.uid() for update;
+  if not found then raise exception 'order_not_found'; end if;
+  if v_order.status <> 'pending_payment' then raise exception 'invalid_state'; end if;
+  if p_success then
+    update orders set status = 'placed', payment_status = 'paid', updated_at = now() where id = p_order_id;
+    insert into order_events (order_id, from_status, to_status, actor_id) values (p_order_id, 'pending_payment', 'placed', auth.uid());
+  else
+    update orders set status = 'payment_failed', payment_status = 'failed', updated_at = now() where id = p_order_id;
+    insert into order_events (order_id, from_status, to_status, actor_id) values (p_order_id, 'pending_payment', 'payment_failed', auth.uid());
+  end if;
+end
+$$;
+
+-- Moves the customer's own order one step along the happy path, so the tracking screen can be demonstrated.
+create or replace function demo_advance_order(p_order_id uuid) returns order_status
+language plpgsql security definer set search_path = public as
+$$
+declare
+  v_order orders;
+  v_next order_status;
+begin
+  if not is_demo_mode() then raise exception 'demo_disabled'; end if;
+  select * into v_order from orders where id = p_order_id and customer_id = auth.uid() for update;
+  if not found then raise exception 'order_not_found'; end if;
+  v_next := case v_order.status
+    when 'placed' then 'accepted' when 'accepted' then 'preparing' when 'preparing' then 'ready_for_pickup'
+    when 'ready_for_pickup' then 'out_for_delivery' when 'out_for_delivery' then 'delivered' else null end;
+  if v_next is null then raise exception 'invalid_state'; end if;
+  update orders set status = v_next, updated_at = now() where id = p_order_id;
+  insert into order_events (order_id, from_status, to_status, actor_id) values (p_order_id, v_order.status, v_next, auth.uid());
+  return v_next;
+end
+$$;
+
+revoke all on function demo_pay_order, demo_advance_order from public;
+grant execute on function is_demo_mode to anon, authenticated;
+grant execute on function demo_pay_order, demo_advance_order to authenticated;
+
+-- resolve_branches now also tells the app whether cash on delivery is available at that branch.
+drop function if exists resolve_branches(double precision, double precision);
+create function resolve_branches(p_lat double precision, p_lng double precision)
+returns table (
+  branch_id uuid, branch_name text, zone_id uuid, zone_name text,
+  fee_tetri integer, min_order_tetri integer, free_from_tetri integer,
+  extra_minutes integer, distance_m double precision, can_order boolean, cod_enabled boolean
+)
+language sql stable security definer set search_path = public as
+$$
+  with pt as (select st_setsrid(st_makepoint(p_lng, p_lat), 4326)::geography as g)
+  select distinct on (b.id)
+         b.id, b.name, z.id, z.name, z.fee_tetri, z.min_order_tetri, z.free_from_tetri,
+         z.extra_minutes,
+         case when b.location is null then null else st_distance(b.location, pt.g) end,
+         (b.is_active and b.accepts_orders and z.fee_tetri is not null),
+         b.cod_enabled
+  from pt
+  join delivery_zones z on z.is_active and st_covers(z.area, pt.g)
+  join branches b on b.id = z.branch_id and b.is_active
+  order by b.id, z.fee_tetri nulls last
+$$;
+revoke all on function resolve_branches from public;
+grant execute on function resolve_branches to anon, authenticated;
+
+-- Realtime: customers and staff get live order updates (RLS still applies).
+do $$ begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and tablename = 'orders') then
+    alter publication supabase_realtime add table orders;
+  end if;
+end $$;
+
+-- ===== migrations/0005_product_photos.sql =====
+-- Real product photos (Gochit's Wolt page, Dighomi branch). Internal demo use, pending restaurant approval.
+-- Updates image_path by product name; products without a photo keep NULL.
+update products set image_path = 'menu/10f2afe32c7cd92c.jpg' where name = 'Double Smashed';
+update products set image_path = 'menu/2ea18f432c1d6874.jpg' where name = 'The Monster';
+update products set image_path = 'menu/624137009c5d1765.jpg' where name = 'Gochits Burger';
+update products set image_path = 'menu/8cbc29619060d84d.jpg' where name = 'Giant Burger';
+update products set image_path = 'menu/9a469a561a0ed9bf.jpg' where name = 'Jalapeno Triple';
+update products set image_path = 'menu/1025b4e04122acf9.jpg' where name = 'Double Chicken Burger';
+update products set image_path = 'menu/e349d19dac6679a3.jpg' where name = 'Double Bacon Cheesburger';
+update products set image_path = 'menu/ff8075632782d94d.jpg' where name = 'BBQ';
+update products set image_path = 'menu/f932360b9a252db1.jpg' where name = 'Chicken Burger';
+update products set image_path = 'menu/b9c8252075dfe533.jpg' where name = 'Mexican Hot';
+update products set image_path = 'menu/b227f222788dbae1.jpg' where name = 'Chicken Burger Spicy';
+update products set image_path = 'menu/9931c181d5e2d48f.jpg' where name = 'Pipipow Double Burger';
+update products set image_path = 'menu/e2656defe26c14bd.jpg' where name = 'Double Smashed Combo';
+update products set image_path = 'menu/f2a6afdee784f32a.jpg' where name = 'Gochits Burger Combo';
+update products set image_path = 'menu/b5054ae101db606e.jpg' where name = 'Chicken Burger Combo';
+update products set image_path = 'menu/2a1b9d2da9a1e510.jpg' where name = 'Double Chicken Burger Combo';
+update products set image_path = 'menu/b4908a2ba229729a.jpg' where name = 'The Monster Combo';
+update products set image_path = 'menu/8cbc29619060d84d.jpg' where name = 'Giant Burger Combo';
+update products set image_path = 'menu/ab9067750f21cf0e.jpg' where name = 'BBQ Double Combo';
+update products set image_path = 'menu/6e66c4f714cdea3a.jpg' where name = 'Mexican Hot Combo';
+update products set image_path = 'menu/923a0b299936b3cf.jpg' where name = 'Jalapeno Triple Combo';
+update products set image_path = 'menu/4aeda16c2132ced1.jpg' where name = 'Pipipow Double Burger Combo';
+update products set image_path = 'menu/67ed63c74cfa427f.jpg' where name = 'ქათმის როლი';
+update products set image_path = 'menu/ca451fdfad55ec09.jpg' where name = 'ქათმის ცხარე როლი';
+update products set image_path = 'menu/2ad63c7dd2ee7576.jpg' where name = 'საქონლის ვრეპი';
+update products set image_path = 'menu/2ad63c7dd2ee7576.jpg' where name = 'საქონლის ვრეპი ყველის სოუსით';
+update products set image_path = null where name = 'ქათმის ვრეპი';
+update products set image_path = null where name = 'ქათმის ვრეპი ცხარე';
+update products set image_path = null where name = 'ქათმის ბოული';
+update products set image_path = null where name = 'ქათმის ფრეშ ბოული';
+update products set image_path = 'menu/1f736a5eb2011b6f.jpg' where name = 'კარტოფილი ფრი დიდი 350გრ.';
+update products set image_path = 'menu/1f736a5eb2011b6f.jpg' where name = 'კარტოფილი ფრი პატარა 200გრ.';
+update products set image_path = 'menu/5646be088b755e1f.jpg' where name = 'კარტოფილი ფრი მდნარი ყველით და ჰალაპენიოთი';
+update products set image_path = 'menu/832c2f8f60babb2b.jpg' where name = 'ყველის ცხელი სოუსი 60გრ';
+update products set image_path = 'menu/5fc77ec6946fde5b.jpg' where name = 'მაიონეზი 30გრ';
+update products set image_path = 'menu/f239b299fb2d0923.jpg' where name = 'ჰალაპენიო 30გრ';
+update products set image_path = 'menu/4c90ceae71477254.jpg' where name = 'კეტჩუპი 30გრ';
+update products set image_path = 'menu/1e8cc5fda47cb4ab.jpg' where name = 'BBQ სოუსი 30გრ';
+update products set image_path = 'menu/0f54b406a5b5efa3.jpg' where name = 'სპეც სოუსი 30გრ';
+update products set image_path = 'menu/deddadc297c179ef.jpg' where name = 'სპეც სოუსი ცხარე 30გრ';
+update products set image_path = 'menu/1ec21936398b1171.jpg' where name = 'კოკა-კოლა 0.33 ლ';
+update products set image_path = 'menu/06eea84f6395d969.jpg' where name = 'კოკა-კოლა ზერო 0.33 ლ';
+update products set image_path = 'menu/3b6f26c3e3012174.jpg' where name = 'ფანტა 0.33 ლ';
+update products set image_path = 'menu/218733aefce98582.jpg' where name = 'სპრაიტი 0.33 ლ';
+update products set image_path = null where name = 'Burn';
+update products set image_path = 'menu/a28e0c3f83146923.jpg' where name = 'კოკა-კოლა 0.5 ლ';
+update products set image_path = 'menu/72b9c332776a3259.jpg' where name = 'კოკა-კოლა ზერო 0.5 ლ';
+update products set image_path = 'menu/46ac7bced56dc390.jpg' where name = 'ფანტა 0.5 ლ';
+update products set image_path = 'menu/7302333c567fbf34.jpg' where name = 'სპრაიტი 0.5 ლ';
+update products set image_path = 'menu/9b90f2bf6aa9da7c.jpg' where name = 'მთის წყალი 0.5 ლ';
+
+-- Branch names from Wolt/Glovo pages (unconfirmed; addresses/hours still to be confirmed by the owner).
+update branches set name = 'გოჩიტ''ს დიღომი' where code = 'B1';
+update branches set name = 'გოჩიტ''ს თავისუფლების მოედანი' where code = 'B2';
+update branches set name = 'გოჩიტ''ს ვარკეთილი' where code = 'B3';
+update branches set name = 'გოჩიტ''ს ისანი' where code = 'B4';
+update branches set name = 'გოჩიტ''ს მონსტრ ბურგერს ვაჟა-ფშაველა' where code = 'B5';
+update branches set name = 'გოჩიტ''ს ვეკუას ქუჩა' where code = 'B6';
+
+-- ===== migrations/0006_customer_features.sql =====
+-- Customer-side features for launch: per-item notes, favorites, promo codes, ratings, opening hours,
+-- push tokens and in-app account deletion. Money stays integer tetri; the server computes every total.
+
+-- ---------------------------------------------------------------------------------------------
+-- 1. Per-item note (removed ingredients, comment) and promo on the order
+-- ---------------------------------------------------------------------------------------------
+alter table order_items add column if not exists note text check (note is null or char_length(note) <= 300);
+alter table orders add column if not exists promo_code text;
+
+-- ---------------------------------------------------------------------------------------------
+-- 2. Favorites
+-- ---------------------------------------------------------------------------------------------
+create table if not exists favorites (
+  user_id uuid not null references profiles (id) on delete cascade,
+  product_id uuid not null references products (id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, product_id)
+);
+alter table favorites enable row level security;
+create policy favorites_owner on favorites for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+-- ---------------------------------------------------------------------------------------------
+-- 3. Promo codes. Not readable by clients (no code enumeration): validated only through functions.
+--    The owner has not approved any real promotion. Only the demo code exists, and it works only in demo mode.
+-- ---------------------------------------------------------------------------------------------
+create table if not exists promo_codes (
+  code text primary key check (code = upper(code) and char_length(code) between 3 and 30),
+  percent_off integer check (percent_off between 1 and 100),
+  amount_off_tetri integer check (amount_off_tetri > 0),
+  min_subtotal_tetri integer not null default 0 check (min_subtotal_tetri >= 0),
+  max_uses integer check (max_uses > 0),
+  used_count integer not null default 0,
+  valid_from timestamptz,
+  valid_until timestamptz,
+  is_active boolean not null default true,
+  demo_only boolean not null default false,
+  created_at timestamptz not null default now(),
+  check ((percent_off is null) <> (amount_off_tetri is null))
+);
+alter table promo_codes enable row level security;
+create policy promo_codes_admin on promo_codes for all using (is_super_admin()) with check (is_super_admin());
+revoke all on promo_codes from anon, authenticated;
+
+insert into promo_codes (code, percent_off, demo_only) values ('DEMO', 10, true) on conflict (code) do nothing;
+
+-- Internal: returns the discount in tetri or raises. p_consume = true counts the use (inside create_order).
+create or replace function promo_discount(p_code text, p_subtotal integer, p_consume boolean default false)
+returns integer language plpgsql security definer set search_path = public as
+$$
+declare
+  v promo_codes;
+  d integer;
+begin
+  select * into v from promo_codes where code = upper(btrim(p_code)) for update;
+  if not found or not v.is_active then raise exception 'promo_invalid'; end if;
+  if v.demo_only and not is_demo_mode() then raise exception 'promo_invalid'; end if;
+  if (v.valid_from is not null and now() < v.valid_from) or (v.valid_until is not null and now() > v.valid_until) then
+    raise exception 'promo_expired';
+  end if;
+  if v.max_uses is not null and v.used_count >= v.max_uses then raise exception 'promo_used_up'; end if;
+  if p_subtotal < v.min_subtotal_tetri then raise exception 'promo_min'; end if;
+  d := case when v.percent_off is not null then (p_subtotal * v.percent_off) / 100 else least(v.amount_off_tetri, p_subtotal) end;
+  if p_consume then update promo_codes set used_count = used_count + 1 where code = v.code; end if;
+  return least(d, p_subtotal);
+end
+$$;
+
+-- What the cart screen calls to preview a code. Never consumes it.
+create or replace function apply_promo(p_code text, p_subtotal integer) returns integer
+language plpgsql security definer set search_path = public as
+$$
+begin
+  if auth.uid() is null then raise exception 'not_authenticated'; end if;
+  if p_subtotal is null or p_subtotal < 0 then raise exception 'promo_invalid'; end if;
+  return promo_discount(p_code, p_subtotal, false);
+end
+$$;
+
+-- ---------------------------------------------------------------------------------------------
+-- 4. Ratings (only for the customer's own delivered order)
+-- ---------------------------------------------------------------------------------------------
+create table if not exists order_ratings (
+  order_id uuid primary key references orders (id) on delete cascade,
+  user_id uuid references profiles (id) on delete set null,
+  stars smallint not null check (stars between 1 and 5),
+  comment text check (comment is null or char_length(comment) <= 500),
+  created_at timestamptz not null default now()
+);
+alter table order_ratings enable row level security;
+create policy ratings_read on order_ratings for select using (
+  user_id = auth.uid() or is_super_admin()
+  or exists (select 1 from orders o where o.id = order_id and is_branch_staff(o.branch_id)));
+revoke insert, update, delete on order_ratings from anon, authenticated;
+
+create or replace function rate_order(p_order_id uuid, p_stars integer, p_comment text default null) returns void
+language plpgsql security definer set search_path = public as
+$$
+declare v_status order_status;
+begin
+  if p_stars is null or p_stars < 1 or p_stars > 5 then raise exception 'bad_rating'; end if;
+  select status into v_status from orders where id = p_order_id and customer_id = auth.uid();
+  if not found then raise exception 'order_not_found'; end if;
+  if v_status <> 'delivered' then raise exception 'invalid_state'; end if;
+  insert into order_ratings (order_id, user_id, stars, comment)
+  values (p_order_id, auth.uid(), p_stars, nullif(left(btrim(coalesce(p_comment, '')), 500), ''))
+  on conflict (order_id) do update set stars = excluded.stars, comment = excluded.comment;
+end
+$$;
+
+-- ---------------------------------------------------------------------------------------------
+-- 5. Opening hours. weekday follows extract(dow): 0 = Sunday ... 6 = Saturday, in the branch timezone.
+--    A branch with NO hours rows is treated as open (accepts_orders is then the only switch).
+--    closes < opens means the shift runs past midnight.
+-- ---------------------------------------------------------------------------------------------
+create or replace function branch_is_open(p_branch uuid, p_at timestamptz default now()) returns boolean
+language plpgsql stable security definer set search_path = public as
+$$
+declare
+  v_tz text;
+  v_local timestamp;
+  v_dow integer;
+  v_t time;
+  h branch_hours;
+begin
+  select timezone into v_tz from branches where id = p_branch;
+  if not found then return false; end if;
+  if not exists (select 1 from branch_hours where branch_id = p_branch) then return true; end if;
+  v_local := p_at at time zone v_tz;
+  v_dow := extract(dow from v_local)::integer;
+  v_t := v_local::time;
+  select * into h from branch_hours where branch_id = p_branch and weekday = v_dow;
+  if found then
+    if h.opens <= h.closes then
+      if v_t >= h.opens and v_t < h.closes then return true; end if;
+    else
+      if v_t >= h.opens then return true; end if;
+    end if;
+  end if;
+  -- yesterday's shift that ran past midnight
+  select * into h from branch_hours where branch_id = p_branch and weekday = (v_dow + 6) % 7;
+  if found and h.closes < h.opens and v_t < h.closes then return true; end if;
+  return false;
+end
+$$;
+grant execute on function branch_is_open to anon, authenticated;
+
+drop function if exists resolve_branches(double precision, double precision);
+create function resolve_branches(p_lat double precision, p_lng double precision)
+returns table (
+  branch_id uuid, branch_name text, zone_id uuid, zone_name text,
+  fee_tetri integer, min_order_tetri integer, free_from_tetri integer,
+  extra_minutes integer, distance_m double precision, can_order boolean, cod_enabled boolean, is_open boolean
+)
+language sql stable security definer set search_path = public as
+$$
+  with pt as (select st_setsrid(st_makepoint(p_lng, p_lat), 4326)::geography as g)
+  select distinct on (b.id)
+         b.id, b.name, z.id, z.name, z.fee_tetri, z.min_order_tetri, z.free_from_tetri,
+         z.extra_minutes,
+         case when b.location is null then null else st_distance(b.location, pt.g) end,
+         (b.is_active and b.accepts_orders and z.fee_tetri is not null and branch_is_open(b.id)),
+         b.cod_enabled,
+         branch_is_open(b.id)
+  from pt
+  join delivery_zones z on z.is_active and st_covers(z.area, pt.g)
+  join branches b on b.id = z.branch_id and b.is_active
+  order by b.id, z.fee_tetri nulls last
+$$;
+revoke all on function resolve_branches from public;
+grant execute on function resolve_branches to anon, authenticated;
+
+-- ---------------------------------------------------------------------------------------------
+-- 6. create_order v2: item notes, promo, per-element quantity check, opening hours
+-- ---------------------------------------------------------------------------------------------
+drop function if exists create_order(uuid, uuid, jsonb, payment_method, text);
+create function create_order(
+  p_branch_id uuid, p_address_id uuid, p_items jsonb,
+  p_payment_method payment_method, p_notes text default null, p_promo text default null
+) returns uuid
+language plpgsql security definer set search_path = public as
+$$
+declare
+  v_user uuid := auth.uid();
+  v_branch branches;
+  v_addr addresses;
+  v_zone delivery_zones;
+  v_subtotal integer := 0;
+  v_discount integer := 0;
+  v_lines jsonb;
+  v_fee integer;
+  v_order uuid;
+  v_number text;
+  v_status order_status;
+  v_promo text := nullif(upper(btrim(coalesce(p_promo, ''))), '');
+begin
+  if v_user is null then raise exception 'not_authenticated'; end if;
+  if p_items is null or jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) = 0 then
+    raise exception 'empty_cart';
+  end if;
+  -- every element must carry a sane integer quantity (a negative element must never offset another)
+  if exists (select 1 from jsonb_array_elements(p_items) e
+              where jsonb_typeof(e -> 'quantity') <> 'number' or (e ->> 'quantity') !~ '^[0-9]{1,2}$'
+                 or (e ->> 'quantity')::integer < 1 or (e ->> 'quantity')::integer > 50) then
+    raise exception 'bad_quantity';
+  end if;
+
+  select * into v_branch from branches where id = p_branch_id and is_active and accepts_orders for update;
+  if not found then raise exception 'branch_unavailable'; end if;
+  if not branch_is_open(p_branch_id) then raise exception 'branch_closed'; end if;
+
+  select * into v_addr from addresses where id = p_address_id and user_id = v_user;
+  if not found then raise exception 'address_not_found'; end if;
+
+  select z.* into v_zone from delivery_zones z
+   where z.branch_id = p_branch_id and z.is_active and st_covers(z.area, v_addr.location)
+   order by z.fee_tetri nulls last limit 1;
+  if not found then raise exception 'outside_zone'; end if;
+  if v_zone.fee_tetri is null then raise exception 'fee_not_configured'; end if;
+
+  if p_payment_method = 'cash' and not v_branch.cod_enabled then raise exception 'cash_not_allowed'; end if;
+
+  -- price every line from the DB; the same product with a different note stays a separate line
+  select coalesce(jsonb_agg(jsonb_build_object('product_id', x.id, 'name', x.name, 'price', x.price, 'qty', x.qty, 'note', x.note)), '[]'::jsonb)
+    into v_lines
+    from (
+      select p.id, p.name, coalesce(bp.price_override_tetri, p.price_tetri) as price,
+             nullif(left(btrim(coalesce(e ->> 'note', '')), 300), '') as note,
+             sum((e ->> 'quantity')::integer) as qty
+        from jsonb_array_elements(p_items) e
+        join products p on p.id = (e ->> 'product_id')::uuid and p.is_active
+        join branch_products bp on bp.product_id = p.id and bp.branch_id = p_branch_id and bp.is_available
+       group by p.id, p.name, 3, 4
+    ) x;
+
+  if (select count(distinct e ->> 'product_id') from jsonb_array_elements(p_items) e)
+     <> (select count(distinct l ->> 'product_id') from jsonb_array_elements(v_lines) l) then
+    raise exception 'product_unavailable';
+  end if;
+  if exists (select 1 from jsonb_array_elements(v_lines) l where (l ->> 'qty')::integer > 50) then
+    raise exception 'bad_quantity';
+  end if;
+
+  select sum((l ->> 'price')::integer * (l ->> 'qty')::integer) into v_subtotal from jsonb_array_elements(v_lines) l;
+  if v_subtotal < v_zone.min_order_tetri then raise exception 'below_minimum'; end if;
+
+  if v_promo is not null then
+    v_discount := promo_discount(v_promo, v_subtotal, true);
+  end if;
+
+  v_fee := case when v_zone.free_from_tetri is not null and v_subtotal >= v_zone.free_from_tetri
+                then 0 else v_zone.fee_tetri end;
+
+  update branches set order_counter = order_counter + 1 where id = p_branch_id
+    returning code || '-' || lpad(order_counter::text, 6, '0') into v_number;
+
+  v_status := case when p_payment_method = 'cash' then 'placed' else 'pending_payment' end;
+
+  insert into orders (number, customer_id, branch_id, zone_id, status, payment_method, payment_status,
+                      address_snapshot, delivery_point, notes, subtotal_tetri, delivery_fee_tetri, discount_tetri, total_tetri, promo_code)
+  values (v_number, v_user, p_branch_id, v_zone.id, v_status, p_payment_method,
+          case when p_payment_method = 'cash' then 'unpaid' else 'pending' end::payment_status,
+          to_jsonb(v_addr) - 'user_id' - 'location', v_addr.location, left(p_notes, 500),
+          v_subtotal, v_fee, v_discount, v_subtotal - v_discount + v_fee, v_promo)
+  returning id into v_order;
+
+  insert into order_items (order_id, product_id, name_snapshot, unit_price_tetri, quantity, note)
+  select v_order, (l ->> 'product_id')::uuid, l ->> 'name', (l ->> 'price')::integer, (l ->> 'qty')::integer, l ->> 'note'
+    from jsonb_array_elements(v_lines) l;
+
+  insert into order_events (order_id, from_status, to_status, actor_id) values (v_order, null, v_status, v_user);
+  return v_order;
+end
+$$;
+
+-- ---------------------------------------------------------------------------------------------
+-- 7. Push tokens (the sender is a separate Edge Function, deployed later)
+-- ---------------------------------------------------------------------------------------------
+create table if not exists push_tokens (
+  token text primary key,
+  user_id uuid not null references profiles (id) on delete cascade,
+  platform text not null check (platform in ('ios', 'android', 'web')),
+  updated_at timestamptz not null default now()
+);
+alter table push_tokens enable row level security;
+create policy push_tokens_owner on push_tokens for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+-- ---------------------------------------------------------------------------------------------
+-- 8. In-app account deletion (required by Apple/Google). Personal data is removed; finished orders stay
+--    for accounting but lose the link to the person and the delivery address.
+--    What must be kept, and for how long, is a question for the lawyer.
+-- ---------------------------------------------------------------------------------------------
+alter table orders alter column customer_id drop not null;
+alter table orders drop constraint if exists orders_customer_id_fkey;
+alter table orders add constraint orders_customer_id_fkey foreign key (customer_id) references profiles (id) on delete set null;
+
+create or replace function delete_my_account() returns void
+language plpgsql security definer set search_path = public as
+$$
+declare v_user uuid := auth.uid();
+begin
+  if v_user is null then raise exception 'not_authenticated'; end if;
+  if exists (select 1 from orders where customer_id = v_user
+              and status in ('pending_payment', 'placed', 'accepted', 'preparing', 'ready_for_pickup', 'out_for_delivery')) then
+    raise exception 'active_order';
+  end if;
+  update orders set address_snapshot = jsonb_build_object('deleted', true), notes = null where customer_id = v_user;
+  delete from auth.users where id = v_user;   -- cascades: profile, addresses, favorites, push tokens
+end
+$$;
+
+-- ---------------------------------------------------------------------------------------------
+-- 9. Address helpers (lat/lng in and out as plain numbers) and a branch list with the open/closed state
+-- ---------------------------------------------------------------------------------------------
+create or replace function my_addresses()
+returns table (id uuid, label text, street text, entrance text, floor text, apartment text, comment text, lat double precision, lng double precision)
+language sql stable security invoker set search_path = public as
+$$
+  select a.id, a.label, a.street, a.entrance, a.floor, a.apartment, a.comment, st_y(a.location::geometry), st_x(a.location::geometry)
+    from addresses a where a.user_id = auth.uid() order by a.created_at desc
+$$;
+
+create or replace function add_address(
+  p_street text, p_entrance text, p_floor text, p_apartment text, p_comment text,
+  p_lat double precision, p_lng double precision
+) returns uuid
+language plpgsql security definer set search_path = public as
+$$
+declare v_id uuid;
+begin
+  if auth.uid() is null then raise exception 'not_authenticated'; end if;
+  if p_street is null or char_length(btrim(p_street)) < 3 or char_length(p_street) > 200 then raise exception 'bad_address'; end if;
+  if p_lat is null or p_lng is null or p_lat not between -90 and 90 or p_lng not between -180 and 180 then raise exception 'bad_address'; end if;
+  if (select count(*) from addresses where user_id = auth.uid()) >= 10 then raise exception 'too_many_addresses'; end if;
+  insert into addresses (user_id, street, entrance, floor, apartment, comment, location)
+  values (auth.uid(), btrim(p_street), nullif(left(btrim(coalesce(p_entrance, '')), 20), ''), nullif(left(btrim(coalesce(p_floor, '')), 20), ''),
+          nullif(left(btrim(coalesce(p_apartment, '')), 20), ''), nullif(left(btrim(coalesce(p_comment, '')), 300), ''),
+          st_setsrid(st_makepoint(p_lng, p_lat), 4326)::geography)
+  returning id into v_id;
+  return v_id;
+end
+$$;
+
+create or replace function list_branches()
+returns table (id uuid, name text, address text, phone text, accepts_orders boolean, is_open boolean)
+language sql stable security definer set search_path = public as
+$$
+  select b.id, b.name, b.address, b.phone, b.accepts_orders, branch_is_open(b.id)
+    from branches b where b.is_active order by b.code
+$$;
+
+-- ---------------------------------------------------------------------------------------------
+-- 10. Customer cancels their own order. Only while the restaurant has not accepted it and no card money
+--     has been captured (refunds depend on the payment provider, which is not chosen yet).
+-- ---------------------------------------------------------------------------------------------
+create or replace function cancel_my_order(p_order_id uuid) returns void
+language plpgsql security definer set search_path = public as
+$$
+declare v_order orders;
+begin
+  select * into v_order from orders where id = p_order_id and customer_id = auth.uid() for update;
+  if not found then raise exception 'order_not_found'; end if;
+  if not (v_order.status = 'pending_payment'
+          or (v_order.status = 'placed' and v_order.payment_status <> 'paid')) then
+    raise exception 'cannot_cancel';
+  end if;
+  update orders set status = 'cancelled', updated_at = now() where id = p_order_id;
+  insert into order_events (order_id, from_status, to_status, actor_id) values (p_order_id, v_order.status, 'cancelled', auth.uid());
+end
+$$;
+
+revoke all on function promo_discount, apply_promo, rate_order, delete_my_account, create_order, my_addresses, add_address, list_branches, cancel_my_order from public;
+grant execute on function apply_promo, rate_order, delete_my_account, create_order, my_addresses, add_address, cancel_my_order to authenticated;
+grant execute on function list_branches to anon, authenticated;
+
 -- ===== seed.sql =====
 -- Dev/launch seed. Menu = Wolt observed snapshot (2026-10-15), prices NOT approved (price_source='unapproved').
--- Branch names/addresses/phones are placeholders until the owner provides them.
+-- Branch names come from Wolt/Glovo pages; addresses/hours/phones still to be confirmed by the owner.
 
-insert into branches (code,name) values ('B1','[ფილიალი 1]') on conflict (code) do nothing;
-insert into branches (code,name) values ('B2','[ფილიალი 2]') on conflict (code) do nothing;
-insert into branches (code,name) values ('B3','[ფილიალი 3]') on conflict (code) do nothing;
-insert into branches (code,name) values ('B4','[ფილიალი 4]') on conflict (code) do nothing;
-insert into branches (code,name) values ('B5','[ფილიალი 5]') on conflict (code) do nothing;
-insert into branches (code,name) values ('B6','[ფილიალი 6]') on conflict (code) do nothing;
+insert into branches (code,name) values ('B1','გოჩიტ''ს დიღომი') on conflict (code) do nothing;
+insert into branches (code,name) values ('B2','გოჩიტ''ს თავისუფლების მოედანი') on conflict (code) do nothing;
+insert into branches (code,name) values ('B3','გოჩიტ''ს ვარკეთილი') on conflict (code) do nothing;
+insert into branches (code,name) values ('B4','გოჩიტ''ს ისანი') on conflict (code) do nothing;
+insert into branches (code,name) values ('B5','გოჩიტ''ს მონსტრ ბურგერს ვაჟა-ფშაველა') on conflict (code) do nothing;
+insert into branches (code,name) values ('B6','გოჩიტ''ს ვეკუას ქუჩა') on conflict (code) do nothing;
 
 insert into categories (id,name_ka,sort_order) values ('00000000-0000-0000-0000-000000000100','ბურგერები',0) on conflict (id) do nothing;
 insert into categories (id,name_ka,sort_order) values ('00000000-0000-0000-0000-000000000101','კომბო',1) on conflict (id) do nothing;
@@ -421,56 +953,56 @@ insert into categories (id,name_ka,sort_order) values ('00000000-0000-0000-0000-
 insert into categories (id,name_ka,sort_order) values ('00000000-0000-0000-0000-000000000105','სოუსები',5) on conflict (id) do nothing;
 insert into categories (id,name_ka,sort_order) values ('00000000-0000-0000-0000-000000000106','სასმელები',6) on conflict (id) do nothing;
 
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000200','00000000-0000-0000-0000-000000000100','Double Smashed','სპეც სოუსი, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი',1746,2495,'menu/01-double-smashed.jpg',0) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000201','00000000-0000-0000-0000-000000000100','The Monster','სპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი',2289,3270,'menu/02-the-monster.jpg',1) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000202','00000000-0000-0000-0000-000000000100','Gochits Burger','სპეც სოუსი, ნატურალური საქონლის ხორცი, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი',1379,1970,'menu/04-gochits-burger.jpg',2) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000203','00000000-0000-0000-0000-000000000100','Giant Burger','სპეც სოუსი, ნატურალური საქონლის ხორცი 5 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი',3493,4990,'menu/05-giant-burger.jpg',3) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000204','00000000-0000-0000-0000-000000000100','Jalapeno Triple','სპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი ორმაგი, აისბერგი, ბეკონი, ჰალაპენიო, ხახვი, პომიდორი',2499,3570,'menu/06-jalapeno-triple.jpg',4) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000205','00000000-0000-0000-0000-000000000100','Double Chicken Burger','ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი',1470,2100,'menu/10-double-chicken-burger.jpg',5) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000206','00000000-0000-0000-0000-000000000100','Double Bacon Cheesburger','საქონლის ხორცი 200გრ, ჩედარი 4 ფენა, ბეკონი 2ცალი, მაიონეზი, სპეც სოუსი',1883,2690,'menu/12-double-bacon-cheesburger.jpg',6) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000207','00000000-0000-0000-0000-000000000100','BBQ','სპეც სოუსი, ბარბექიუს სოუსი, ნატურალური საქონლის ხორცი 2 ფენა შერეული მოხრაკულ ბეკონში, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი',2709,3870,'menu/07-bbq.jpg',7) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000208','00000000-0000-0000-0000-000000000100','Chicken Burger','ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი',1400,2000,'menu/09-chicken-burger.jpg',8) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000209','00000000-0000-0000-0000-000000000100','Mexican Hot','ტკბილი მდოგვი, სპეც სოუსი, ჰალაპენიო, ტობასკო, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი',2289,3270,'menu/08-mexican-hot.jpg',9) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000210','00000000-0000-0000-0000-000000000100','Chicken Burger Spicy','ქათმის ფილე, სუნელები, ბოსტნეული, ჰალაპენიო, ცხარე სპეცსოუსი',1400,2000,'menu/11-chicken-burger-spicy.jpg',10) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000211','00000000-0000-0000-0000-000000000100','Pipipow Double Burger','ბურგერის პური, აისბერგი, პომიდორი, ნატურალური საქონლის ხორცი, ჩედარი, მჟავე კიტრი, ბეკონი, სპეც სოუსი, ბარბექიუ სოუსი, კეტჩუპი, მდოგვი',2800,4000,'menu/13-pipipow-double-burger.jpg',11) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000212','00000000-0000-0000-0000-000000000101','Double Smashed Combo','სპეც სოუსი, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი, ფრი და სასმელი',3390,null,'menu/15-double-smashed-combo.jpg',12) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000213','00000000-0000-0000-0000-000000000101','Gochits Burger Combo','სპეც სოუსი, ნატურალური საქონლის ხორცი, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი, ფრი და სასმელი',2790,null,'menu/14-gochits-burger-combo.jpg',13) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000214','00000000-0000-0000-0000-000000000101','Chicken Burger Combo','ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი',2500,null,'menu/16-chicken-burger-combo.jpg',14) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000215','00000000-0000-0000-0000-000000000101','Double Chicken Burger Combo','ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი',2800,null,'menu/17-double-chicken-burger-combo.jpg',15) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000216','00000000-0000-0000-0000-000000000101','The Monster Combo','სპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი + სასმელი',4090,null,'menu/18-the-monster-combo.jpg',16) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000217','00000000-0000-0000-0000-000000000101','Giant Burger Combo','სპეც სოუსი, ნატურალური საქონლის ხორცი 5 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი, სასმელი',5590,null,'menu/05-giant-burger.jpg',17) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000218','00000000-0000-0000-0000-000000000101','BBQ Double Combo','სპეც სოუსი, ბარბექიუს სოუსი, ნატურალური საქონლის ხორცი 2 ფენა შერეული მოხრაკულ ბეკონში, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი, სასმელი',4990,null,'menu/19-bbq-double-combo.jpg',18) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000219','00000000-0000-0000-0000-000000000101','Mexican Hot Combo','ტკბილი მდოგვი, სპეც სოუსი, ჰალაპენიო, ტობასკო, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი, სასმელი',3990,null,'menu/20-mexican-hot-combo.jpg',19) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000220','00000000-0000-0000-0000-000000000101','Jalapeno Triple Combo','სპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი ორმაგი, აისბერგი, ჰალაპენიო, ხახვი, კიტრი და კარტოფილი, პომიდორი, ფრი, სასმელი',4390,null,'menu/21-jalapeno-triple-combo.jpg',20) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000221','00000000-0000-0000-0000-000000000101','Pipipow Double Burger Combo','ბურგერის პური, აისბერგი, პომიდორი, ნატურალური საქონლის ხორცი, ჩედარი, მჟავე კიტრი, ბეკონი, სპეც სოუსი, ბარბექიუ სოუსი, კეტჩუპი, მდოგვი',3590,null,null,21) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000222','00000000-0000-0000-0000-000000000102','ქათმის როლი','ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი',1850,null,null,22) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000223','00000000-0000-0000-0000-000000000102','ქათმის ცხარე როლი','ქათმის ფილე, სუნელები, ბოსტნეული, ჰალაპენიო, ცხარე სპეცსოუსი',1850,null,null,23) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000224','00000000-0000-0000-0000-000000000102','საქონლის ვრეპი','საქონლის ფარში, ყველი, ბოსტნეული, სპეც სოუსი, ბარბექიუ სოუსი, მჟავე კიტრი',1500,null,null,24) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000225','00000000-0000-0000-0000-000000000102','საქონლის ვრეპი ყველის სოუსით','საქონლის ფარში, ყველი, ბოსტნეული, სპეც სოუსი, ბარბექიუ სოუსი, მჟავე კიტრი, ყველის სოუსი',1500,null,null,25) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000200','00000000-0000-0000-0000-000000000100','Double Smashed','სპეც სოუსი, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი',1746,2495,'menu/10f2afe32c7cd92c.jpg',0) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000201','00000000-0000-0000-0000-000000000100','The Monster','სპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი',2289,3270,'menu/2ea18f432c1d6874.jpg',1) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000202','00000000-0000-0000-0000-000000000100','Gochits Burger','სპეც სოუსი, ნატურალური საქონლის ხორცი, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი',1379,1970,'menu/624137009c5d1765.jpg',2) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000203','00000000-0000-0000-0000-000000000100','Giant Burger','სპეც სოუსი, ნატურალური საქონლის ხორცი 5 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი',3493,4990,'menu/8cbc29619060d84d.jpg',3) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000204','00000000-0000-0000-0000-000000000100','Jalapeno Triple','სპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი ორმაგი, აისბერგი, ბეკონი, ჰალაპენიო, ხახვი, პომიდორი',2499,3570,'menu/9a469a561a0ed9bf.jpg',4) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000205','00000000-0000-0000-0000-000000000100','Double Chicken Burger','ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი',1470,2100,'menu/1025b4e04122acf9.jpg',5) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000206','00000000-0000-0000-0000-000000000100','Double Bacon Cheesburger','საქონლის ხორცი 200გრ, ჩედარი 4 ფენა, ბეკონი 2ცალი, მაიონეზი, სპეც სოუსი',1883,2690,'menu/e349d19dac6679a3.jpg',6) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000207','00000000-0000-0000-0000-000000000100','BBQ','სპეც სოუსი, ბარბექიუს სოუსი, ნატურალური საქონლის ხორცი 2 ფენა შერეული მოხრაკულ ბეკონში, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი',2709,3870,'menu/ff8075632782d94d.jpg',7) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000208','00000000-0000-0000-0000-000000000100','Chicken Burger','ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი',1400,2000,'menu/f932360b9a252db1.jpg',8) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000209','00000000-0000-0000-0000-000000000100','Mexican Hot','ტკბილი მდოგვი, სპეც სოუსი, ჰალაპენიო, ტობასკო, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი',2289,3270,'menu/b9c8252075dfe533.jpg',9) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000210','00000000-0000-0000-0000-000000000100','Chicken Burger Spicy','ქათმის ფილე, სუნელები, ბოსტნეული, ჰალაპენიო, ცხარე სპეცსოუსი',1400,2000,'menu/b227f222788dbae1.jpg',10) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000211','00000000-0000-0000-0000-000000000100','Pipipow Double Burger','ბურგერის პური, აისბერგი, პომიდორი, ნატურალური საქონლის ხორცი, ჩედარი, მჟავე კიტრი, ბეკონი, სპეც სოუსი, ბარბექიუ სოუსი, კეტჩუპი, მდოგვი',2800,4000,'menu/9931c181d5e2d48f.jpg',11) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000212','00000000-0000-0000-0000-000000000101','Double Smashed Combo','სპეც სოუსი, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი, ფრი და სასმელი',3390,null,'menu/e2656defe26c14bd.jpg',12) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000213','00000000-0000-0000-0000-000000000101','Gochits Burger Combo','სპეც სოუსი, ნატურალური საქონლის ხორცი, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი, ფრი და სასმელი',2790,null,'menu/f2a6afdee784f32a.jpg',13) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000214','00000000-0000-0000-0000-000000000101','Chicken Burger Combo','ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი',2500,null,'menu/b5054ae101db606e.jpg',14) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000215','00000000-0000-0000-0000-000000000101','Double Chicken Burger Combo','ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი',2800,null,'menu/2a1b9d2da9a1e510.jpg',15) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000216','00000000-0000-0000-0000-000000000101','The Monster Combo','სპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი + სასმელი',4090,null,'menu/b4908a2ba229729a.jpg',16) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000217','00000000-0000-0000-0000-000000000101','Giant Burger Combo','სპეც სოუსი, ნატურალური საქონლის ხორცი 5 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი, სასმელი',5590,null,'menu/8cbc29619060d84d.jpg',17) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000218','00000000-0000-0000-0000-000000000101','BBQ Double Combo','სპეც სოუსი, ბარბექიუს სოუსი, ნატურალური საქონლის ხორცი 2 ფენა შერეული მოხრაკულ ბეკონში, ყველი ჩედარი, აისბერგი, ხახვი, ბეკონი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი, სასმელი',4990,null,'menu/ab9067750f21cf0e.jpg',18) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000219','00000000-0000-0000-0000-000000000101','Mexican Hot Combo','ტკბილი მდოგვი, სპეც სოუსი, ჰალაპენიო, ტობასკო, ნატურალური საქონლის ხორცი 2 ფენა, ყველი ჩედარი, აისბერგი, ხახვი, კიტრის მარინადი, პომიდორი და კარტოფილი ფრი, სასმელი',3990,null,'menu/6e66c4f714cdea3a.jpg',19) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000220','00000000-0000-0000-0000-000000000101','Jalapeno Triple Combo','სპეც სოუსი, ნატურალური საქონლის ხორცი 3 ფენა, ყველი ჩედარი ორმაგი, აისბერგი, ჰალაპენიო, ხახვი, კიტრი და კარტოფილი, პომიდორი, ფრი, სასმელი',4390,null,'menu/923a0b299936b3cf.jpg',20) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000221','00000000-0000-0000-0000-000000000101','Pipipow Double Burger Combo','ბურგერის პური, აისბერგი, პომიდორი, ნატურალური საქონლის ხორცი, ჩედარი, მჟავე კიტრი, ბეკონი, სპეც სოუსი, ბარბექიუ სოუსი, კეტჩუპი, მდოგვი',3590,null,'menu/4aeda16c2132ced1.jpg',21) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000222','00000000-0000-0000-0000-000000000102','ქათმის როლი','ქათმის ფილე, სუნელები, ბოსტნეული, მჟავე კიტრი, სპეც სოუსი',1850,null,'menu/67ed63c74cfa427f.jpg',22) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000223','00000000-0000-0000-0000-000000000102','ქათმის ცხარე როლი','ქათმის ფილე, სუნელები, ბოსტნეული, ჰალაპენიო, ცხარე სპეცსოუსი',1850,null,'menu/ca451fdfad55ec09.jpg',23) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000224','00000000-0000-0000-0000-000000000102','საქონლის ვრეპი','საქონლის ფარში, ყველი, ბოსტნეული, სპეც სოუსი, ბარბექიუ სოუსი, მჟავე კიტრი',1500,null,'menu/2ad63c7dd2ee7576.jpg',24) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000225','00000000-0000-0000-0000-000000000102','საქონლის ვრეპი ყველის სოუსით','საქონლის ფარში, ყველი, ბოსტნეული, სპეც სოუსი, ბარბექიუ სოუსი, მჟავე კიტრი, ყველის სოუსი',1500,null,'menu/2ad63c7dd2ee7576.jpg',25) on conflict (id) do nothing;
 insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000226','00000000-0000-0000-0000-000000000102','ქათმის ვრეპი','ქათმის ფილე, ყველი, ბოსტნეული, სპეც სოუსი',2100,null,null,26) on conflict (id) do nothing;
 insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000227','00000000-0000-0000-0000-000000000102','ქათმის ვრეპი ცხარე','ქათმის ფილე, ყველი, ბოსტნეული, ცხარე სპეც სოუსი',2100,null,null,27) on conflict (id) do nothing;
 insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000228','00000000-0000-0000-0000-000000000103','ქათმის ბოული','ფრი, ქათმის ფილე, სპეც სოუსი',1750,null,null,28) on conflict (id) do nothing;
 insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000229','00000000-0000-0000-0000-000000000103','ქათმის ფრეშ ბოული','ქათმის ფილე, სპეც სოუსი, აისბერგი, პომიდორი, მჟავე კიტრი',1450,null,null,29) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000230','00000000-0000-0000-0000-000000000104','კარტოფილი ფრი დიდი 350გრ.',null,850,null,'menu/03-350.jpg',30) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000231','00000000-0000-0000-0000-000000000104','კარტოფილი ფრი პატარა 200გრ.',null,650,null,'menu/03-350.jpg',31) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000232','00000000-0000-0000-0000-000000000104','კარტოფილი ფრი მდნარი ყველით და ჰალაპენიოთი',null,1650,null,null,32) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000233','00000000-0000-0000-0000-000000000105','ყველის ცხელი სოუსი 60გრ',null,700,null,null,33) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000234','00000000-0000-0000-0000-000000000105','მაიონეზი 30გრ',null,300,null,null,34) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000235','00000000-0000-0000-0000-000000000105','ჰალაპენიო 30გრ',null,350,null,null,35) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000236','00000000-0000-0000-0000-000000000105','კეტჩუპი 30გრ',null,300,null,null,36) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000237','00000000-0000-0000-0000-000000000105','BBQ სოუსი 30გრ',null,300,null,null,37) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000238','00000000-0000-0000-0000-000000000105','სპეც სოუსი 30გრ',null,300,null,null,38) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000239','00000000-0000-0000-0000-000000000105','სპეც სოუსი ცხარე 30გრ',null,300,null,null,39) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000240','00000000-0000-0000-0000-000000000106','კოკა-კოლა 0.33 ლ',null,400,null,null,40) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000241','00000000-0000-0000-0000-000000000106','კოკა-კოლა ზერო 0.33 ლ',null,400,null,null,41) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000242','00000000-0000-0000-0000-000000000106','ფანტა 0.33 ლ',null,400,null,null,42) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000243','00000000-0000-0000-0000-000000000106','სპრაიტი 0.33 ლ',null,400,null,null,43) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000230','00000000-0000-0000-0000-000000000104','კარტოფილი ფრი დიდი 350გრ.',null,850,null,'menu/1f736a5eb2011b6f.jpg',30) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000231','00000000-0000-0000-0000-000000000104','კარტოფილი ფრი პატარა 200გრ.',null,650,null,'menu/1f736a5eb2011b6f.jpg',31) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000232','00000000-0000-0000-0000-000000000104','კარტოფილი ფრი მდნარი ყველით და ჰალაპენიოთი',null,1650,null,'menu/5646be088b755e1f.jpg',32) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000233','00000000-0000-0000-0000-000000000105','ყველის ცხელი სოუსი 60გრ',null,700,null,'menu/832c2f8f60babb2b.jpg',33) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000234','00000000-0000-0000-0000-000000000105','მაიონეზი 30გრ',null,300,null,'menu/5fc77ec6946fde5b.jpg',34) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000235','00000000-0000-0000-0000-000000000105','ჰალაპენიო 30გრ',null,350,null,'menu/f239b299fb2d0923.jpg',35) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000236','00000000-0000-0000-0000-000000000105','კეტჩუპი 30გრ',null,300,null,'menu/4c90ceae71477254.jpg',36) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000237','00000000-0000-0000-0000-000000000105','BBQ სოუსი 30გრ',null,300,null,'menu/1e8cc5fda47cb4ab.jpg',37) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000238','00000000-0000-0000-0000-000000000105','სპეც სოუსი 30გრ',null,300,null,'menu/0f54b406a5b5efa3.jpg',38) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000239','00000000-0000-0000-0000-000000000105','სპეც სოუსი ცხარე 30გრ',null,300,null,'menu/deddadc297c179ef.jpg',39) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000240','00000000-0000-0000-0000-000000000106','კოკა-კოლა 0.33 ლ',null,400,null,'menu/1ec21936398b1171.jpg',40) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000241','00000000-0000-0000-0000-000000000106','კოკა-კოლა ზერო 0.33 ლ',null,400,null,'menu/06eea84f6395d969.jpg',41) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000242','00000000-0000-0000-0000-000000000106','ფანტა 0.33 ლ',null,400,null,'menu/3b6f26c3e3012174.jpg',42) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000243','00000000-0000-0000-0000-000000000106','სპრაიტი 0.33 ლ',null,400,null,'menu/218733aefce98582.jpg',43) on conflict (id) do nothing;
 insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000244','00000000-0000-0000-0000-000000000106','Burn',null,450,null,null,44) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000245','00000000-0000-0000-0000-000000000106','კოკა-კოლა 0.5 ლ',null,400,null,null,45) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000246','00000000-0000-0000-0000-000000000106','კოკა-კოლა ზერო 0.5 ლ',null,350,null,null,46) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000247','00000000-0000-0000-0000-000000000106','ფანტა 0.5 ლ',null,400,null,null,47) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000248','00000000-0000-0000-0000-000000000106','სპრაიტი 0.5 ლ',null,400,null,null,48) on conflict (id) do nothing;
-insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000249','00000000-0000-0000-0000-000000000106','მთის წყალი 0.5 ლ',null,300,null,null,49) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000245','00000000-0000-0000-0000-000000000106','კოკა-კოლა 0.5 ლ',null,400,null,'menu/a28e0c3f83146923.jpg',45) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000246','00000000-0000-0000-0000-000000000106','კოკა-კოლა ზერო 0.5 ლ',null,350,null,'menu/72b9c332776a3259.jpg',46) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000247','00000000-0000-0000-0000-000000000106','ფანტა 0.5 ლ',null,400,null,'menu/46ac7bced56dc390.jpg',47) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000248','00000000-0000-0000-0000-000000000106','სპრაიტი 0.5 ლ',null,400,null,'menu/7302333c567fbf34.jpg',48) on conflict (id) do nothing;
+insert into products (id,category_id,name,description_ka,price_tetri,old_price_tetri,image_path,sort_order) values ('00000000-0000-0000-0000-000000000249','00000000-0000-0000-0000-000000000106','მთის წყალი 0.5 ლ',null,300,null,'menu/9b90f2bf6aa9da7c.jpg',49) on conflict (id) do nothing;
 
 -- every product available in every branch by default
 insert into branch_products (branch_id,product_id) select b.id,p.id from branches b cross join products p on conflict do nothing;

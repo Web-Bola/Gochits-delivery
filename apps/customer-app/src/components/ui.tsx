@@ -127,15 +127,16 @@ export function Card({ children, style, selected }: { children: ReactNode; style
 }
 
 /** red = main action, ink = yellow secondary action, outline = quiet. */
-export function Button({ title, onPress, disabled, variant = 'red' }: { title: string; onPress: () => void; disabled?: boolean; variant?: 'red' | 'ink' | 'outline' }) {
+export function Button({ title, onPress, disabled, variant = 'red' }: { title: string; onPress: () => void; disabled?: boolean; variant?: 'red' | 'ink' | 'outline' | 'outlineDark' }) {
   const bg = variant === 'red' ? colors.red : variant === 'ink' ? colors.yellow : 'transparent';
-  const fg = variant === 'red' ? colors.white : variant === 'ink' ? colors.ink : theme.text;
+  const fg = variant === 'red' ? colors.white : variant === 'ink' ? colors.ink : variant === 'outlineDark' ? colors.ink : theme.text;
   return (
     <PressScale accessibilityRole="button" accessibilityState={{ disabled: !!disabled }} onPress={onPress} disabled={disabled} scaleTo={0.97}
       style={{ ...s.btn, backgroundColor: bg, opacity: disabled ? 0.45 : 1,
         ...(variant === 'red' && !disabled ? { shadowColor: colors.red, shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } } : {}),
         ...(variant === 'ink' && !disabled ? { shadowColor: colors.yellow, shadowOpacity: 0.3, shadowRadius: 14, shadowOffset: { width: 0, height: 6 } } : {}),
-        ...(variant === 'outline' ? { borderWidth: 2, borderColor: theme.border } : {}) }}>
+        ...(variant === 'outline' ? { borderWidth: 2, borderColor: theme.border } : {}),
+        ...(variant === 'outlineDark' ? { borderWidth: 2, borderColor: '#E8DDB8' } : {}) }}>
       <Text style={[s.btnText, { color: fg }]}>{title}</Text>
     </PressScale>
   );

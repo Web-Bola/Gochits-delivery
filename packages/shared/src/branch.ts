@@ -11,6 +11,8 @@ export interface BranchOption {
   distance_m: number | null;
   can_order: boolean;
   cod_enabled: boolean;
+  /** Inside opening hours right now (a branch can be open but not accepting orders). */
+  is_open: boolean;
 }
 
 /** Order for the picker: orderable branches first, then nearest. Which one is preselected is D-OVERLAP. */

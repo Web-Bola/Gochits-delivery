@@ -22,7 +22,7 @@ export default function Splash() {
     setBusy(true);
     try {
       const { data } = await supabase.auth.getSession();
-      router.replace(data.session ? '/address' : '/login');
+      router.replace(data.session ? '/menu' : '/login');
     } catch {
       router.replace('/login');
     }

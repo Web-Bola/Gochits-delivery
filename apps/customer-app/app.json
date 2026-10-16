@@ -3,10 +3,10 @@
     "name": "Gochit's",
     "slug": "gochits-customer",
     "scheme": "gochits",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "icon": "./assets/logo.png",
+    "icon": "./assets/icon.png",
     "plugins": [
       "expo-router",
       "expo-secure-store",
@@ -15,18 +15,34 @@
         {
           "locationWhenInUsePermission": "მისამართის დასადგენად გვჭირდება შენი მდებარეობა"
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#FFCC02"
+        }
       ]
     ],
     "ios": {
-      "bundleIdentifier": "ge.gochits.customer"
+      "bundleIdentifier": "ge.gochits.customer",
+      "supportsTablet": false
     },
     "android": {
-      "package": "ge.gochits.customer"
+      "package": "ge.gochits.customer",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFCC02"
+      }
     },
     "web": {
       "bundler": "metro",
       "output": "single",
       "favicon": "./assets/logo.png"
+    },
+    "splash": {
+      "image": "./assets/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFCC02"
     }
   }
 }
