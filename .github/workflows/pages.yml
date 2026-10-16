@@ -42,6 +42,7 @@ jobs:
       - name: Build courier app
         working-directory: apps/courier-app
         env:
+          EXPO_PUBLIC_GOOGLE_MAPS_KEY: ${{ vars.GOOGLE_MAPS_KEY }}
           EXPO_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
         run: |
