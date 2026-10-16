@@ -175,7 +175,7 @@ export default function MenuScreen() {
       <View style={{ flex: 1, backgroundColor: theme.bg }}>
         {header}
         <View style={{ padding: 30, alignItems: 'center', gap: 14 }}>
-          <Text style={{ fontSize: 56 }}>📡</Text>
+          <Icon name="clock" size={56} color={colors.yellow} />
           <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{ka.menu.loadFail}</Text>
           <Body muted>{ka.errors.network}</Body>
           <Button title={ka.common.retry} onPress={load} variant="ink" />

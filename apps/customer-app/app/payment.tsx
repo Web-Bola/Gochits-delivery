@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Icon } from '../src/components/Icon';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { formatGel } from '@gochits/shared';
@@ -39,7 +40,7 @@ export default function Payment() {
       <Header title={ka.payment.title} />
       <View style={{ padding: 20, gap: 14 }}>
         <View style={{ backgroundColor: colors.yellow, borderRadius: 16, padding: 12 }}>
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.ink, textAlign: 'center' }}>🧪 {ka.payment.banner}</Text>
+          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.ink, textAlign: 'center' }}>{ka.payment.banner}</Text>
         </View>
         <FadeIn>
           <Float amplitude={5}>
@@ -67,8 +68,8 @@ export default function Payment() {
           </View>
         )}
         {phase === 'failed' && (
-          <Card style={{ borderColor: '#FF6B6B', alignItems: 'center' }}>
-            <Text style={{ fontSize: 36 }}>❌</Text>
+          <Card style={{ borderColor: colors.red, alignItems: 'center' }}>
+            <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center' }}><Icon name="x" size={32} color={colors.white} strokeWidth={3} /></View>
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{ka.payment.failedTitle}</Text>
           </Card>
         )}

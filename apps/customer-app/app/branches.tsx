@@ -64,7 +64,7 @@ export default function Branches() {
     <Screen scroll>
       <Header back={!first} showLogo={first} title={first ? ka.branch.pickTitle : ka.branch.title} subtitle={ka.branch.pickHint} />
       <ScrollView contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: 40 }}>
-        <Button title={locating ? ka.branch.locating : `📍 ${ka.branch.locate}`} onPress={locate} disabled={locating} variant="ink" />
+        <Button title={locating ? ka.branch.locating : ka.branch.locate} onPress={locate} disabled={locating} variant="ink" />
         {note ? <ErrorText>{note}</ErrorText> : null}
         {failed ? <><Body>{ka.errors.network}</Body><Button title={ka.common.retry} onPress={load} variant="outline" /></> : null}
         {pending ? (

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Icon } from '../src/components/Icon';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import Constants from 'expo-constants';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -83,7 +84,7 @@ export default function Profile() {
       <ScrollView contentContainerStyle={{ padding: 20, gap: 14, paddingBottom: 110 }} keyboardShouldPersistTaps="handled">
         <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
           <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 24, color: colors.ink }}>{(name.trim()[0] ?? '👤').toUpperCase()}</Text>
+            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 24, color: colors.ink }}>{(name.trim()[0] ?? '?').toUpperCase()}</Text>
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{name.trim() || ka.profile.namePh}</Text>
@@ -104,7 +105,7 @@ export default function Profile() {
                 <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{formatGel(p.price_tetri)}</Text>
               </View>
               <Pressable accessibilityRole="button" accessibilityLabel={ka.menu.favRemove} onPress={() => fav.toggle(p.id)} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 22, color: colors.red }}>♥</Text>
+                <Icon name="heart" size={22} color={colors.red} fill={colors.red} />
               </Pressable>
             </Card>
           </Pressable>
@@ -114,7 +115,7 @@ export default function Profile() {
         {addrs.length === 0 && <Body muted>{ka.profile.noAddresses}</Body>}
         {addrs.map((a) => (
           <Card key={a.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <Text style={{ fontSize: 20 }}>📍</Text>
+            <Icon name="pin" size={20} color={colors.yellow} />
             <Text numberOfLines={2} style={{ flex: 1, fontFamily: fontFamily.semibold, fontSize: 14, color: theme.text }}>{a.street}</Text>
             <Text accessibilityRole="button" onPress={() => removeAddr(a.id)} style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#FF6B6B', padding: 8 }}>{ka.profile.delete}</Text>
           </Card>

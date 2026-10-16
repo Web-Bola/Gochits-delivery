@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Icon } from '../src/components/Icon';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { formatGel, TERMINAL_STATUSES, type OrderStatus } from '@gochits/shared';
@@ -54,8 +55,8 @@ export default function Orders() {
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.yellow }}>{formatGel(r.total_tetri)}</Text>
           </View>
           {active(r.status) ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{ka.orders.track} →</Text> : (
-            <Pressable accessibilityRole="button" disabled={busyId === r.id} onPress={() => again(r.id)} style={{ minHeight: 44, justifyContent: 'center' }}>
-              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.yellow }}>{busyId === r.id ? '...' : `↻ ${ka.orders.reorder}`}</Text>
+            <Pressable accessibilityRole="button" disabled={busyId === r.id} onPress={() => again(r.id)} style={{ minHeight: 44, borderRadius: 22, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}>
+              <Icon name="repeat" size={18} color={colors.yellow} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{busyId === r.id ? '...' : ka.orders.reorder}</Text>
             </Pressable>
           )}
         </Card>
@@ -72,7 +73,7 @@ export default function Orders() {
           {msg && <ErrorText>{msg}</ErrorText>}
           {rows.length === 0 && !failed && (
             <View style={{ alignItems: 'center', gap: 12, paddingTop: 50 }}>
-              <Float amplitude={8}><Text style={{ fontSize: 64 }}>🍔</Text></Float>
+              <Float amplitude={8}><View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: theme.surface, alignItems: 'center', justifyContent: 'center' }}><Icon name="receipt" size={44} color={colors.yellow} /></View></Float>
               <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 18, color: theme.text }}>{ka.orders.empty}</Text>
               <Body muted>{ka.orders.emptyHint}</Body>
               <Button title={ka.orders.toMenu} onPress={() => router.replace('/menu')} variant="ink" />

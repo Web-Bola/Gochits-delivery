@@ -61,7 +61,7 @@ export default function Address() {
     <Screen scroll>
       <Header back title={ka.address.title} subtitle={ka.address.hintLocation} />
       <ScrollView contentContainerStyle={{ padding: 20, gap: 14 }} keyboardShouldPersistTaps="handled">
-        <Button title={locating ? ka.address.working : point ? ka.address.located : `📍 ${ka.address.useLocation}`} onPress={locate} disabled={locating} variant={point ? 'outline' : 'ink'} />
+        <Button title={locating ? ka.address.working : point ? ka.address.located : ka.address.useLocation} onPress={locate} disabled={locating} variant={point ? 'outline' : 'ink'} />
         <Field label={ka.address.street} value={street} onChangeText={setStreet} placeholder={ka.address.streetPh} autoComplete="street-address" maxLength={200} />
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <View style={{ flex: 1 }}><Field label={ka.address.entrance} value={entrance} onChangeText={setEntrance} maxLength={20} /></View>

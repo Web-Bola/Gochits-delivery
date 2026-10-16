@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Icon } from '../src/components/Icon';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { formatGel, toOrderItems, type BranchOption } from '@gochits/shared';
@@ -102,7 +103,7 @@ export default function Checkout() {
     return (
       <Pressable key={m} accessibilityRole="radio" accessibilityState={{ selected: on, disabled: !enabled }} disabled={!enabled} onPress={() => setMethod(m)}>
         <Card selected={on} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, opacity: enabled ? 1 : 0.45 }}>
-          <Text style={{ fontSize: 26 }}>{icon}</Text>
+          <View style={{ width: 46, height: 36, borderRadius: 9, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}><Icon name={icon} size={22} color={colors.yellow} /></View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{title}</Text>
             {hint ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{hint}</Text> : null}
@@ -143,7 +144,7 @@ export default function Checkout() {
               return (
                 <Pressable key={a.id} accessibilityRole="radio" accessibilityState={{ selected: on }} onPress={() => setAddress({ id: a.id, street: a.street, lat: a.lat, lng: a.lng, entrance: a.entrance, floor: a.floor, apartment: a.apartment } satisfies DeliveryAddress)}>
                   <Card selected={on} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                    <Text style={{ fontSize: 22 }}>📍</Text>
+                    <Icon name="pin" size={22} color={colors.yellow} />
                     <View style={{ flex: 1 }}>
                       <Text numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{a.street}</Text>
                       {d ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{d}</Text> : null}
@@ -161,7 +162,7 @@ export default function Checkout() {
 
         {status ? (
           <Card style={{ borderColor: status.tone === 'bad' ? colors.red : status.tone === 'ok' ? '#2E7D4F' : theme.border, gap: 8 }}>
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{status.tone === 'ok' ? '✓ ' : status.tone === 'bad' ? '⚠ ' : ''}{status.text}</Text>
+            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{status.text}</Text>
             {status.tone === 'bad' && !here && others.map((o) => (
               <Button key={o.branch_id} variant="ink" title={`${ka.checkout.switchTo}: ${o.branch_name}`} onPress={() => setBranch({ id: o.branch_id, name: o.branch_name })} />
             ))}
@@ -169,8 +170,8 @@ export default function Checkout() {
         ) : null}
 
         <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{ka.checkout.payment}</Text>
-        {option('card', '💳', ka.checkout.card, cardOk, cardOk ? ka.payment.note : ka.payment.demoOff)}
-        {option('cash', '💵', ka.checkout.cash, cashOk, cashOk ? undefined : ka.checkout.cashOff)}
+        {option('card', 'card', ka.checkout.card, cardOk, cardOk ? ka.payment.note : ka.payment.demoOff)}
+        {option('cash', 'cash', ka.checkout.cash, cashOk, cashOk ? undefined : ka.checkout.cashOff)}
         <Field label={ka.checkout.notes} value={notes} onChangeText={setNotes} multiline maxLength={300} />
 
         <Card>
