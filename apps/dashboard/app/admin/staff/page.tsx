@@ -5,17 +5,20 @@ import { Field, useAction, useLoad } from '@/components/bits';
 
 interface Staff { user_id: string; email: string; full_name: string | null; branch_id: string; branch_name: string }
 interface Br { id: string; name: string }
+interface Cr { user_id: string; email: string }
 
 export default function StaffPage() {
   const { data, error, reload } = useLoad(async () => {
-    const [staff, branches] = await Promise.all([
+    const [staff, branches, couriers] = await Promise.all([
       supabase.rpc('admin_staff').then(ok<Staff[]>),
       supabase.rpc('admin_branches').then(ok<Br[]>),
+      supabase.rpc('admin_couriers').then(ok<Cr[]>),
     ]);
-    return { staff, branches };
+    return { staff, branches, couriers };
   });
   const [email, setEmail] = useState('');
   const [bid, setBid] = useState('');
+  const [cmail, setCmail] = useState('');
   const { busy, run, note } = useAction();
   const branch = bid || data?.branches[0]?.id || '';
   const add = () => run(async () => {
@@ -24,6 +27,13 @@ export default function StaffPage() {
     if (e) throw new Error(/user_not_found/.test(e.message) ? 'ამ ელფოსტით მომხმარებელი ვერ მოიძებნა. ჯერ Supabase → Authentication → Users → Add user.' : /already_admin/.test(e.message) ? 'ეს ანგარიში ადმინისტრატორია.' : e.message);
     setEmail(''); await reload();
   }, 'დაემატა ✓');
+  const addCourier = () => run(async () => {
+    if (!cmail.trim()) throw new Error('ჩაწერე ელფოსტა');
+    const { error: e } = await supabase.rpc('admin_add_courier', { p_email: cmail.trim() });
+    if (e) throw new Error(/user_not_found/.test(e.message) ? 'ამ ელფოსტით მომხმარებელი ვერ მოიძებნა. ჯერ Supabase → Authentication → Users → Add user.' : /already_admin/.test(e.message) ? 'ეს ანგარიში უკვე ადმინია ან თანამშრომელი.' : e.message);
+    setCmail(''); await reload();
+  }, 'კურიერი დაემატა ✓');
+  const removeCourier = (c: Cr) => run(async () => { if (!window.confirm(`${c.email}: კურიერობა მოვხსნათ?`)) return; ok(await supabase.rpc('admin_remove_courier', { p_user: c.user_id })); await reload(); }, 'მოხსნილია');
   const remove = (s: Staff) => run(async () => { if (!window.confirm(`${s.email}: მოვხსნა ${s.branch_name}-დან?`)) return; ok(await supabase.rpc('admin_remove_staff', { p_user: s.user_id, p_branch: s.branch_id })); await reload(); }, 'მოხსნილია');
 
   return (
@@ -51,6 +61,15 @@ export default function StaffPage() {
           {data && data.staff.length === 0 ? <tr><td colSpan={3} className="muted">თანამშრომელი ჯერ არ არის</td></tr> : null}
         </tbody>
       </table></div></div>
+      <div className="card stack">
+        <h2>კურიერები</h2>
+        <p className="small muted">კურიერი შედის <b>/login</b>-ზე და ხედავს მხოლოდ რესტორნიდან გადმოცემულ შეკვეთებს, სადაც აჭერს „მიტანილია“-ს. ჯერ Supabase-ში შექმენი მომხმარებელი (Add user), მერე ჩაწერე ელფოსტა.</p>
+        <div className="row"><input type="email" value={cmail} onChange={(e) => setCmail(e.target.value)} placeholder="courier@example.com" style={{ maxWidth: 320 }} /><button disabled={busy} onClick={addCourier}>კურიერის დამატება</button></div>
+        <div className="tblwrap"><table><tbody>
+          {data?.couriers.map((c) => <tr key={c.user_id}><td>{c.email}</td><td><button className="ghost" disabled={busy} onClick={() => removeCourier(c)}>მოხსნა</button></td></tr>)}
+          {data && data.couriers.length === 0 ? <tr><td className="muted">კურიერი ჯერ არ არის</td></tr> : null}
+        </tbody></table></div>
+      </div>
     </div>
   );
 }

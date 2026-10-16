@@ -16,17 +16,14 @@ interface Contact { order_id: string; phone: string | null; full_name: string | 
 const COLS: { key: string; title: string; statuses: string[] }[] = [
   { key: 'new', title: 'ახალი', statuses: ['placed'] },
   { key: 'cook', title: 'მზადდება', statuses: ['accepted', 'preparing'] },
-  { key: 'go', title: 'გზაში', statuses: ['ready_for_pickup', 'out_for_delivery'] },
-  { key: 'done', title: 'დასრულებული', statuses: ['delivered', 'cancelled', 'rejected'] },
+  { key: 'go', title: 'კურიერს ელოდება', statuses: ['ready_for_pickup'] },
 ];
-const LABEL: Record<string, string> = { placed: 'ახალი', accepted: 'მიღებულია', preparing: 'მზადდება', ready_for_pickup: 'მზადაა', out_for_delivery: 'გზაშია', delivered: 'მიტანილია', cancelled: 'გაუქმებულია', rejected: 'უარყოფილია' };
 // [button label, next status, style]
 const ACTIONS: Record<string, [string, string, string][]> = {
   placed: [['მიღება', 'accepted', ''], ['უარყოფა', 'rejected', 'red']],
   accepted: [['მზადდება', 'preparing', ''], ['გაუქმება', 'cancelled', 'ghost']],
   preparing: [['მზადაა', 'ready_for_pickup', ''], ['გაუქმება', 'cancelled', 'ghost']],
   ready_for_pickup: [['კურიერს გადაეცა', 'out_for_delivery', '']],
-  out_for_delivery: [['მიტანილია', 'delivered', '']],
 };
 const ago = (iso: string) => { const m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000)); return m < 1 ? 'ახლახან' : m < 60 ? `${m} წთ წინ` : `${Math.floor(m / 60)} სთ ${m % 60} წთ წინ`; };
 
@@ -56,7 +53,7 @@ export default function Orders() {
       const since = new Date(Date.now() - 2 * 86400000).toISOString();
       const rows = ok(await supabase.from('orders')
         .select('id,number,status,payment_method,payment_status,total_tetri,subtotal_tetri,delivery_fee_tetri,discount_tetri,notes,address_snapshot,created_at,order_items(name_snapshot,quantity,unit_price_tetri,note)')
-        .eq('branch_id', branch.id).gte('created_at', since).not('status', 'in', '(pending_payment,payment_failed)').order('created_at', { ascending: false }) as { data: Order[] | null; error: { message: string } | null });
+        .eq('branch_id', branch.id).gte('created_at', since).in('status', ['placed', 'accepted', 'preparing', 'ready_for_pickup']).order('created_at', { ascending: false }) as { data: Order[] | null; error: { message: string } | null });
       const c = ok(await supabase.rpc('staff_contacts', { p_branch: branch.id }) as { data: Contact[] | null; error: { message: string } | null });
       setContacts(Object.fromEntries(c.map((x) => [x.order_id, x])));
       setOrders(rows);
@@ -97,14 +94,11 @@ export default function Orders() {
     await reloadBranches();
   }, 'შენახულია ✓');
 
-  const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tbilisi' });
-  const visible = (o: Order, statuses: string[]) => statuses.includes(o.status) && (statuses.includes('delivered') ? new Date(o.created_at).toLocaleDateString('sv-SE', { timeZone: 'Asia/Tbilisi' }) === today : true);
-  const dayTotal = orders.filter((o) => o.status === 'delivered' && visible(o, ['delivered'])).reduce((s, o) => s + o.total_tetri, 0);
 
   return (
     <div className="stack">
       <div className="topbar">
-        <div><h1>შეკვეთები</h1><p className="muted">ახალი შეკვეთა ავტომატურად გამოჩნდება</p></div>
+        <div><h1>შეკვეთები</h1><p className="muted">ახალი შეკვეთა ავტომატურად გამოჩნდება. კურიერს გადაცემული და დასრულებული შეკვეთები ხედება „ისტორიაში“</p></div>
         <div className="row">
           {branches.length > 1 ? <select style={{ width: 240 }} value={branch?.id} onChange={(e) => setBranchId(e.target.value)}>{branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select> : <b>{branch?.name}</b>}
           <button className={branch?.accepts_orders ? 'ghost' : 'red'} disabled={busy} onClick={toggleAccepting}>{branch?.accepts_orders ? '⏸ შეკვეთების გაჩერება' : '▶ შეკვეთების მიღების ჩართვა'}</button>
@@ -116,7 +110,7 @@ export default function Orders() {
       {note}
       <div className="board">
         {COLS.map((c) => {
-          const list = orders.filter((o) => visible(o, c.statuses));
+          const list = orders.filter((o) => c.statuses.includes(o.status));
           return (
             <section key={c.key} className="col">
               <h2>{c.title}<span className="count">{list.length}</span></h2>
@@ -136,14 +130,11 @@ export default function Orders() {
                       <span className={`pill ${o.payment_method === 'card' ? 'ok' : 'warn'}`}>{o.payment_method === 'card' ? (o.payment_status === 'paid' ? 'ბარათით გადახდილია' : 'ბარათი: გადაუხდელი') : 'ნაღდი: მიიღეთ კურიერთან'}</span>
                       <b>{gel(o.total_tetri)}</b>
                     </div>
-                    {c.key === 'done' ? <span className={`pill ${o.status === 'delivered' ? 'ok' : 'bad'}`} style={{ alignSelf: 'flex-start' }}>{LABEL[o.status]}</span> : (
-                      <div className="acts">{(ACTIONS[o.status] ?? []).map(([label, to, cls]) => <button key={to} className={cls} disabled={busy} onClick={() => move(o, to)}>{label}</button>)}</div>
-                    )}
+                    <div className="acts">{(ACTIONS[o.status] ?? []).map(([label, to, cls]) => <button key={to} className={cls} disabled={busy} onClick={() => move(o, to)}>{label}</button>)}</div>
                   </article>
                 );
               })}
               {list.length === 0 ? <p className="small muted">—</p> : null}
-              {c.key === 'done' && dayTotal > 0 ? <p className="small muted">დღეს მიტანილი: <b style={{ color: 'var(--text)' }}>{gel(dayTotal)}</b></p> : null}
             </section>
           );
         })}

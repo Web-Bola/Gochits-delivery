@@ -54,7 +54,7 @@ select pg_temp.assert((select subtotal_tetri from orders where id = (select oid 
 -- ---------- promo ----------
 select pg_temp.assert(pg_temp.err($q$select apply_promo('DEMO', 5000)$q$) = 'promo_invalid', 'DEMO refused when demo mode is off');
 select pg_temp.assert(pg_temp.err($q$select apply_promo('NOPE', 5000)$q$) = 'promo_invalid', 'unknown code refused');
-select pg_temp.assert(pg_temp.err($q$select count(*) from promo_codes$q$) like '%permission denied%', 'clients cannot read promo_codes');
+select pg_temp.assert((select count(*) from promo_codes) = 0, 'clients cannot see promo_codes rows (RLS)');
 reset role;
 update app_settings set value = 'true' where key = 'demo_mode';
 set local role authenticated;
