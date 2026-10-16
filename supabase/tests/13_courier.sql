@@ -52,8 +52,7 @@ select pg_temp.assert(pg_temp.err(format($q$select courier_accept(%L)$q$, (selec
 -- restaurant cooks; staff can see the courier, but cannot hand over or deliver
 select set_config('request.jwt.claim.sub', 'c3c3c3c3-0000-0000-0000-000000000003', true);
 select pg_temp.assert((select count(*) from staff_order_couriers((select id from branches where code='B1'))) = 1, 'staff sees the courier');
-select transition_order((select oid from ctx where k='o'), 'preparing');
-select transition_order((select oid from ctx where k='o'), 'ready_for_pickup');
+select transition_order((select oid from ctx where k='o'), 'ready_for_pickup');  -- accepted -> ready directly
 select pg_temp.assert(pg_temp.err(format($q$select transition_order(%L, 'out_for_delivery')$q$, (select oid from ctx where k='o'))) like 'invalid_transition%', 'staff cannot hand over');
 select pg_temp.assert(pg_temp.err(format($q$select courier_pickup(%L)$q$, (select oid from ctx where k='o'))) = 'forbidden', 'staff cannot pick up');
 

@@ -22,7 +22,7 @@ const COLS: { key: string; title: string; statuses: string[] }[] = [
 // [button label, next status, style]
 const ACTIONS: Record<string, [string, string, string][]> = {
   placed: [['მიღება', 'accepted', ''], ['უარყოფა', 'rejected', 'red']],
-  accepted: [['მზადდება', 'preparing', ''], ['გაუქმება', 'cancelled', 'ghost']],
+  accepted: [['მზადაა', 'ready_for_pickup', ''], ['გაუქმება', 'cancelled', 'ghost']],
   preparing: [['მზადაა', 'ready_for_pickup', ''], ['გაუქმება', 'cancelled', 'ghost']],
 };
 const ago = (iso: string) => { const m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000)); return m < 1 ? 'ახლახან' : m < 60 ? `${m} წთ წინ` : `${Math.floor(m / 60)} სთ ${m % 60} წთ წინ`; };
