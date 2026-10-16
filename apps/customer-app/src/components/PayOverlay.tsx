@@ -5,7 +5,7 @@ import { ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Icon } from './Icon';
 import { Button } from './ui';
-import { ND, useReduceMotion } from './fx';
+import { ND } from './fx';
 
 export type PayPhase = 'processing' | 'ok' | 'fail';
 
@@ -14,7 +14,7 @@ const BURST = ['#FFCC02', '#D8141C', '#FFF4E0', '#F28C1E'];
 
 /** Full-screen payment result: spinner while the provider answers, then burger drop + tick + confetti (success) or shake + cross (failure). */
 export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onMenu }: { phase: PayPhase; amount: string; number: string; count: number; onTrack: () => void; onRetry: () => void; onMenu: () => void }) {
-  const reduce = useReduceMotion();
+  const reduce = false;
   const pop = useRef(new Animated.Value(0)).current;
   const spin = useRef(new Animated.Value(0)).current;
   const tick = useRef(new Animated.Value(0)).current;

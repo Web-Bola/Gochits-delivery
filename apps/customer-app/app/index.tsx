@@ -3,14 +3,14 @@ import { Animated, Easing, Image, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors } from '@gochits/ui-tokens';
 import { supabase } from '../src/lib/supabase';
-import { ND, useReduceMotion } from '../src/components/fx';
+import { ND } from '../src/components/fx';
 
 const MIN_MS = 2100;
 
 /** Opening screen from the design: yellow, logo bobbing inside a rotating dashed ring with orbiting dots, loading bar; then straight to the menu (signed in) or login. */
 export default function Splash() {
   const router = useRouter();
-  const reduce = useReduceMotion();
+  const reduce = false;
   const pop = useRef(new Animated.Value(0)).current;
   const bob = useRef(new Animated.Value(0)).current;
   const ring = useRef(new Animated.Value(0)).current;

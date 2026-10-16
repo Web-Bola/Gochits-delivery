@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, View } from 'react-native';
 import { FRAME } from './Banners';
-import { ND, useReduceMotion } from './fx';
+import { ND } from './fx';
 import { SvgMarkup } from './SvgMarkup';
 import { SCENE_LAYERS, type SceneLayer } from './sceneLayers';
 
@@ -57,7 +57,7 @@ function Layer({ layer, scale, reduce }: { layer: SceneLayer; scale: number; red
 
 /** Animated order-tracking illustration: shop, kitchen, courier on the road, home. */
 export function TrackScene({ scene }: { scene: string }) {
-  const reduce = useReduceMotion();
+  const reduce = false;
   const scale = Math.max(FRAME / VB_W, H / VB_H);
   const layers = SCENE_LAYERS[scene] ?? SCENE_LAYERS.shop ?? [];
   return (
