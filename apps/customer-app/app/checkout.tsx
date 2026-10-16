@@ -30,6 +30,8 @@ export default function Checkout() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pickAddr, setPickAddr] = useState(false);
+  const [tick, setTick] = useState(0);
+  useFocusEffect(useCallback(() => { setTick((t) => t + 1); }, []));
 
   const loadAddrs = useCallback(async () => {
     const { data, error: e } = await supabase.rpc('my_addresses');
@@ -59,7 +61,7 @@ export default function Checkout() {
       setOptions((data ?? []) as BranchOption[]);
     });
     return () => { alive = false; };
-  }, [address]);
+  }, [address, tick]);
 
   const here = options?.find((o) => o.branch_id === branch?.id) ?? null;
   const others = (options ?? []).filter((o) => o.can_order && o.branch_id !== branch?.id);
