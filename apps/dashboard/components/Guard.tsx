@@ -4,9 +4,17 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { configured, supabase } from '@/lib/supabase';
 
+const ICON: Record<string, string> = {
+  home: 'M3 11l9-8 9 8M5 10v10h14V10M10 20v-6h4v6',
+  store: 'M3 9l1.5-5h15L21 9M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M5 12v8h14v-8',
+  pin: 'M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0zM12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
+  bag: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0',
+  tag: 'M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8zM7.5 7.5h.01',
+  cog: 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z',
+};
 const NAV = [
-  ['/admin', 'მთავარი'], ['/admin/branches', 'ფილიალები'], ['/admin/zones', 'ზონები და მიტანა'],
-  ['/admin/products', 'პროდუქტები და ფასები'], ['/admin/promos', 'პრომო კოდები'], ['/admin/settings', 'პარამეტრები'],
+  ['/admin', 'მთავარი', 'home'], ['/admin/branches', 'ფილიალები', 'store'], ['/admin/zones', 'ზონები და მიტანა', 'pin'],
+  ['/admin/products', 'პროდუქტები და ფასები', 'bag'], ['/admin/promos', 'პრომო კოდები', 'tag'], ['/admin/settings', 'პარამეტრები', 'cog'],
 ] as const;
 
 /** Signs the user in (redirects to /login) and only lets super admins through. */
@@ -40,12 +48,16 @@ export function Guard({ children }: { children: ReactNode }) {
   return (
     <div className="shell">
       <aside className="side">
-        <div className="brand">Gochit&apos;s ადმინი</div>
+        <div className="brand"><img src="/logo.png" alt="Gochit's" /></div>
         <nav className="nav">
-          {NAV.map(([href, label]) => <Link key={href} href={href} className={path === href ? 'on' : ''}>{label}</Link>)}
+          {NAV.map(([href, label, ic]) => (
+            <Link key={href} href={href} className={path === href ? 'on' : ''}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d={ICON[ic]} /></svg>{label}
+            </Link>
+          ))}
         </nav>
-        <div style={{ marginTop: 'auto' }} className="stack">
-          <div className="small muted" style={{ padding: '0 10px', wordBreak: 'break-all' }}>{email}</div>
+        <div className="who">
+          <div className="small muted" style={{ padding: '0 6px', wordBreak: 'break-all' }}>{email}</div>
           <button className="ghost" onClick={out}>გასვლა</button>
         </div>
       </aside>
