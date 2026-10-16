@@ -18,7 +18,7 @@ const webStorage = {
 };
 
 export const supabase = createClient(url, anonKey, {
-  auth: { storage: Platform.OS === 'web' ? webStorage : nativeStorage, autoRefreshToken: true, persistSession: true, detectSessionInUrl: false },
+  auth: { storageKey: 'gochits.customer.session', storage: Platform.OS === 'web' ? webStorage : nativeStorage, autoRefreshToken: true, persistSession: true, detectSessionInUrl: false },
 });
 
 export const isConfigured = url.length > 0 && anonKey.length > 0;
