@@ -7,7 +7,7 @@ import { supabase } from '../src/supabase';
 import { Btn, Icon, T, c, gel } from '../src/ui';
 import { FullMap } from '../src/FullMap';
 import { Slide } from '../src/Slide';
-import { pointUrl, routeUrl, type MapPt } from '../src/mapHtml';
+import { embedUrl, pointUrl, routeUrl, type Pt } from '../src/mapHtml';
 
 interface Snap { street?: string; entrance?: string | null; floor?: string | null; apartment?: string | null; comment?: string | null }
 interface Job {
@@ -16,18 +16,33 @@ interface Job {
   address_snapshot: Snap; phone: string | null; full_name: string | null; total_tetri: number; delivery_fee_tetri: number;
   payment_method: 'card' | 'cash'; payment_status: string; distance_m: number | null;
 }
-interface Done { id: string; number: string; total_tetri: number; payment_method: 'card' | 'cash'; updated_at: string }
+interface Done { id: string; number: string; total_tetri: number; delivery_fee_tetri: number; payment_method: 'card' | 'cash'; updated_at: string }
 
 const dayStart = () => new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tbilisi' })}T00:00:00+04:00`).toISOString();
 const km = (m: number | null) => (m == null ? null : m < 1000 ? `${m} მ` : `${(m / 1000).toFixed(1)} კმ`);
 const buzz = () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
-const msg = (e: string) => /already_taken/.test(e) ? 'ეს შეკვეთა უკვე სხვა კურიერმა აიღო' : /not_available/.test(e) ? 'შეკვეთა აღარ არის ხელმისაწვდომი' : /too_late/.test(e) ? 'უკვე გზაშია, ვეღარ დააბრუნებ' : /forbidden/.test(e) ? 'ამ ანგარიშს კურიერის უფლება არ აქვს' : e;
+const msg = (e: string) => /already_taken/.test(e) ? 'ეს შეკვეთა უკვე სხვა კურიერმა აიღო' : /not_available/.test(e) ? 'შეკვეთა აღარ არის ხელმისაწვდომი' : /too_late/.test(e) ? 'უკვე გზაშია, ვეღარ დააბრუნებ' : /not_ready/.test(e) ? 'შეკვეთა ჯერ მზად არ არის' : /forbidden/.test(e) ? 'ამ ანგარიშს კურიერის უფლება არ აქვს' : e;
 const STEPS = ['აღებულია', 'მზადდება', 'მზადაა', 'გზაშია'];
 const stepOf = (s: string) => (s === 'out_for_delivery' ? 3 : s === 'ready_for_pickup' ? 2 : s === 'preparing' || s === 'accepted' ? 1 : 0);
 
 const Chip = ({ children, bg = c.soft, fg = c.ink }: { children: string; bg?: string; fg?: string }) => (
   <View style={{ backgroundColor: bg, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 }}><T size={13} weight="extrabold" color={fg}>{children}</T></View>
 );
+
+/** Order value, cash to collect, and the courier's fee (the delivery fee). */
+function Money({ j }: { j: Job }) {
+  const cash = j.payment_method === 'cash';
+  const cell = (label: string, value: string, bg: string, fg: string = c.ink) => (
+    <View style={{ flex: 1, backgroundColor: bg, borderRadius: 14, paddingVertical: 8, paddingHorizontal: 10 }}><T size={11} color={fg === c.ink ? c.muted : fg}>{label}</T><T size={17} weight="extrabold" color={fg}>{value}</T></View>
+  );
+  return (
+    <View style={{ flexDirection: 'row', gap: 8 }}>
+      {cell('შეკვეთა', gel(j.total_tetri), c.sheet)}
+      {cell(cash ? 'აიღებ ნაღდს' : 'გადახდილია', cash ? gel(j.total_tetri) : gel(0), cash ? c.yellow : c.greenSoft, cash ? c.ink : c.green)}
+      {cell('შენი საფასური', gel(j.delivery_fee_tetri), c.ink, '#fff')}
+    </View>
+  );
+}
 
 /** A -> B route as a vertical timeline. */
 function Trip({ j, full }: { j: Job; full: boolean }) {
@@ -82,7 +97,7 @@ export default function Home() {
     known.current = next;
     const { data: u } = await supabase.auth.getUser();
     if (u.user) {
-      const d = await supabase.from('orders').select('id,number,total_tetri,payment_method,updated_at').eq('courier_id', u.user.id).eq('status', 'delivered').gte('updated_at', dayStart()).order('updated_at', { ascending: false });
+      const d = await supabase.from('orders').select('id,number,total_tetri,delivery_fee_tetri,payment_method,updated_at').eq('courier_id', u.user.id).eq('status', 'delivered').gte('updated_at', dayStart()).order('updated_at', { ascending: false });
       setDone((d.data ?? []) as Done[]);
     }
   }, []);
@@ -99,17 +114,16 @@ export default function Home() {
   const offers = feed.filter((j) => !j.mine);
   const mine = feed.filter((j) => j.mine);
   const cashDone = done.filter((d) => d.payment_method === 'cash').reduce((s, d) => s + d.total_tetri, 0);
+  const earned = done.reduce((s, d) => s + d.delivery_fee_tetri, 0);
   const list = tab === 'offers' ? offers : tab === 'mine' ? mine : [];
   const current = list.find((j) => j.id === sel) ?? (tab === 'mine' ? mine[0] : undefined);
 
-  const points = useMemo<MapPt[]>(() => {
-    const pt = (j: Job): MapPt[] => [
-      ...(j.branch_lat != null && j.branch_lng != null ? [{ lat: j.branch_lat, lng: j.branch_lng, label: j.branch_name, kind: 'A' as const }] : []),
-      { lat: j.dest_lat, lng: j.dest_lng, label: j.address_snapshot?.street ?? 'მისამართი', kind: 'B' as const },
-    ];
-    if (tab === 'done') return [];
-    if (current) return pt(current);
-    return offers.flatMap((j) => (j.branch_lat != null && j.branch_lng != null ? [{ lat: j.branch_lat, lng: j.branch_lng, label: j.branch_name, kind: 'O' as const }] : []));
+  const mapUrl = useMemo(() => {
+    if (tab === 'done') return embedUrl(null, null);
+    const first = current ?? offers[0];
+    if (!first) return embedUrl(null, null);
+    const A: Pt | null = first.branch_lat != null && first.branch_lng != null ? { lat: first.branch_lat, lng: first.branch_lng } : null;
+    return current ? embedUrl(A, { lat: first.dest_lat, lng: first.dest_lng }) : embedUrl(A, null);
   }, [tab, current, offers]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   // bottom sheet: tap or drag the handle
@@ -125,7 +139,7 @@ export default function Home() {
   return (
     <View style={{ flex: 1, backgroundColor: '#EFE9DA', alignItems: 'center' }}>
       <View style={{ flex: 1, width: '100%', maxWidth: 520, overflow: 'hidden' }}>
-        <FullMap points={points} />
+        <FullMap url={mapUrl} />
 
         {/* floating top bar */}
         <View pointerEvents="box-none" style={{ position: 'absolute', top: insets.top + 10, left: 14, right: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -156,17 +170,16 @@ export default function Home() {
               <>
                 {offers.map((j) => {
                   const isSel = current?.id === j.id;
-                  const cash = j.payment_method === 'cash';
                   return (
                     <Pressable key={j.id} onPress={() => { setSel(isSel ? null : j.id); if (!isSel) setOpen(true); }} style={{ borderRadius: 22, padding: 14, gap: 12, backgroundColor: isSel ? '#FFF8DB' : c.soft, borderWidth: 2, borderColor: isSel ? c.yellow : 'transparent' }}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                         <T size={18} weight="extrabold">№{j.number}</T>
                         <View style={{ flexDirection: 'row', gap: 6 }}>
                           {km(j.distance_m) ? <Chip>{km(j.distance_m) as string}</Chip> : null}
-                          <Chip bg={cash ? c.yellow : c.greenSoft} fg={cash ? c.ink : c.green}>{cash ? `ნაღდი ${gel(j.total_tetri)}` : 'ბარათი'}</Chip>
                         </View>
                       </View>
                       <Trip j={j} full={false} />
+                      <Money j={j} />
                       {isSel ? (
                         <View style={{ flexDirection: 'row', gap: 10 }}>
                           <Btn title="გამოტოვება" kind="ghost" onPress={() => act(j.id, 'courier_decline', () => setSel(null))} style={{ flex: 1 }} />
@@ -191,13 +204,12 @@ export default function Home() {
                 {mine.map((j) => {
                   const dead = j.status === 'cancelled' || j.status === 'rejected';
                   const step = stepOf(j.status);
-                  const cash = j.payment_method === 'cash';
                   const isCur = current?.id === j.id;
                   return (
                     <Pressable key={j.id} onPress={() => setSel(j.id)} style={{ borderRadius: 22, padding: 14, gap: 14, backgroundColor: c.soft, borderWidth: 2, borderColor: isCur ? c.yellow : 'transparent' }}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                         <T size={18} weight="extrabold">№{j.number}</T>
-                        <Chip bg={cash ? c.yellow : c.greenSoft} fg={cash ? c.ink : c.green}>{cash ? `აიღე ${gel(j.total_tetri)}` : 'გადახდილია'}</Chip>
+                        <T size={13} color={c.muted}>{km(j.distance_m) ?? ''}</T>
                       </View>
                       {dead ? (
                         <View style={{ backgroundColor: '#FDE6E6', borderRadius: 14, padding: 12 }}><T size={15} weight="extrabold" color={c.red}>შეკვეთა გაუქმდა</T></View>
@@ -207,23 +219,28 @@ export default function Home() {
                             <View style={{ flexDirection: 'row', gap: 4 }}>
                               {STEPS.map((_, i) => <View key={i} style={{ flex: 1, height: 6, borderRadius: 3, backgroundColor: i <= step ? (step === 2 ? c.green : c.yellow) : c.line }} />)}
                             </View>
-                            <T size={14} weight="extrabold" color={step === 2 ? c.green : c.ink}>{step === 2 ? 'მზადაა! აიღე შეკვეთა რესტორანში' : step === 3 ? 'გზაშია, მიიტანე მომხმარებელთან' : 'რესტორანი ამზადებს, მოემზადე'}</T>
+                            <T size={14} weight="extrabold" color={step === 2 ? c.green : c.ink}>{step === 2 ? 'მზადაა! აიღე შეკვეთა რესტორანში და დააჭირე ღილაკს' : step === 3 ? 'გზაშია, მიიტანე მომხმარებელთან' : 'რესტორანი ამზადებს, მოემზადე'}</T>
                           </View>
                           <Trip j={j} full />
+                          <Money j={j} />
                           <View style={{ flexDirection: 'row', gap: 10 }}>
                             <Btn title={j.full_name ?? 'მომხმარებელი'} icon="phone" kind="ghost" disabled={!j.phone} onPress={() => j.phone && Linking.openURL(`tel:${j.phone}`)} style={{ flex: 1 }} />
                             <Btn title="მარშრუტი" icon="map" kind="primary" onPress={() => Linking.openURL(route(j))} style={{ flex: 1 }} />
                           </View>
-                          {j.status === 'out_for_delivery' ? (
+                          {j.status === 'ready_for_pickup' ? (
+                            <Btn title="აღებულია, გავდივარ" icon="check" kind="green" busy={busyId === j.id} onPress={() => act(j.id, 'courier_pickup')} />
+                          ) : j.status === 'out_for_delivery' ? (
                             <Slide label="გადაასრიალე: მიტანილია" busy={busyId === j.id} onConfirm={() => act(j.id, 'courier_mark_delivered')} />
-                          ) : confirmRelease === j.id ? (
+                          ) : null}
+                          {j.status !== 'out_for_delivery' && confirmRelease === j.id ? (
                             <View style={{ flexDirection: 'row', gap: 10 }}>
                               <Btn title="არა" kind="ghost" onPress={() => setConfirmRelease(null)} style={{ flex: 1 }} />
                               <Btn title="დიახ, უარი" busy={busyId === j.id} onPress={() => act(j.id, 'courier_release')} style={{ flex: 2 }} />
                             </View>
-                          ) : (
+                          ) : null}
+                          {j.status !== 'out_for_delivery' && confirmRelease !== j.id ? (
                             <Pressable onPress={() => setConfirmRelease(j.id)} style={{ alignItems: 'center', padding: 6 }}><T size={13} color={c.muted} style={{ textDecorationLine: 'underline' }}>უარი ამ შეკვეთაზე</T></Pressable>
-                          )}
+                          ) : null}
                         </>
                       )}
                     </Pressable>
@@ -239,6 +256,7 @@ export default function Home() {
                   <View style={{ flex: 1, backgroundColor: c.soft, borderRadius: 20, padding: 14 }}><T size={12} color={c.muted}>მიტანილი</T><T size={28} weight="extrabold">{String(done.length)}</T></View>
                   <View style={{ flex: 1.4, backgroundColor: c.yellow, borderRadius: 20, padding: 14 }}><T size={12} color={c.ink}>აღებული ნაღდი</T><T size={28} weight="extrabold">{gel(cashDone)}</T></View>
                 </View>
+                <View style={{ backgroundColor: c.ink, borderRadius: 20, padding: 14 }}><T size={12} color="#d9cfc2">შენი საფასური დღეს</T><T size={28} weight="extrabold" color="#fff">{gel(earned)}</T></View>
                 {done.map((d) => (
                   <View key={d.id} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: c.line }}>
                     <View><T weight="extrabold">№{d.number}</T><T size={13} color={c.muted}>{new Date(d.updated_at).toLocaleTimeString('ka-GE', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tbilisi' })} · {d.payment_method === 'cash' ? 'ნაღდი' : 'ბარათი'}</T></View>

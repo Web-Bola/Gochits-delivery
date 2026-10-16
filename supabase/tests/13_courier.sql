@@ -1,4 +1,4 @@
--- Migration 0009: courier hand-over.
+-- Migrations 0009-0011: courier offers, acceptance, pick-up and delivery.
 \set ON_ERROR_STOP on
 \o /dev/null
 begin;
@@ -17,7 +17,6 @@ insert into staff_branches select 'c3c3c3c3-0000-0000-0000-000000000003', id fro
 update profiles set role = 'restaurant_staff' where id = 'c3c3c3c3-0000-0000-0000-000000000003';
 update profiles set role = 'super_admin' where id = 'c2c2c2c2-0000-0000-0000-000000000002';
 
--- admin makes a courier
 set local role authenticated;
 select set_config('request.jwt.claim.sub', 'c2c2c2c2-0000-0000-0000-000000000002', true);
 select pg_temp.assert(pg_temp.err($q$select admin_add_courier('nobody@example.com')$q$) = 'user_not_found', 'unknown email');
@@ -28,32 +27,43 @@ select set_config('request.jwt.claim.sub', 'c2c2c2c2-0000-0000-0000-000000000002
 select admin_add_courier('rider@example.com');
 select pg_temp.assert((select count(*) from admin_couriers()) = 1, 'courier listed');
 
--- customer places an order, staff takes it to out_for_delivery
+-- customer places a cash order
 select set_config('request.jwt.claim.sub', 'c1c1c1c1-0000-0000-0000-000000000001', true);
 insert into addresses (id, user_id, street, location) values ('cccccccc-0000-0000-0000-000000000099', 'c1c1c1c1-0000-0000-0000-000000000001', 'x', st_geogfromtext('POINT(44.81 41.71)'));
 insert into ctx select 'o', create_order((select id from branches where code='B1'), 'cccccccc-0000-0000-0000-000000000099', '[{"product_id":"00000000-0000-0000-0000-000000000200","quantity":1}]'::jsonb, 'cash');
-select pg_temp.assert(pg_temp.err($q$select courier_feed()$q$) = 'forbidden', 'customer cannot list deliveries');
+select pg_temp.assert(pg_temp.err($q$select courier_feed()$q$) = 'forbidden', 'customer cannot use the courier feed');
+
+-- placed (not yet accepted by the restaurant): couriers see nothing and cannot accept
+select set_config('request.jwt.claim.sub', 'c4c4c4c4-0000-0000-0000-000000000004', true);
+select pg_temp.assert((select count(*) from courier_feed()) = 0, 'no offer before the restaurant accepts');
+select pg_temp.assert(pg_temp.err(format($q$select courier_accept(%L)$q$, (select oid from ctx where k='o'))) = 'not_available', 'cannot accept before restaurant');
+
+-- restaurant accepts -> offer appears, details hidden
 select set_config('request.jwt.claim.sub', 'c3c3c3c3-0000-0000-0000-000000000003', true);
 select transition_order((select oid from ctx where k='o'), 'accepted');
-select transition_order((select oid from ctx where k='o'), 'preparing');
-select transition_order((select oid from ctx where k='o'), 'ready_for_pickup');
-select pg_temp.assert(pg_temp.err(format($q$select transition_order(%L, 'out_for_delivery')$q$, (select oid from ctx where k='o'))) = 'no_courier', 'cannot hand over before a courier accepts');
 select set_config('request.jwt.claim.sub', 'c4c4c4c4-0000-0000-0000-000000000004', true);
-select pg_temp.assert((select count(*) from courier_feed() where not mine) = 1, 'courier sees offer while order is only being prepared');
+select pg_temp.assert((select count(*) from courier_feed() where not mine) = 1, 'offer after restaurant accepts');
 select pg_temp.assert((select address_snapshot ? 'entrance' or phone is not null from courier_feed() limit 1) is not true, 'offer hides details');
 select courier_accept((select oid from ctx where k='o'));
 select pg_temp.assert((select count(*) from courier_feed() where mine) = 1, 'order is mine after accept');
 select set_config('request.jwt.claim.sub', 'c2c2c2c2-0000-0000-0000-000000000002', true);
 select pg_temp.assert(pg_temp.err(format($q$select courier_accept(%L)$q$, (select oid from ctx where k='o'))) = 'already_taken', 'second courier cannot take it');
+
+-- restaurant cooks; staff can see the courier, but cannot hand over or deliver
 select set_config('request.jwt.claim.sub', 'c3c3c3c3-0000-0000-0000-000000000003', true);
 select pg_temp.assert((select count(*) from staff_order_couriers((select id from branches where code='B1'))) = 1, 'staff sees the courier');
-select transition_order((select oid from ctx where k='o'), 'out_for_delivery');
-select pg_temp.assert(pg_temp.err(format($q$select transition_order(%L, 'delivered')$q$, (select oid from ctx where k='o'))) like 'invalid_transition%', 'staff cannot mark delivered');
-select pg_temp.assert(pg_temp.err(format($q$select courier_mark_delivered(%L)$q$, (select oid from ctx where k='o'))) = 'forbidden', 'staff is not a courier');
+select transition_order((select oid from ctx where k='o'), 'preparing');
+select transition_order((select oid from ctx where k='o'), 'ready_for_pickup');
+select pg_temp.assert(pg_temp.err(format($q$select transition_order(%L, 'out_for_delivery')$q$, (select oid from ctx where k='o'))) like 'invalid_transition%', 'staff cannot hand over');
+select pg_temp.assert(pg_temp.err(format($q$select courier_pickup(%L)$q$, (select oid from ctx where k='o'))) = 'forbidden', 'staff cannot pick up');
 
--- courier sees it and delivers
+-- another courier cannot pick up; the owner can
+select set_config('request.jwt.claim.sub', 'c2c2c2c2-0000-0000-0000-000000000002', true);
+select pg_temp.assert(pg_temp.err(format($q$select courier_pickup(%L)$q$, (select oid from ctx where k='o'))) = 'forbidden', 'other courier cannot pick up');
 select set_config('request.jwt.claim.sub', 'c4c4c4c4-0000-0000-0000-000000000004', true);
-select pg_temp.assert((select count(*) from courier_feed() where mine and status = 'out_for_delivery') = 1, 'courier sees the order on the way');
+select pg_temp.assert(pg_temp.err(format($q$select courier_mark_delivered(%L)$q$, (select oid from ctx where k='o'))) like 'invalid_transition%', 'cannot deliver before pick-up');
+select courier_pickup((select oid from ctx where k='o'));
+select pg_temp.assert((select count(*) from courier_feed() where mine and status = 'out_for_delivery') = 1, 'on the way');
 select courier_mark_delivered((select oid from ctx where k='o'));
 select pg_temp.assert((select count(*) from courier_feed()) = 0, 'gone after delivery');
 reset role;

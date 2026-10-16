@@ -17,14 +17,13 @@ interface Contact { order_id: string; phone: string | null; full_name: string | 
 const COLS: { key: string; title: string; statuses: string[] }[] = [
   { key: 'new', title: 'ახალი', statuses: ['placed'] },
   { key: 'cook', title: 'მზადდება', statuses: ['accepted', 'preparing'] },
-  { key: 'go', title: 'კურიერს ელოდება', statuses: ['ready_for_pickup'] },
+  { key: 'go', title: 'მზადაა, კურიერს ელოდება', statuses: ['ready_for_pickup'] },
 ];
 // [button label, next status, style]
 const ACTIONS: Record<string, [string, string, string][]> = {
   placed: [['მიღება', 'accepted', ''], ['უარყოფა', 'rejected', 'red']],
   accepted: [['მზადდება', 'preparing', ''], ['გაუქმება', 'cancelled', 'ghost']],
   preparing: [['მზადაა', 'ready_for_pickup', ''], ['გაუქმება', 'cancelled', 'ghost']],
-  ready_for_pickup: [['კურიერს გადაეცა', 'out_for_delivery', '']],
 };
 const ago = (iso: string) => { const m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000)); return m < 1 ? 'ახლახან' : m < 60 ? `${m} წთ წინ` : `${Math.floor(m / 60)} სთ ${m % 60} წთ წინ`; };
 
@@ -102,7 +101,7 @@ export default function Orders() {
   return (
     <div className="stack">
       <div className="topbar">
-        <div><h1>შეკვეთები</h1><p className="muted">ახალი შეკვეთა ავტომატურად გამოჩნდება. კურიერს გადაცემული და დასრულებული შეკვეთები ხედება „ისტორიაში“</p></div>
+        <div><h1>შეკვეთები</h1><p className="muted">ახალი შეკვეთა ავტომატურად გამოჩნდება. როცა კურიერი შეკვეთას აიღებს, დაფიდან გაქრება და „ისტორიაში“ გამოჩნდება</p></div>
         <div className="row">
           {branches.length > 1 ? <select style={{ width: 240 }} value={branch?.id} onChange={(e) => setBranchId(e.target.value)}>{branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select> : <b>{branch?.name}</b>}
           <button className={branch?.accepts_orders ? 'ghost' : 'red'} disabled={busy} onClick={toggleAccepting}>{branch?.accepts_orders ? '⏸ შეკვეთების გაჩერება' : '▶ შეკვეთების მიღების ჩართვა'}</button>
@@ -134,8 +133,8 @@ export default function Orders() {
                       <span className={`pill ${o.payment_method === 'card' ? 'ok' : 'warn'}`}>{o.payment_method === 'card' ? (o.payment_status === 'paid' ? 'ბარათით გადახდილია' : 'ბარათი: გადაუხდელი') : 'ნაღდი: მიიღეთ კურიერთან'}</span>
                       <b>{gel(o.total_tetri)}</b>
                     </div>
-                    {couriers[o.id] ? <div className="sub">🛵 კურიერი: <b style={{ color: 'var(--text)' }}>{couriers[o.id].courier_name}</b>{couriers[o.id].courier_phone ? ` · ${couriers[o.id].courier_phone}` : ''}</div> : <div className="sub">🛵 კურიერი ჯერ არ დაუდასტურებია</div>}
-                    <div className="acts">{(ACTIONS[o.status] ?? []).map(([label, to, cls]) => <button key={to} className={cls} disabled={busy || (to === 'out_for_delivery' && !couriers[o.id])} title={to === 'out_for_delivery' && !couriers[o.id] ? 'ჯერ კურიერმა უნდა დაადასტუროს' : undefined} onClick={() => move(o, to)}>{label}</button>)}</div>
+                    {couriers[o.id] ? <div className="sub">🛵 კურიერი: <b style={{ color: 'var(--text)' }}>{couriers[o.id].courier_name}</b>{couriers[o.id].courier_phone ? ` · ${couriers[o.id].courier_phone}` : ''}</div> : <div className="sub">🛵 კურიერი ჯერ არ არის აღებული{o.status === 'ready_for_pickup' ? '' : ' (დადასტურების შემდეგ კურიერებს გამოუჩნდება)'}</div>}
+                    <div className="acts">{(ACTIONS[o.status] ?? []).map(([label, to, cls]) => <button key={to} className={cls} disabled={busy} onClick={() => move(o, to)}>{label}</button>)}</div>
                   </article>
                 );
               })}
