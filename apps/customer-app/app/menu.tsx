@@ -93,11 +93,15 @@ export default function MenuScreen() {
     if (cur !== active) { setActive(cur); const x = tabX.current[cur]; if (x !== undefined) tabStrip.current?.scrollTo({ x: Math.max(0, x - 20), animated: true }); }
   };
 
+  const act = useRef({ addItem, open });
+  act.current = { addItem, open };
+  const onAddStable = useCallback((p: Product) => act.current.addItem(p), []);
+  const onOpenStable = useCallback((p: Product) => act.current.open(p), []);
   const rows = (list: Product[]) => (
     <View style={{ paddingHorizontal: 20 }}>
       {list.map((it) => (
         <ProductRow key={it.id} item={it} qty={productQuantity(lines, it.id)} bumped={bumps[it.id] ?? 0}
-          onAdd={() => addItem(it)} onOpen={() => open(it)} />
+          onAdd={onAddStable} onOpen={onOpenStable} />
       ))}
     </View>
   );

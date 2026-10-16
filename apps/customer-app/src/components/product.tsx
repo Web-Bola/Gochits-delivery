@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Image, Pressable, Text, View, type ViewStyle } from 'react-native';
 import { formatGel } from '@gochits/shared';
 import { ka } from '@gochits/i18n';
@@ -111,12 +112,12 @@ export function AddButton({ qty, onPress, label, size = 36 }: { qty: number; onP
 }
 
 /** One menu row from the demo: name, description and price on the left, photo with the add button on the right. */
-export function ProductRow({ item, qty, bumped, onAdd, onOpen }: { item: Product; qty: number; bumped: number; onAdd: () => void; onOpen: () => void }) {
+function ProductRowImpl({ item, qty, bumped, onAdd, onOpen }: { item: Product; qty: number; bumped: number; onAdd: (p: Product) => void; onOpen: (p: Product) => void }) {
   const off = discountPercent(item);
   const sold = !item.available;
   return (
     <View style={{ flexDirection: 'row', gap: 14, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
-      <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={onOpen} style={{ flex: 1, minWidth: 0, gap: 4, opacity: sold ? 0.5 : 1 }}>
+      <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={() => onOpen(item)} style={{ flex: 1, minWidth: 0, gap: 4, opacity: sold ? 0.5 : 1 }}>
         <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text, lineHeight: 21 }}>{item.name}</Text>
         {item.description_ka ? <Text numberOfLines={2} style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted, lineHeight: 19 }}>{item.description_ka}</Text> : null}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2, flexWrap: 'wrap' }}>
@@ -127,13 +128,13 @@ export function ProductRow({ item, qty, bumped, onAdd, onOpen }: { item: Product
         </View>
       </Pressable>
       <View style={{ width: 104, height: 104 }}>
-        <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={onOpen} style={{ flex: 1, opacity: sold ? 0.45 : 1 }}>
+        <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={() => onOpen(item)} style={{ flex: 1, opacity: sold ? 0.45 : 1 }}>
           <Photo path={item.image_path} rounded={14} style={{ flex: 1 }} />
         </Pressable>
         {off && !sold ? <Ribbon off={off} /> : null}
         {!sold ? (
           <View style={{ position: 'absolute', right: -6, bottom: -6 }}>
-            <AddButton qty={qty} onPress={onAdd} label={`${ka.menu.add}: ${item.name}`} />
+            <AddButton qty={qty} onPress={() => onAdd(item)} label={`${ka.menu.add}: ${item.name}`} />
             <FloatUp trigger={bumped} />
           </View>
         ) : null}
@@ -141,6 +142,8 @@ export function ProductRow({ item, qty, bumped, onAdd, onOpen }: { item: Product
     </View>
   );
 }
+
+export const ProductRow = memo(ProductRowImpl, (a, b) => a.item === b.item && a.qty === b.qty && a.bumped === b.bumped);
 
 
 /** Soft dark gradient over a photo (stacked strips, so it works the same on phone and web without extra packages). */
