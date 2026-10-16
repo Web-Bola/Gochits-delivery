@@ -53,3 +53,20 @@ tbody tr:last-child td { border-bottom: 0; }
 
 @media (max-width: 860px) { .shell { grid-template-columns: 1fr; } .side { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; } .brand { width: 100%; padding-bottom: 8px; } .brand img { width: 120px; } .nav { flex-direction: row; flex-wrap: wrap; } .who { flex-direction: row; align-items: center; width: 100%; border-top: 0; } .main { padding: 20px 16px 50px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* restaurant board */
+.topbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+.board { display: grid; grid-template-columns: repeat(4, minmax(250px, 1fr)); gap: 14px; align-items: start; overflow-x: auto; padding-bottom: 8px; }
+.col { display: flex; flex-direction: column; gap: 12px; min-width: 250px; }
+.col h2 { display: flex; align-items: center; justify-content: space-between; font-size: 15px; color: var(--muted); }
+.col .count { background: var(--surface2); border-radius: 12px; padding: 1px 10px; font-size: 13px; color: var(--text); }
+.ocard { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; animation: rise .3s var(--ease) both; }
+.ocard.fresh { border-color: var(--yellow); box-shadow: 0 0 0 3px var(--yellow-soft); }
+.ocard .head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.ocard .num { font-weight: 800; font-size: 16px; } .ocard .ago { font-size: 12px; color: var(--muted); }
+.ocard ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.ocard li { display: flex; gap: 8px; } .ocard li b { min-width: 28px; color: var(--yellow); }
+.ocard .sub { font-size: 12.5px; color: var(--muted); }
+.ocard .note { font-size: 13px; background: var(--yellow-soft); border-radius: 10px; padding: 7px 10px; }
+.ocard .acts { display: flex; gap: 8px; flex-wrap: wrap; } .ocard .acts button { flex: 1; padding: 10px 12px; }
+.ocard hr { border: 0; border-top: 1px solid var(--border); margin: 0; width: 100%; }

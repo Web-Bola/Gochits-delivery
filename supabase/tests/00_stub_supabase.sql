@@ -1,7 +1,7 @@
 -- LOCAL TEST HARNESS ONLY: emulates the parts of Supabase that migrations rely on (auth schema, roles).
 -- Not used on real Supabase, where these already exist.
 create schema if not exists auth;
-create table if not exists auth.users (id uuid primary key default gen_random_uuid(), phone text);
+create table if not exists auth.users (id uuid primary key default gen_random_uuid(), phone text, email text);
 create or replace function auth.uid() returns uuid language sql stable as
 $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
 do $$ begin

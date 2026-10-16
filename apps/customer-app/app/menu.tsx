@@ -135,7 +135,7 @@ export default function MenuScreen() {
   );
 
   const openNow = state ? state.accepts_orders && state.is_open : null;
-  const statusText = state ? (state.accepts_orders ? (state.is_open ? ka.branch.open : ka.branch.closedNow) : ka.branch.notAccepting) : '';
+  const statusText = openNow ? ka.branch.open : '';
 
   /** Cover photo, round logo, name, branch pill (tap to change), search and filter chips: the "venue page" top of the demo. */
   const header = (
@@ -155,7 +155,7 @@ export default function MenuScreen() {
         <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted, marginTop: -6 }}>{ka.menu.tagline}</Text>
         <Pressable accessibilityRole="button" accessibilityLabel={ka.branch.change} onPress={() => router.push('/branches')}
           style={{ flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 40, paddingHorizontal: 12, borderRadius: 20, backgroundColor: theme.surface, alignSelf: 'flex-start', maxWidth: '100%' }}>
-          <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: openNow === null ? theme.muted : openNow ? '#3DDC84' : colors.red }} />
+          <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: openNow ? '#3DDC84' : theme.muted }} />
           <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: theme.text, flexShrink: 1 }}>{branch?.name}</Text>
           {statusText ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: openNow ? '#3DDC84' : colors.red }}>· {statusText}</Text> : null}
           <Text style={{ color: colors.yellow, fontSize: 13 }}>▾</Text>
@@ -201,7 +201,6 @@ export default function MenuScreen() {
     );
   }
 
-  const closed = state !== null && (!state.is_open || !state.accepts_orders);
   const mains = shown;
   const maxOff = Math.max(0, ...menu.products.map((p) => discountPercent(p) ?? 0));
   const resultsTitle = needle ? ka.menu.search : filter === 'deals' ? ka.menu.discounts : filter === 'spicy' ? ka.menu.spicy : ka.menu.priceAsc;
@@ -212,11 +211,6 @@ export default function MenuScreen() {
         {header}
 
         <View style={{ gap: 14, paddingBottom: 6 }}>
-          {closed ? (
-            <View style={{ marginHorizontal: 20, backgroundColor: theme.surface, borderRadius: 16, padding: 12, borderWidth: 1, borderColor: colors.red }}>
-              <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: theme.text }}>{state && !state.accepts_orders ? ka.branch.notAccepting : ka.branch.closedBanner}</Text>
-            </View>
-          ) : null}
           {!flat && maxOff > 0 ? <PromoBanner maxPercent={maxOff} onPress={() => setFilter('deals')} /> : null}
           {!flat && deals.length > 0 ? (
             <View style={{ gap: 10, paddingTop: 4 }}>

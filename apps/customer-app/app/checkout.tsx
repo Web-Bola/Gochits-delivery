@@ -72,7 +72,7 @@ export default function Checkout() {
   const cashOk = !!here?.cod_enabled;
   const cardOk = demo === true;
   const chosen: Method | null = method === 'card' ? (cardOk ? 'card' : cashOk ? 'cash' : null) : (cashOk ? 'cash' : cardOk ? 'card' : null);
-  const deliverable = !!here && here.can_order;
+  const deliverable = !!here && here.fee_tetri != null;
   const canPlace = deliverable && belowMin === 0 && !!chosen && lines.length > 0 && !busy && !!address;
 
   async function place() {
@@ -108,8 +108,6 @@ export default function Checkout() {
     if (!address) return null;
     if (checking || !options) return { tone: 'muted' as const, text: ka.checkout.checking };
     if (!here) return { tone: 'bad' as const, text: others.length ? ka.checkout.otherBranch : ka.checkout.outside };
-    if (!here.is_open) return { tone: 'bad' as const, text: ka.checkout.branchClosed };
-    if (!here.can_order) return { tone: 'bad' as const, text: ka.branch.notAccepting };
     return { tone: 'ok' as const, text: `${ka.checkout.ok} · +${here.extra_minutes} ${'წთ'}` };
   }, [address, checking, options, here, others.length]);
 

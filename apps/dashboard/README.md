@@ -4,7 +4,7 @@ Next.js app on the same Supabase project. `/admin/*` is for super admins only (c
 The restaurant (branch) panel will be added as `/restaurant/*` in this same app.
 
 ## Setup
-1. Run `supabase/migrations/0007_admin_panel.sql` in the Supabase SQL Editor.
+1. Run `supabase/migrations/0007_admin_panel.sql` and then `0008_restaurant_panel.sql` in the Supabase SQL Editor.
 2. Supabase → Authentication → Users → **Add user** (email + password, tick "Auto confirm").
 3. Make that user an admin (SQL Editor): `update profiles set role = 'super_admin' where id = (select id from auth.users where email = 'YOUR@EMAIL');`
 4. `cp .env.example .env.local` and fill in the URL and the **publishable** key (never the secret key).
@@ -12,3 +12,6 @@ The restaurant (branch) panel will be added as `/restaurant/*` in this same app.
 
 ## Pages
 Home (launch-readiness + sales report) · Branches (address, phone, coordinates, weekly hours, accept orders) · Zones (circle + fee, min order, free-from, extra minutes) · Products (prices, approve prices, categories, per-branch availability) · Promo codes · Settings (demo mode).
+
+## Restaurant panel (`/restaurant`)
+Orders board (new → cooking → on the way → done) with accept/reject/cancel, sound alert, customer phone, pause orders; menu page to mark items sold out. Staff accounts: create the user in Supabase Authentication, then Admin → თანამშრომლები → add by email + branch.
