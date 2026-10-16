@@ -33,11 +33,13 @@ export function Banners({ items, onAdd, onOpen }: { items: Product[]; onAdd: (i:
           const off = discountPercent(it);
           const img = photoOf(it.image_path);
           return (
-            <PressScale key={it.id} accessibilityRole="button" accessibilityLabel={it.name} onPress={() => onOpen(it)} scaleTo={0.98}
-              style={{ width: w, height: 180, borderRadius: 26, overflow: 'hidden', backgroundColor: theme.surface2 }}>
+            <View key={it.id} style={{ width: w, height: 180, borderRadius: 26, overflow: 'hidden', backgroundColor: theme.surface2 }}>
               {img ? <Image source={img} style={{ position: 'absolute', width: '100%', height: '100%' }} resizeMode="cover" /> : null}
               <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: 'rgba(20,11,10,0.55)' }} />
-              <View style={{ flex: 1, padding: 18, justifyContent: 'space-between' }}>
+              {/* The open-product tap area is a sibling of the + button (not its parent): a button inside a button is invalid on web. */}
+              <PressScale accessibilityRole="button" accessibilityLabel={it.name} onPress={() => onOpen(it)} scaleTo={0.98}
+                style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}><View /></PressScale>
+              <View pointerEvents="box-none" style={{ flex: 1, padding: 18, justifyContent: 'space-between' }}>
                 {off ? <View style={{ alignSelf: 'flex-start', backgroundColor: colors.yellow, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 4 }}><Text style={{ color: colors.ink, fontFamily: fontFamily.extrabold, fontSize: 14 }}>-{off}%</Text></View> : <View />}
                 <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
                   <View style={{ flex: 1 }}>
@@ -53,7 +55,7 @@ export function Banners({ items, onAdd, onOpen }: { items: Product[]; onAdd: (i:
                   </PressScale>
                 </View>
               </View>
-            </PressScale>
+            </View>
           );
         })}
       </ScrollView>
