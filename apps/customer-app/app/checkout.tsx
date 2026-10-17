@@ -13,6 +13,7 @@ import { isNetworkError } from '../src/lib/net';
 import { usePromoSync, useCart, type DeliveryAddress } from '../src/state/cart';
 
 type Method = 'card' | 'cash';
+interface PickupBranch { id: string; name: string; address: string | null; phone: string | null; accepts_orders: boolean; is_open: boolean; pickup_enabled: boolean; pickup_discount_percent: number }
 interface AddrRow { id: string; street: string; entrance: string | null; floor: string | null; apartment: string | null; lat: number; lng: number }
 
 // Card payment is a DEMO simulation (no card data, server flag app_settings.demo_mode). Real provider is undecided (D-PAY).
@@ -31,6 +32,10 @@ export default function Checkout() {
   const [error, setError] = useState<string | null>(null);
   const [pickAddr, setPickAddr] = useState(false);
   const [tick, setTick] = useState(0);
+  const [mode, setMode] = useState<'delivery' | 'pickup'>('delivery');
+  const [minutes, setMinutes] = useState(0);
+  const [pbranches, setPbranches] = useState<PickupBranch[] | null>(null);
+  const pickup = mode === 'pickup';
   useFocusEffect(useCallback(() => { setTick((t) => t + 1); }, []));
 
   const loadAddrs = useCallback(async () => {
@@ -63,25 +68,37 @@ export default function Checkout() {
     return () => { alive = false; };
   }, [address, tick]);
 
+  useEffect(() => {
+    if (!pickup) return;
+    supabase.rpc('list_branches').then(({ data, error: e }) => { if (!e) setPbranches((data ?? []) as PickupBranch[]); });
+  }, [pickup, tick]);
+  const pb = pbranches?.find((b) => b.id === branch?.id) ?? null;
+  const pickupDiscount = pickup && pb ? Math.floor((subtotal * pb.pickup_discount_percent) / 100) : 0;
+  const pickupReady = !!pb && pb.accepts_orders && pb.pickup_enabled && pb.is_open;
   const here = options?.find((o) => o.branch_id === branch?.id) ?? null;
   const others = (options ?? []).filter((o) => o.can_order && o.branch_id !== branch?.id);
   const discount = promo?.discountTetri ?? 0;
   const fee = here?.fee_tetri == null ? null : here.free_from_tetri != null && subtotal >= here.free_from_tetri ? 0 : here.fee_tetri;
   const belowMin = here ? Math.max(0, here.min_order_tetri - subtotal) : 0;
   const untilFree = here && here.free_from_tetri != null && subtotal < here.free_from_tetri && here.fee_tetri ? here.free_from_tetri - subtotal : 0;
-  const cashOk = !!here?.cod_enabled;
+  const cashOk = pickup ? true : !!here?.cod_enabled;
   const cardOk = demo === true;
   const chosen: Method | null = method === 'card' ? (cardOk ? 'card' : cashOk ? 'cash' : null) : (cashOk ? 'cash' : cardOk ? 'card' : null);
   const deliverable = !!here && here.fee_tetri != null;
-  const canPlace = deliverable && belowMin === 0 && !!chosen && lines.length > 0 && !busy && !!address;
+  const canPlace = pickup ? (pickupReady && !!chosen && lines.length > 0 && !busy) : (deliverable && belowMin === 0 && !!chosen && lines.length > 0 && !busy && !!address);
 
   async function place() {
-    if (!branch || !address || !chosen || !canPlace) return;
+    if (!branch || !chosen || !canPlace || (!pickup && !address)) return;
     setBusy(true); setError(null);
-    const { data, error: e } = await supabase.rpc('create_order', {
-      p_branch_id: branch.id, p_address_id: address.id, p_items: toOrderItems(lines),
-      p_payment_method: chosen, p_notes: notes.trim() || null, p_promo: promo?.code ?? null,
-    });
+    const { data, error: e } = pickup
+      ? await supabase.rpc('create_pickup_order', {
+          p_branch_id: branch.id, p_items: toOrderItems(lines), p_payment_method: chosen,
+          p_notes: notes.trim() || null, p_promo: promo?.code ?? null, p_pickup_minutes: minutes,
+        })
+      : await supabase.rpc('create_order', {
+          p_branch_id: branch.id, p_address_id: address!.id, p_items: toOrderItems(lines),
+          p_payment_method: chosen, p_notes: notes.trim() || null, p_promo: promo?.code ?? null,
+        });
     setBusy(false);
     if (e) {
       console.warn('create_order failed', e);
@@ -150,8 +167,67 @@ export default function Checkout() {
         </Pressable>} />
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 20, gap: 14, paddingBottom: 24 }}>
 
-        {sectionTitle(1, ka.checkout.addressTitle)}
-        {!addrs ? <ActivityIndicator color={colors.yellow} /> : (
+        <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', backgroundColor: theme.surface, borderRadius: 18, padding: 4, gap: 4 }}>
+          {([['delivery', 'მიტანა', 'bike'], ['pickup', 'თვითონ წამოვიღებ', 'bag']] as const).map(([m, t, ic]) => {
+            const on = mode === m;
+            return (
+              <Pressable key={m} accessibilityRole="radio" accessibilityState={{ selected: on }} onPress={() => { setMode(m); setError(null); }}
+                style={{ flex: 1, minHeight: 48, borderRadius: 14, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? colors.yellow : 'transparent' }}>
+                <Icon name={ic} size={18} color={on ? colors.ink : theme.muted} />
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: on ? colors.ink : theme.text }}>{t}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        {pickup ? (
+          <>
+            {sectionTitle(1, 'ფილიალი და დრო')}
+            <View style={{ backgroundColor: theme.surface, borderRadius: 18, padding: 14, gap: 12 }}>
+              {!branch ? (
+                <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 48, borderRadius: 24, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.ink }}>აირჩიე ფილიალი</Text>
+                </Pressable>
+              ) : (
+                <>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,204,2,0.14)', alignItems: 'center', justifyContent: 'center' }}><Icon name="pin" size={22} color={colors.yellow} /></View>
+                    <View style={{ flex: 1 }}>
+                      <Text numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{branch.name}</Text>
+                      {pb?.address ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{pb.address}</Text> : null}
+                    </View>
+                    <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 40, justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{ka.branch.change}</Text></Pressable>
+                  </View>
+                  {pb && !pickupReady ? (
+                    <View style={{ backgroundColor: 'rgba(216,20,28,0.12)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9 }}>
+                      <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: theme.text }}>{!pb.pickup_enabled ? 'ამ ფილიალში თვითონ წამოღება ამჟამად გამორთულია' : !pb.is_open ? 'ფილიალი ახლა დახურულია' : 'ფილიალი ახლა შეკვეთებს არ იღებს'}</Text>
+                    </View>
+                  ) : null}
+                  {pb && pb.pickup_discount_percent > 0 ? (
+                    <View style={{ backgroundColor: 'rgba(61,220,132,0.1)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9 }}>
+                      <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#3DDC84' }}>თვითონ წამოღებაზე −{pb.pickup_discount_percent}%</Text>
+                    </View>
+                  ) : null}
+                  <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: theme.muted }}>როდის მოხვალ?</Text>
+                  <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+                    {[[0, 'რაც შეიძლება მალე'], [15, '15 წთ-ში'], [30, '30 წთ-ში'], [45, '45 წთ-ში'], [60, '1 საათში']].map(([v, t]) => {
+                      const on = minutes === v;
+                      return (
+                        <Pressable key={String(v)} accessibilityRole="radio" accessibilityState={{ selected: on }} onPress={() => setMinutes(v as number)}
+                          style={{ minHeight: 40, borderRadius: 20, paddingHorizontal: 14, justifyContent: 'center', backgroundColor: on ? colors.yellow : theme.surface2 }}>
+                          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: on ? colors.ink : theme.text }}>{t}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </>
+              )}
+            </View>
+          </>
+        ) : null}
+
+        {!pickup ? sectionTitle(1, ka.checkout.addressTitle) : null}
+        {!pickup && (!addrs ? <ActivityIndicator color={colors.yellow} /> : (
           <>
             {picked && !showList ? (
               <View style={{ backgroundColor: theme.surface, borderRadius: 18, padding: 14, gap: 12 }}>
@@ -205,12 +281,12 @@ export default function Checkout() {
               </View>
             )}
           </>
-        )}
+        ))}
 
         {sectionTitle(2, ka.checkout.payment)}
         <View style={{ flexDirection: 'row', gap: 12 }}>
           {tile('card', 'card', ka.checkout.card, cardOk, cardOk ? ka.payment.note : ka.payment.demoOff)}
-          {tile('cash', 'cash', ka.checkout.cash, cashOk, cashOk ? undefined : ka.checkout.cashOff)}
+          {tile('cash', 'cash', pickup ? 'ადგილზე' : ka.checkout.cash, cashOk, pickup ? 'გადაიხდი ფილიალში' : cashOk ? undefined : ka.checkout.cashOff)}
         </View>
 
         {sectionTitle(3, ka.checkout.notes)}
@@ -228,9 +304,10 @@ export default function Checkout() {
           <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 4 }} />
           {row(ka.cart.subtotal, formatGel(subtotal))}
           {discount > 0 ? row(`${ka.cart.discount} ${promo?.code ?? ''}`, `−${formatGel(discount)}`, false, true) : null}
-          {row(ka.checkout.delivery, fee === null ? '—' : fee === 0 ? formatGel(0) : formatGel(fee))}
-          {belowMin > 0 ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#FF7A7F' }}>{ka.checkout.minLeft} {formatGel(belowMin)}</Text> : null}
-          {untilFree > 0 ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: colors.yellow }}>{ka.checkout.freeFrom} {formatGel(untilFree)}</Text> : null}
+          {pickupDiscount > 0 ? row(`თვითონ წამოღება −${pb?.pickup_discount_percent}%`, `−${formatGel(pickupDiscount)}`, false, true) : null}
+          {pickup ? null : row(ka.checkout.delivery, fee === null ? '—' : fee === 0 ? formatGel(0) : formatGel(fee))}
+          {!pickup && belowMin > 0 ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#FF7A7F' }}>{ka.checkout.minLeft} {formatGel(belowMin)}</Text> : null}
+          {!pickup && untilFree > 0 ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: colors.yellow }}>{ka.checkout.freeFrom} {formatGel(untilFree)}</Text> : null}
         </View>
         {(error || promoMsg) && <ErrorText>{error ?? promoMsg}</ErrorText>}
       </ScrollView>
@@ -238,7 +315,7 @@ export default function Checkout() {
       <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, gap: 10, backgroundColor: theme.bg, borderTopWidth: 1, borderTopColor: theme.border }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
           <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: theme.muted }}>{ka.checkout.total}</Text>
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 22, color: theme.text }}>{formatGel(subtotal - discount + (fee ?? 0))}</Text>
+          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 22, color: theme.text }}>{formatGel(Math.max(0, subtotal - discount - pickupDiscount) + (pickup ? 0 : (fee ?? 0)))}</Text>
         </View>
         <Button title={busy ? '...' : chosen === 'card' ? ka.checkout.pay : ka.checkout.place} onPress={place} disabled={!canPlace} />
       </View>

@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { ok, supabase } from '@/lib/supabase';
 
-export interface MyBranch { id: string; name: string; accepts_orders: boolean }
+export interface MyBranch { id: string; name: string; accepts_orders: boolean; pickup_enabled: boolean }
 interface Ctx { branches: MyBranch[]; branch: MyBranch | null; setBranchId: (id: string) => void; reload: () => Promise<void> }
 const C = createContext<Ctx>({ branches: [], branch: null, setBranchId: () => undefined, reload: async () => undefined });
 export const useBranch = () => useContext(C);

@@ -77,3 +77,4 @@ tbody tr:last-child td { border-bottom: 0; }
 .ocard.fresh { border-width: 2px; }
 .ocard .num { font-size: 20px; }
 .ocard .acts button { padding: 14px 12px; font-size: 16px; }
+.pickbadge{display:inline-block;align-self:flex-start;background:#FFCC02;color:#1A0D0B;font-weight:800;font-size:15px;border-radius:12px;padding:8px 12px}

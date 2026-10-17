@@ -4,9 +4,9 @@ import { ok, supabase } from '@/lib/supabase';
 import { WEEK } from '@/lib/format';
 import { Field, useAction, useLoad } from '@/components/bits';
 
-interface Br { id: string | null; code: string; name: string; address: string | null; phone: string | null; lat: number | null; lng: number | null; is_active: boolean; accepts_orders: boolean; cod_enabled: boolean }
+interface Br { id: string | null; code: string; name: string; address: string | null; phone: string | null; lat: number | null; lng: number | null; is_active: boolean; accepts_orders: boolean; cod_enabled: boolean; pickup_enabled: boolean; pickup_discount_percent: number }
 interface Hr { branch_id: string; weekday: number; opens: string; closes: string }
-const EMPTY: Br = { id: null, code: '', name: '', address: '', phone: '', lat: null, lng: null, is_active: true, accepts_orders: false, cod_enabled: false };
+const EMPTY: Br = { id: null, code: '', name: '', address: '', phone: '', lat: null, lng: null, is_active: true, accepts_orders: false, cod_enabled: false, pickup_enabled: true, pickup_discount_percent: 0 };
 const hhmm = (t: string) => t.slice(0, 5);
 
 function BranchForm({ branch, hours, onSaved }: { branch: Br; hours: Hr[]; onSaved: () => void }) {
@@ -25,8 +25,9 @@ function BranchForm({ branch, hours, onSaved }: { branch: Br; hours: Hr[]; onSav
     const la = lat.trim() === '' ? null : Number(lat.replace(',', '.')); const lo = lng.trim() === '' ? null : Number(lng.replace(',', '.'));
     if ((la === null) !== (lo === null) || Number.isNaN(la) || Number.isNaN(lo)) throw new Error('კოორდინატები: შეავსე ორივე (განედი და გრძედი) ან არც ერთი');
     if (!b.name.trim()) throw new Error('სახელი აუცილებელია');
+    if (!(b.pickup_discount_percent >= 0 && b.pickup_discount_percent <= 50)) throw new Error('ფასდაკლება: 0–50%');
     if (!b.id && !/^[A-Za-z0-9]{1,6}$/.test(b.code.trim())) throw new Error('კოდი: 1–6 ლათინური ასო/ციფრი (მაგ. B1)');
-    const id = ok(await supabase.rpc('admin_save_branch', { p_id: b.id, p_code: b.code, p_name: b.name.trim(), p_address: b.address ?? '', p_phone: b.phone ?? '', p_lat: la, p_lng: lo, p_is_active: b.is_active, p_accepts_orders: b.accepts_orders, p_cod_enabled: b.cod_enabled })) as string;
+    const id = ok(await supabase.rpc('admin_save_branch', { p_id: b.id, p_code: b.code, p_name: b.name.trim(), p_address: b.address ?? '', p_phone: b.phone ?? '', p_lat: la, p_lng: lo, p_is_active: b.is_active, p_accepts_orders: b.accepts_orders, p_cod_enabled: b.cod_enabled, p_pickup_enabled: b.pickup_enabled, p_pickup_discount_percent: Math.round(Number(b.pickup_discount_percent) || 0) })) as string;
     ok(await supabase.rpc('admin_save_hours', { p_branch: id, p_hours: week.map((w, d) => (w.open ? { weekday: d, opens: w.opens, closes: w.closes } : null)).filter(Boolean) }));
     onSaved();
   });
@@ -47,6 +48,10 @@ function BranchForm({ branch, hours, onSaved }: { branch: Br; hours: Hr[]; onSav
         <label className="chk"><input type="checkbox" checked={b.is_active} onChange={(e) => set('is_active', e.target.checked)} />აქტიურია</label>
         <label className="chk"><input type="checkbox" checked={b.accepts_orders} onChange={(e) => set('accepts_orders', e.target.checked)} />იღებს შეკვეთებს</label>
         <label className="chk"><input type="checkbox" checked={b.cod_enabled} onChange={(e) => set('cod_enabled', e.target.checked)} />ნაღდი ფული კურიერთან</label>
+      </div>
+      <div className="row" style={{ gap: 22 }}>
+        <label className="chk"><input type="checkbox" checked={b.pickup_enabled} onChange={(e) => set('pickup_enabled', e.target.checked)} />🚶 თვითონ წამოღება (Pickup)</label>
+        <label className="row" style={{ gap: 8 }}><span className="small muted">ფასდაკლება თვითონ წამოღებაზე, %</span><input type="number" min={0} max={50} style={{ width: 90 }} value={b.pickup_discount_percent} onChange={(e) => set('pickup_discount_percent', Number(e.target.value))} /></label>
       </div>
       <div>
         <h2 style={{ fontSize: 15 }}>სამუშაო საათები</h2>

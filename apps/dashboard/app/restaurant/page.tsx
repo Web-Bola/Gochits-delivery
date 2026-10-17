@@ -9,7 +9,7 @@ interface Item { name_snapshot: string; quantity: number; unit_price_tetri: numb
 interface Snap { street?: string; entrance?: string | null; floor?: string | null; apartment?: string | null; comment?: string | null; deleted?: boolean }
 interface Order {
   id: string; number: string; status: string; payment_method: 'card' | 'cash'; payment_status: string; total_tetri: number; subtotal_tetri: number;
-  delivery_fee_tetri: number; discount_tetri: number; notes: string | null; address_snapshot: Snap; created_at: string; order_items: Item[];
+  delivery_fee_tetri: number; discount_tetri: number; notes: string | null; address_snapshot: Snap | null; fulfillment: 'delivery' | 'pickup'; pickup_minutes: number | null; created_at: string; order_items: Item[];
 }
 interface Courier { order_id: string; courier_name: string | null; courier_phone: string | null }
 interface Contact { order_id: string; phone: string | null; full_name: string | null }
@@ -17,7 +17,7 @@ interface Contact { order_id: string; phone: string | null; full_name: string | 
 const COLS: { key: string; title: string; statuses: string[] }[] = [
   { key: 'new', title: 'ახალი', statuses: ['placed'] },
   { key: 'cook', title: 'მზადდება', statuses: ['accepted', 'preparing'] },
-  { key: 'go', title: 'მზადაა, კურიერს ელოდება', statuses: ['ready_for_pickup'] },
+  { key: 'go', title: 'მზადაა: კურიერს / კლიენტს ელოდება', statuses: ['ready_for_pickup'] },
 ];
 // [button label, next status, style]
 const ACTIONS: Record<string, [string, string, string][]> = {
@@ -53,7 +53,7 @@ export default function Orders() {
     try {
       const since = new Date(Date.now() - 2 * 86400000).toISOString();
       const rows = ok(await supabase.from('orders')
-        .select('id,number,status,payment_method,payment_status,total_tetri,subtotal_tetri,delivery_fee_tetri,discount_tetri,notes,address_snapshot,created_at,order_items(name_snapshot,quantity,unit_price_tetri,note)')
+        .select('id,number,status,payment_method,payment_status,total_tetri,subtotal_tetri,delivery_fee_tetri,discount_tetri,notes,address_snapshot,fulfillment,pickup_minutes,created_at,order_items(name_snapshot,quantity,unit_price_tetri,note)')
         .eq('branch_id', branch.id).gte('created_at', since).in('status', ['placed', 'accepted', 'preparing', 'ready_for_pickup']).order('created_at', { ascending: false }) as { data: Order[] | null; error: { message: string } | null });
       const c = ok(await supabase.rpc('staff_contacts', { p_branch: branch.id }) as { data: Contact[] | null; error: { message: string } | null });
       setContacts(Object.fromEntries(c.map((x) => [x.order_id, x])));
@@ -97,6 +97,12 @@ export default function Orders() {
     await load();
   }, 'სტატუსი შეიცვალა ✓');
 
+  const togglePickup = () => run(async () => {
+    if (!branch) return;
+    ok(await supabase.rpc('staff_set_pickup', { p_branch: branch.id, p_on: !branch.pickup_enabled }));
+    await reloadBranches();
+  }, 'შენახულია ✓');
+
   const toggleAccepting = () => run(async () => {
     if (!branch) return;
     ok(await supabase.rpc('staff_set_accepting', { p_branch: branch.id, p_on: !branch.accepts_orders }));
@@ -111,6 +117,7 @@ export default function Orders() {
         <div className="row">
           {branches.length > 1 ? <select style={{ width: 240 }} value={branch?.id} onChange={(e) => setBranchId(e.target.value)}>{branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select> : <b>{branch?.name}</b>}
           <button className={branch?.accepts_orders ? 'ghost' : 'red'} disabled={busy} onClick={toggleAccepting}>{branch?.accepts_orders ? '⏸ შეკვეთების გაჩერება' : '▶ შეკვეთების მიღების ჩართვა'}</button>
+          <button className={branch?.pickup_enabled ? 'ghost' : 'red'} disabled={busy} onClick={togglePickup}>{branch?.pickup_enabled ? '🚶 თვითონ წამოღება: ჩართულია' : '🚶 თვითონ წამოღება: გამორთულია'}</button>
           <button className={sound ? '' : 'ghost'} onClick={() => { setSound((v) => !v); if (!sound) beep(); }}>{sound ? '🔔 ხმა ჩართულია' : '🔕 ხმის ჩართვა'}</button>
         </div>
       </div>
@@ -131,6 +138,7 @@ export default function Orders() {
               <h2>{c.title}<span className="count">{list.length}</span></h2>
               {list.map((o) => {
                 const a = o.address_snapshot ?? {};
+                const pk = o.fulfillment === 'pickup';
                 const ct = contacts[o.id];
                 const where = [a.street, a.entrance && `სადარბაზო ${a.entrance}`, a.floor && `სართული ${a.floor}`, a.apartment && `ბინა ${a.apartment}`].filter(Boolean).join(', ');
                 return (
@@ -139,14 +147,14 @@ export default function Orders() {
                     <ul>{o.order_items.map((it, i) => <li key={i}><b>{it.quantity}×</b><span>{it.name_snapshot}{it.note ? <span className="sub"> · {it.note}</span> : null}</span></li>)}</ul>
                     {o.notes ? <div className="note">💬 {o.notes}</div> : null}
                     <hr />
-                    <div className="sub">📍 {where || '—'}{a.comment ? ` · ${a.comment}` : ''}</div>
+                    {pk ? <div className="pickbadge">🚶 თვითონ წამოიღებს{o.pickup_minutes ? ` · ~${o.pickup_minutes} წთ-ში` : ' · რაც შეიძლება მალე'}</div> : <div className="sub">📍 {where || '—'}{a.comment ? ` · ${a.comment}` : ''}</div>}
                     {ct?.phone ? <div className="sub">📞 <b style={{ color: 'var(--text)' }}>{ct.phone}</b>{ct.full_name ? ` · ${ct.full_name}` : ''}</div> : null}
                     <div className="row" style={{ justifyContent: 'space-between' }}>
-                      <span className={`pill ${o.payment_method === 'card' ? 'ok' : 'warn'}`}>{o.payment_method === 'card' ? (o.payment_status === 'paid' ? 'ბარათით გადახდილია' : 'ბარათი: გადაუხდელი') : 'ნაღდი: მიიღეთ კურიერთან'}</span>
+                      <span className={`pill ${o.payment_method === 'card' ? 'ok' : 'warn'}`}>{o.payment_method === 'card' ? (o.payment_status === 'paid' ? 'ბარათით გადახდილია' : 'ბარათი: გადაუხდელი') : (pk ? 'ნაღდი/ბარათი: აიღეთ ადგილზე' : 'ნაღდი: მიიღეთ კურიერთან')}</span>
                       <b>{gel(o.total_tetri)}</b>
                     </div>
-                    {couriers[o.id] ? <div className="sub">🛵 კურიერი: <b style={{ color: 'var(--text)' }}>{couriers[o.id].courier_name}</b>{couriers[o.id].courier_phone ? ` · ${couriers[o.id].courier_phone}` : ''}</div> : <div className="sub">🛵 კურიერი ჯერ არ არის აღებული{o.status === 'ready_for_pickup' ? '' : ' (დადასტურების შემდეგ კურიერებს გამოუჩნდება)'}</div>}
-                    <div className="acts">{(ACTIONS[o.status] ?? []).map(([label, to, cls]) => <button key={to} className={cls} disabled={busy} onClick={() => move(o, to)}>{label}</button>)}</div>
+                    {pk ? null : couriers[o.id] ? <div className="sub">🛵 კურიერი: <b style={{ color: 'var(--text)' }}>{couriers[o.id].courier_name}</b>{couriers[o.id].courier_phone ? ` · ${couriers[o.id].courier_phone}` : ''}</div> : <div className="sub">🛵 კურიერი ჯერ არ არის აღებული{o.status === 'ready_for_pickup' ? '' : ' (დადასტურების შემდეგ კურიერებს გამოუჩნდება)'}</div>}
+                    <div className="acts">{((pk && o.status === 'ready_for_pickup') ? [['გაიცა', 'delivered', ''] as [string, string, string]] : (ACTIONS[o.status] ?? [])).map(([label, to, cls]) => <button key={to} className={cls} disabled={busy} onClick={() => move(o, to)}>{label}</button>)}</div>
                   </article>
                 );
               })}

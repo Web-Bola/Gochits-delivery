@@ -20,12 +20,15 @@ const HEAD_OF: Partial<Record<OrderStatus, [string, string]>> = {
 };
 const STEP_OF: Partial<Record<OrderStatus, number>> = { placed: 0, accepted: 0, preparing: 1, ready_for_pickup: 1, out_for_delivery: 2, delivered: 3 };
 const TK = [['receipt', 'მიღებულია'], ['flame', 'მზადდება'], ['bike', 'გზაში'], ['home', 'მიტანილია']] as const;
+const TK_PICKUP = [['receipt', 'მიღებულია'], ['flame', 'მზადდება'], ['bag', 'მზადაა'], ['check', 'გაიცა']] as const;
+const STEP_PICKUP: Partial<Record<OrderStatus, number>> = { placed: 0, accepted: 0, preparing: 1, ready_for_pickup: 2, delivered: 3 };
+const HEAD_PICKUP: Partial<Record<OrderStatus, [string, string]>> = { ready_for_pickup: ['მზადაა, მოდი აიღე!', 'შენი შეკვეთა ფილიალში გელოდება'], delivered: ['გაიცა!', 'ისიამოვნე კერძით'] };
 const INK = colors.ink;
 
 interface Item { product_id: string; name_snapshot: string; quantity: number; unit_price_tetri: number; note: string | null }
 interface Row {
   created_at: string; number: string; status: OrderStatus; total_tetri: number; subtotal_tetri: number; delivery_fee_tetri: number; discount_tetri: number; promo_code: string | null;
-  payment_method: 'card' | 'cash'; payment_status: string; notes: string | null; order_items: Item[]; branches: { name: string; phone: string | null } | null;
+  payment_method: 'card' | 'cash'; payment_status: string; notes: string | null; order_items: Item[]; branches: { name: string; phone: string | null; address: string | null } | null; fulfillment: 'delivery' | 'pickup'; pickup_minutes: number | null;
 }
 
 export default function OrderScreen() {
@@ -46,7 +49,7 @@ export default function OrderScreen() {
 
   const load = useCallback(async () => {
     const [o, r] = await Promise.all([
-      supabase.from('orders').select('created_at,number,status,total_tetri,subtotal_tetri,delivery_fee_tetri,discount_tetri,promo_code,payment_method,payment_status,notes,order_items(product_id,name_snapshot,quantity,unit_price_tetri,note),branches(name,phone)').eq('id', id).single(),
+      supabase.from('orders').select('created_at,number,status,total_tetri,subtotal_tetri,delivery_fee_tetri,discount_tetri,promo_code,payment_method,payment_status,notes,fulfillment,pickup_minutes,order_items(product_id,name_snapshot,quantity,unit_price_tetri,note),branches(name,phone,address)').eq('id', id).single(),
       supabase.from('order_ratings').select('stars').eq('order_id', id).maybeSingle(),
     ]);
     if (o.error || !o.data) { if (!row) setFailed(true); return; }
@@ -101,14 +104,16 @@ export default function OrderScreen() {
   if (failed) return <Screen><BackButton onPress={() => router.replace('/orders')} /><StateView tone="error" icon="clock" title={ka.order.loadFail} hint={ka.errors.network} actionTitle={ka.common.retry} onAction={load} /></Screen>;
   if (!row) return <Screen><ActivityIndicator color={colors.yellow} /></Screen>;
 
-  const stepIdx = STEP_OF[row.status];
+  const pk = row.fulfillment === 'pickup';
+  const TKS = pk ? TK_PICKUP : TK;
+  const stepIdx = (pk ? STEP_PICKUP : STEP_OF)[row.status];
   const fin = row.status === 'delivered';
   const bad = row.status === 'payment_failed' || row.status === 'cancelled' || row.status === 'rejected';
   const canCancel = row.status === 'pending_payment' || (row.status === 'placed' && row.payment_status !== 'paid');
   const phone = row.branches?.phone ?? null;
-  const [h1, h2] = HEAD_OF[row.status] ?? [STATUS_LABEL[row.status], ''];
-  const scene = SCENE_OF[row.status] ?? 'shop';
-  const out = row.status === 'out_for_delivery';
+  const [h1, h2] = (pk ? HEAD_PICKUP[row.status] : undefined) ?? HEAD_OF[row.status] ?? [STATUS_LABEL[row.status], ''];
+  const scene = (pk && row.status === 'ready_for_pickup') ? 'shop' : (SCENE_OF[row.status] ?? 'shop');
+  const out = !pk && row.status === 'out_for_delivery';
   const card = { backgroundColor: theme.surface, borderRadius: 18, padding: 14, gap: 9 } as const;
   const mins = Math.max(0, Math.round((Date.now() - new Date(row.created_at).getTime()) / 60000));
   const sentAgo = mins < 1 ? 'ახლახან გაიგზავნა' : mins < 60 ? `გაიგზავნა ${mins} წთ-ის წინ` : null;
@@ -134,7 +139,7 @@ export default function OrderScreen() {
 
           {stepIdx !== undefined && (
             <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-              {TK.map(([ic, label], k) => {
+              {TKS.map(([ic, label], k) => {
                 const done = k < stepIdx || fin; const act = k === stepIdx && !fin;
                 return [
                   <View key={label} style={{ alignItems: 'center', gap: 6, width: 62 }}>
@@ -149,7 +154,26 @@ export default function OrderScreen() {
             </View>
           )}
 
-          {(out || fin || row.status === 'ready_for_pickup') ? (
+          {pk && row.status === 'ready_for_pickup' ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: 'rgba(61,220,132,0.1)', borderRadius: 18, padding: 14, borderWidth: 1.5, borderColor: '#3DDC84' }}>
+              <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}><Icon name="pin" size={22} color={INK} /></View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>აიღე აქ: {row.branches?.name}</Text>
+                {row.branches?.address ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted }}>{row.branches.address}</Text> : null}
+                <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: theme.muted, marginTop: 2 }}>დაასახელე შეკვეთის ნომერი: №{row.number}</Text>
+              </View>
+            </View>
+          ) : null}
+          {pk && !finished && row.status !== 'ready_for_pickup' && row.status !== 'pending_payment' ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 18, padding: 12 }}>
+              <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}><Icon name="bag" size={22} color={INK} /></View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>თვითონ წამოღება{row.pickup_minutes ? ` · ~${row.pickup_minutes} წთ-ში` : ''}</Text>
+                <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{row.branches?.name}{row.branches?.address ? `, ${row.branches.address}` : ''}</Text>
+              </View>
+            </View>
+          ) : null}
+          {!pk && (out || fin || row.status === 'ready_for_pickup') ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 18, padding: 12 }}>
               <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}><Icon name={out || fin ? 'bike' : 'bag'} size={22} color={INK} /></View>
               <View style={{ flex: 1 }}>
@@ -198,7 +222,7 @@ export default function OrderScreen() {
               </View>
             ))}
             {row.notes ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.order.notePrefix}: {row.notes}</Text> : null}
-            {[[ka.cart.subtotal, formatGel(row.subtotal_tetri)], ...(row.discount_tetri > 0 ? [[`${ka.order.discount}${row.promo_code ? ` ${row.promo_code}` : ''}`, `−${formatGel(row.discount_tetri)}`]] : []), [ka.order.delivery, formatGel(row.delivery_fee_tetri)], [ka.order.method, row.payment_method === 'card' ? ka.checkout.card : ka.checkout.cash]].map(([k, v]) => (
+            {[[ka.cart.subtotal, formatGel(row.subtotal_tetri)], ...(row.discount_tetri > 0 ? [[`${ka.order.discount}${row.promo_code ? ` ${row.promo_code}` : ''}`, `−${formatGel(row.discount_tetri)}`]] : []), ...(pk ? [] : [[ka.order.delivery, formatGel(row.delivery_fee_tetri)]]), [ka.order.method, row.payment_method === 'card' ? ka.checkout.card : ka.checkout.cash]].map(([k, v]) => (
               <View key={k} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Text style={muted}>{k}</Text><Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: theme.text }}>{v}</Text>
               </View>
