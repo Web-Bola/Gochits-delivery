@@ -1,7 +1,18 @@
 // Supabase Auth "Send SMS" hook -> SMS Office (smsoffice.ge).
 // Supabase calls this function instead of its own SMS provider whenever a login code (OTP) must be sent.
 // Secrets (Supabase -> Edge Functions -> Secrets): SMSOFFICE_KEY, SMS_SENDER (default "smsoffice"), SEND_SMS_HOOK_SECRET.
-import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0';
+
+// Standard Webhooks signature check using built-in WebCrypto (no external imports -> fast cold start).
+async function verify(payload: string, headers: Headers, secret: string): Promise<boolean> {
+  const id = headers.get('webhook-id'), ts = headers.get('webhook-timestamp'), sigs = headers.get('webhook-signature');
+  if (!id || !ts || !sigs || !secret) return false;
+  if (Math.abs(Date.now() / 1000 - Number(ts)) > 300) return false;
+  const keyBytes = Uint8Array.from(atob(secret), (c) => c.charCodeAt(0));
+  const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${id}.${ts}.${payload}`));
+  const expected = btoa(String.fromCharCode(...new Uint8Array(mac)));
+  return sigs.split(' ').some((s) => s.replace(/^v1,/, '') === expected);
+}
 
 const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -10,12 +21,13 @@ Deno.serve(async (req) => {
   if (req.method !== 'POST') return json(405, { error: { http_code: 405, message: 'method_not_allowed' } });
   const payload = await req.text();
   const secret = (Deno.env.get('SEND_SMS_HOOK_SECRET') ?? '').replace('v1,whsec_', '');
-  let event: { user: { phone?: string }; sms: { otp: string } };
-  try {
-    event = new Webhook(secret).verify(payload, Object.fromEntries(req.headers)) as typeof event;
-  } catch {
+  let ok = false;
+  try { ok = await verify(payload, req.headers, secret); } catch { ok = false; }
+  if (!ok) {
+    console.error('bad_signature (check SEND_SMS_HOOK_SECRET matches the hook secret)');
     return json(401, { error: { http_code: 401, message: 'bad_signature' } });
   }
+  const event = JSON.parse(payload) as { user: { phone?: string }; sms: { otp: string } };
 
   // Georgian numbers only: 995 + 9 digits, no "+" (SMS Office format)
   const digits = (event.user.phone ?? '').replace(/\D/g, '');
