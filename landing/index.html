@@ -10,55 +10,36 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#140E0B; --card:#1D1511; --ink:#F6EFE4; --muted:#B9AB9B; --yellow:#FFCC02; --red:#E1251B; --dark:#1A0D0B; }
+  :root { --bg:#140E0B; --card:#1D1511; --ink:#F6EFE4; --muted:#B9AB9B; --yellow:#FFCC02; --dark:#1A0D0B; }
   * { box-sizing: border-box; margin: 0; }
   body { background: var(--bg); color: var(--ink); font-family: 'Noto Sans Georgian', system-ui, sans-serif; min-height: 100vh; -webkit-font-smoothing: antialiased; }
   a { color: inherit; text-decoration: none; }
-  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-left)) 40px; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-left)) 40px; }
 
   header { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 44px 0 34px; text-align: center; }
   header img { width: min(230px, 56vw); height: auto; display: block; }
   header p { font-size: 18px; color: var(--muted); }
-  header p b { color: var(--yellow); font-weight: 800; }
 
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
 
-  /* big first card: photo + yellow panel */
-  .hero { grid-column: 1 / -1; display: grid; grid-template-columns: 1.35fr 1fr; background: var(--yellow); color: var(--dark); border-radius: 24px; overflow: hidden; min-height: 340px; transition: transform .2s ease; }
-  .hero:hover { transform: translateY(-3px); }
-  .hero .ph { background: #000 center / cover no-repeat url(img/app.jpg); min-height: 240px; }
-  .hero .tx { padding: 34px 34px 30px; display: flex; flex-direction: column; justify-content: space-between; gap: 22px; }
-  .tag { font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-  .hero h2 { font-size: clamp(30px, 4.2vw, 44px); line-height: 1.12; font-weight: 800; margin-top: 8px; }
-  .hero p { font-size: 17px; line-height: 1.5; margin-top: 12px; max-width: 30ch; }
-  .go { align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; background: var(--dark); color: var(--yellow); font-weight: 800; font-size: 17px; padding: 15px 24px; border-radius: 14px; }
-
-  /* small photo cards */
-  .card { position: relative; border-radius: 22px; overflow: hidden; aspect-ratio: 4 / 4.4; background: #000 center / cover no-repeat; display: flex; align-items: flex-end; transition: transform .2s ease; border: 1px solid #2A1F19; }
-  .card:hover { transform: translateY(-3px); }
-  .card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(12,7,5,.96) 0%, rgba(12,7,5,.78) 40%, rgba(12,7,5,0) 78%); }
-  .card .in { position: relative; padding: 22px; display: flex; flex-direction: column; gap: 6px; width: 100%; }
-  .card .tag { color: var(--yellow); }
-  .card h3 { font-size: 24px; font-weight: 800; line-height: 1.15; }
-  .card p { font-size: 15px; color: #DCCFBF; line-height: 1.4; }
-  .card .row { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; font-weight: 800; font-size: 15px; color: var(--yellow); }
-  .arrow { width: 38px; height: 38px; border-radius: 50%; background: var(--yellow); color: var(--dark); display: grid; place-items: center; font-size: 18px; }
-  #restaurant { background-image: url(img/restaurant.jpg); }
-  #courier { background-image: url(img/courier.jpg); }
-  #admin { background-image: url(img/admin.jpg); }
+  .card { display: flex; flex-direction: column; background: var(--card); border: 1px solid #2A1F19; border-radius: 24px; overflow: hidden; transition: transform .2s ease, border-color .2s ease; }
+  .card:hover { transform: translateY(-3px); border-color: var(--yellow); }
+  .card img { display: block; width: 100%; height: auto; aspect-ratio: 1040 / 650; object-fit: cover; background: #000; }
+  .cap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 22px 20px; }
+  .tag { font-size: 12.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--yellow); }
+  .cap h2 { font-size: 24px; font-weight: 800; line-height: 1.2; margin-top: 4px; }
+  .cap p { font-size: 15px; color: var(--muted); line-height: 1.45; margin-top: 4px; }
+  .arrow { flex: none; width: 46px; height: 46px; border-radius: 50%; background: var(--yellow); color: var(--dark); display: grid; place-items: center; font-size: 20px; font-weight: 800; }
 
   footer { margin-top: 30px; text-align: center; font-size: 14px; color: var(--muted); line-height: 1.6; }
 
   a:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
-  @media (max-width: 820px) {
+  @media (max-width: 760px) {
     .grid { grid-template-columns: 1fr; }
-    .hero { grid-template-columns: 1fr; }
-    .hero .ph { min-height: 220px; order: -1; }
-    .hero .tx { padding: 24px 22px 24px; }
-    .card { aspect-ratio: 16 / 11; }
     header { padding: 30px 0 24px; }
+    .cap h2 { font-size: 22px; }
   }
-  @media (prefers-reduced-motion: reduce) { .hero, .card { transition: none; } .hero:hover, .card:hover { transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
 </style>
 </head>
 <body>
@@ -69,42 +50,32 @@
   </header>
 
   <main class="grid">
-    <a class="hero" href="app/">
-      <div class="ph" role="img" aria-label="ბურგერი, ფრი და კოლა"></div>
-      <div class="tx">
-        <div>
-          <span class="tag">მომხმარებლისთვის</span>
-          <h2>შეუკვეთე შენი საყვარელი ბურგერი</h2>
-          <p>აირჩიე ფილიალი, დაამატე კალათაში და თვალი ადევნე შეკვეთას.</p>
-        </div>
-        <span class="go">აპის გახსნა <span aria-hidden="true">→</span></span>
+    <a class="card" href="app/">
+      <img src="img/app.jpg" alt="მომხმარებლის აპის მენიუ" width="1040" height="650" loading="lazy">
+      <div class="cap">
+        <div><span class="tag">მომხმარებლისთვის</span><h2>მომხმარებლის აპი</h2><p>აირჩიე ფილიალი, შეუკვეთე და თვალი ადევნე შეკვეთას.</p></div>
+        <span class="arrow" aria-hidden="true">→</span>
       </div>
     </a>
-
-    <a class="card" id="restaurant" href="panel/restaurant/">
-      <div class="in">
-        <span class="tag">რესტორნისთვის</span>
-        <h3>რესტორნის პანელი</h3>
-        <p>შემოსული შეკვეთები, მიღება და „მზადაა“.</p>
-        <div class="row"><span>გახსნა</span><span class="arrow" aria-hidden="true">→</span></div>
+    <a class="card" href="panel/restaurant/">
+      <img src="img/restaurant.jpg" alt="რესტორნის პანელი" width="1040" height="650" loading="lazy">
+      <div class="cap">
+        <div><span class="tag">რესტორნისთვის</span><h2>რესტორნის პანელი</h2><p>შემოსული შეკვეთები, მიღება და „მზადაა“.</p></div>
+        <span class="arrow" aria-hidden="true">→</span>
       </div>
     </a>
-
-    <a class="card" id="courier" href="courier/">
-      <div class="in">
-        <span class="tag">კურიერისთვის</span>
-        <h3>კურიერის აპი</h3>
-        <p>შეკვეთების აღება, რუკა და მიტანა.</p>
-        <div class="row"><span>გახსნა</span><span class="arrow" aria-hidden="true">→</span></div>
+    <a class="card" href="courier/">
+      <img src="img/courier.jpg" alt="კურიერის აპი" width="1040" height="650" loading="lazy">
+      <div class="cap">
+        <div><span class="tag">კურიერისთვის</span><h2>კურიერის აპი</h2><p>შეკვეთების აღება, რუკა და მიტანა.</p></div>
+        <span class="arrow" aria-hidden="true">→</span>
       </div>
     </a>
-
-    <a class="card" id="admin" href="panel/admin/">
-      <div class="in">
-        <span class="tag">მენეჯმენტისთვის</span>
-        <h3>ადმინ პანელი</h3>
-        <p>ფილიალები, მენიუ, ფასები და თანამშრომლები.</p>
-        <div class="row"><span>გახსნა</span><span class="arrow" aria-hidden="true">→</span></div>
+    <a class="card" href="panel/admin/">
+      <img src="img/admin.jpg" alt="ადმინ პანელი" width="1040" height="650" loading="lazy">
+      <div class="cap">
+        <div><span class="tag">მენეჯმენტისთვის</span><h2>ადმინ პანელი</h2><p>ფილიალები, მენიუ, ფასები და თანამშრომლები.</p></div>
+        <span class="arrow" aria-hidden="true">→</span>
       </div>
     </a>
   </main>
