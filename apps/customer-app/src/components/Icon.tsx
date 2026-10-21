@@ -20,6 +20,7 @@ const PATHS: Record<string, string> = {
   repeat: '<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/>',
   star: '<path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4l-5.8 3.1 1.1-6.5L2.6 9.4l6.5-.9z"/>',
   wallet: '<path d="M3 7a2 2 0 0 1 2-2h13v4"/><path d="M3 7v11a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H5a2 2 0 0 1-2-2z"/><circle cx="16" cy="14.5" r="1"/>',
+  filter: '<path d="M4 7h10M18 7h2M4 17h2M10 17h10M16 4v6M8 14v6"/>',
   search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
   x: '<path d="M18 6 6 18M6 6l12 12"/>',
   back: '<path d="M19 12H5M12 19l-7-7 7-7"/>',

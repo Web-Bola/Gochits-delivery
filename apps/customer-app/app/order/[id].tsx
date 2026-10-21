@@ -148,6 +148,7 @@ export default function OrderScreen() {
                       <Icon name={done ? 'check' : ic} size={20} color={done ? ONB : act ? colors.brand : theme.muted} strokeWidth={done ? 3 : 2} />
                     </View>
                     <Text style={{ fontFamily: fontFamily.semibold, fontSize: 11, color: done ? theme.text : act ? colors.brand : theme.muted }}>{label}</Text>
+                    {k === 0 ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 11, color: theme.muted }}>{new Date(row.created_at).toLocaleTimeString('ka-GE', { hour: '2-digit', minute: '2-digit', hour12: false })}</Text> : null}
                   </View>,
                   k < 3 ? <View key={`${label}-l`} style={{ flex: 1, height: 4, borderRadius: 2, marginTop: 20, backgroundColor: k < stepIdx || fin ? colors.brand : theme.border }} /> : null,
                 ];

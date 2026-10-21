@@ -5,6 +5,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { formatGel, sortBranchOptions, type BranchOption } from '@gochits/shared';
 import { ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from '../src/components/Icon';
 import { TabBar } from '../src/components/TabBar';
 import { Bump, Shimmer, SlideUp } from '../src/components/fx';
@@ -44,6 +45,21 @@ async function currentPosition(): Promise<Pos> {
   const p = await Promise.race([Location.getCurrentPositionAsync({}), new Promise<never>((_, rej) => setTimeout(() => rej(new Error('timeout')), 10000))]);
   return { lat: p.coords.latitude, lng: p.coords.longitude };
 }
+
+const CATS: { id: string; label: string; icon: string; re: RegExp | null }[] = [
+  { id: 'all', label: 'ყველაფერი', icon: 'store', re: null },
+  { id: 'cafe', label: 'კაფეები', icon: 'ccup', re: /cafe|კაფე|coffee|ყავა/i },
+  { id: 'burger', label: 'ბურგერები', icon: 'cburger', re: /burger|ბურგერ/i },
+  { id: 'pizza', label: 'პიცა', icon: 'cwrap', re: /pizza|პიც/i },
+  { id: 'asian', label: 'აზიური', icon: 'cbowl', re: /sushi|asian|სუში|აზიურ|ვოკ|wok|ramen|რამენ/i },
+  { id: 'other', label: 'სხვა', icon: 'ccombo', re: null },
+];
+const catHit = (m: Merchant, id: string) => {
+  const hay = `${m.name} ${m.description ?? ''} ${m.slug ?? ''} ${m.kind}`;
+  if (id === 'all') return true;
+  if (id === 'other') return !CATS.some((c) => c.re && c.id !== 'other' && c.re.test(hay));
+  return !!CATS.find((c) => c.id === id)?.re?.test(hay);
+};
 
 const TINT: Record<string, string> = { all: '#12243A', restaurant: '#3A2E3C', cafe: '#3B3426', grocery: '#1F3B35', pharmacy: '#22384D', flowers: '#3B2A38', other: '#2B3345' };
 
@@ -121,9 +137,9 @@ export default function Home() {
     return f.length ? Math.min(...f) : null;
   };
 
-  const kinds = useMemo(() => [...new Set((list ?? []).filter(eligible).map((m) => m.kind))], [list, eligible]);
+  const [filterOpen, setFilterOpen] = useState(false);
   const needle = q.trim().toLowerCase();
-  const shown = useMemo(() => (list ?? []).filter((m) => eligible(m) && (kind === 'all' || m.kind === kind) && (!needle || m.name.toLowerCase().includes(needle) || (m.description ?? '').toLowerCase().includes(needle))), [list, kind, needle, eligible]);
+  const shown = useMemo(() => (list ?? []).filter((m) => eligible(m) && catHit(m, kind) && (!needle || m.name.toLowerCase().includes(needle) || (m.description ?? '').toLowerCase().includes(needle))), [list, kind, needle, eligible]);
   const live = shown.filter(openNow);
   const later = shown.filter((m) => !openNow(m));
 
@@ -151,15 +167,21 @@ export default function Home() {
     router.push('/menu');
   };
 
-  const tile = (id: string, label: string, icon: string) => {
+  const chip = (id: string, label: string, icon: string) => {
     const on = kind === id;
     return (
-      <Pressable key={id} accessibilityRole="button" accessibilityState={{ selected: on }} onPress={() => setKind(id)}
-        style={{ width: 78, alignItems: 'center', gap: 8 }}>
-        <View style={{ width: 58, height: 58, borderRadius: 18, backgroundColor: on ? colors.brand : TINT[id] ?? theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: on ? 0 : 1, borderColor: 'rgba(56,217,176,0.14)', ...(on ? { shadowColor: colors.brand, shadowOpacity: 0.5, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } } : {}) }}>
-          <Icon name={icon} size={28} color={on ? colors.onBrand : theme.text} />
-        </View>
-        <Text numberOfLines={1} style={{ fontFamily: on ? fontFamily.extrabold : fontFamily.semibold, fontSize: 12.5, color: on ? theme.text : theme.muted }}>{label}</Text>
+      <Pressable key={id} accessibilityRole="button" accessibilityState={{ selected: on }} onPress={() => setKind(id)}>
+        {on ? (
+          <LinearGradient colors={['#7DF2D6', '#38D9B0']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ height: 42, borderRadius: 21, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Icon name={icon} size={18} color={colors.onBrand} />
+            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13.5, color: colors.onBrand }}>{label}</Text>
+          </LinearGradient>
+        ) : (
+          <View style={{ height: 42, borderRadius: 21, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border }}>
+            <Icon name={icon} size={18} color={theme.muted} />
+            <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13.5, color: theme.muted }}>{label}</Text>
+          </View>
+        )}
       </Pressable>
     );
   };
@@ -177,22 +199,23 @@ export default function Home() {
     return (
     <FadeIn key={m.id} index={i}>
       <Pressable accessibilityRole="button" accessibilityLabel={m.name} onPress={() => openMerchant(m)} style={{ opacity: dim ? 0.6 : 1 }}>
-        <View style={{ flexDirection: 'row', backgroundColor: theme.surface, borderRadius: 20, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)', minHeight: 116 }}>
-          <View style={{ width: '42%' }}>
-            <Cover m={m} height={116} />
-            <View style={{ position: 'absolute', left: 8, bottom: 8 }}><MerchantLogo m={m} size={46} /></View>
+        <View style={{ backgroundColor: theme.surface, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
+          <View>
+            <Cover m={m} height={172} />
+            <LinearGradient colors={['transparent', 'rgba(6,14,24,0.85)']} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 90 }} pointerEvents="none" />
+            {dim ? <View style={{ position: 'absolute', left: 12, top: 12, backgroundColor: 'rgba(6,14,24,0.8)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.red }}>დაკეტილია</Text></View> : null}
+            <View style={{ position: 'absolute', left: 12, bottom: -22, borderRadius: 16, borderWidth: 2, borderColor: theme.surface, overflow: 'hidden' }}><MerchantLogo m={m} size={52} /></View>
           </View>
-          <View style={{ flex: 1, padding: 12, gap: 3, justifyContent: 'center' }}>
-            <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{m.name}</Text>
+          <View style={{ paddingTop: 28, paddingHorizontal: 14, paddingBottom: 14, gap: 3 }}>
+            <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{m.name}</Text>
             <Text numberOfLines={1} style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{[KIND_ONE[m.kind], m.description].filter(Boolean).join(' · ')}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 6, flexWrap: 'wrap' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 6, flexWrap: 'wrap' }}>
               {mode === 'delivery' ? (
                 <>
                   {eta != null ? meta('clock', `~${eta} წთ`) : null}
                   {meta('bike', fee != null ? formatGel(fee) : 'მიტანა')}
                 </>
               ) : meta('bag', 'წამოღება')}
-              {dim ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 11.5, color: colors.red }}>დაკეტილია</Text> : null}
             </View>
           </View>
         </View>
@@ -240,23 +263,26 @@ export default function Home() {
             <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text, flexShrink: 1 }}>{placeName}</Text>
             <Icon name="chev" size={16} color={theme.muted} />
           </Pressable>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.surface, borderRadius: 16, paddingHorizontal: 14, minHeight: 50, borderWidth: 1, borderColor: theme.border }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.surface, borderRadius: 25, paddingLeft: 16, paddingRight: 6, minHeight: 50, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
             <Icon name="search" size={20} color={theme.muted} />
-            <TextInput accessibilityLabel="ძებნა" placeholder="რას ეძებ?" placeholderTextColor={theme.muted} value={q} onChangeText={setQ}
+            <TextInput accessibilityLabel="ძებნა" placeholder="რესტორანი, კერძი ან სამზარეულო…" placeholderTextColor={theme.muted} value={q} onChangeText={setQ}
               style={[{ flex: 1, fontFamily: fontFamily.regular, fontSize: 15, color: theme.text, minWidth: 0 }, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
             {q ? <Pressable accessibilityRole="button" accessibilityLabel={ka.common.close} onPress={() => setQ('')}><Icon name="x" size={18} color={theme.muted} /></Pressable> : null}
+            <Pressable accessibilityRole="button" accessibilityLabel="ფილტრი" onPress={() => setFilterOpen((v) => !v)}
+              style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: filterOpen || mode === 'pickup' ? colors.brand : 'rgba(56,217,176,0.14)', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="filter" size={20} color={filterOpen || mode === 'pickup' ? colors.onBrand : colors.brand} />
+            </Pressable>
           </View>
-          <View accessibilityRole="tablist" style={{ flexDirection: 'row', backgroundColor: theme.surface, borderRadius: 24, padding: 4, borderWidth: 1, borderColor: theme.border }}>
-            {seg('delivery', 'მიტანა', 'bike')}{seg('pickup', 'წამოღება', 'bag')}
-          </View>
+          {filterOpen ? (
+            <View accessibilityRole="tablist" style={{ flexDirection: 'row', backgroundColor: theme.surface, borderRadius: 24, padding: 4, borderWidth: 1, borderColor: theme.border }}>
+              {seg('delivery', 'მიტანა', 'bike')}{seg('pickup', 'წამოღება', 'bag')}
+            </View>
+          ) : null}
         </View>
 
-        {kinds.length > 1 ? (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, marginTop: 20 }} contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}>
-            {tile('all', 'ყველა', 'home')}
-            {kinds.map((k) => tile(k, KIND_LABEL[k] ?? k, KIND_ICON[k] ?? 'store'))}
-          </ScrollView>
-        ) : null}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0, marginTop: 16 }} contentContainerStyle={{ gap: 8, paddingHorizontal: 20 }}>
+          {CATS.map((c) => chip(c.id, c.label, c.icon))}
+        </ScrollView>
 
         <View style={{ paddingHorizontal: 20, paddingTop: 22, gap: 14 }}>
           {pending ? (
@@ -277,7 +303,7 @@ export default function Home() {
               <Button title="მისამართის მითითება" variant="outline" onPress={() => router.push('/address')} />
             </View>
           ) : null}
-          {!needPos && loadingList ? [0, 1].map((i) => <Shimmer key={i} style={{ height: 230, borderRadius: 20, backgroundColor: theme.surface }} />) : null}
+          {!needPos && loadingList ? [0, 1].map((i) => <Shimmer key={i} style={{ height: 250, borderRadius: 24, backgroundColor: theme.surface }} />) : null}
           {list && failed ? <StateView tone="error" icon="clock" title="ბიზნესები ვერ ჩაიტვირთა" hint={ka.errors.network} actionTitle={ka.common.retry} onAction={load} /> : null}
           {!needPos && !loadingList && !failed && shown.length === 0 ? (
             <StateView icon="pin" title={mode === 'delivery' && !needle && kind === 'all' ? 'ამ მისამართზე ჯერ არავინ აწვდის' : 'ვერაფერი მოიძებნა'}

@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { loadMerchants } from '../src/lib/merchants';
+import { merchantArt } from '../src/lib/art';
 import { formatGel } from '@gochits/shared';
 import { errorText, ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
@@ -56,19 +60,26 @@ export default function Cart() {
   }
 
   const discount = promo?.discountTetri ?? 0;
+  const [slug, setSlug] = useState<string | null>(null);
+  useEffect(() => { if (branch?.merchantId) loadMerchants().then((l) => setSlug(l.find((m) => m.id === branch.merchantId)?.slug ?? null)).catch(() => undefined); }, [branch?.merchantId]);
+  const heroArt = slug ? merchantArt(slug) : null;
   return (
     <Screen scroll>
       <TopBar />
       <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 22, color: theme.text, textAlign: 'center', paddingBottom: 8 }}>{ka.cart.title}</Text>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, gap: 12, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
         {lines.length > 0 ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 18, padding: 12, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
-            <Photo path={imageOf(lines[0]!.productId)} style={{ width: 76, height: 56 }} rounded={12} />
-            <View style={{ flex: 1 }}>
-              <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{branch?.merchantName ?? branch?.name ?? ''}</Text>
-              <Text numberOfLines={1} style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{lines.reduce((n, l) => n + l.quantity, 0)} {ka.cart.items}{branch?.merchantName ? ` · ${branch.name}` : ''}</Text>
+          <View style={{ height: 112, borderRadius: 22, overflow: 'hidden', backgroundColor: theme.surface2 }}>
+            {heroArt ? <Image source={heroArt.cover} style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%' }} resizeMode="cover" /> : <Photo path={imageOf(lines[0]!.productId)} style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: 112 }} rounded={0} />}
+            <LinearGradient colors={['rgba(6,14,24,0.92)', 'rgba(6,14,24,0.35)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
+            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14 }}>
+              {heroArt ? <Image source={heroArt.logo} style={{ width: 56, height: 56, borderRadius: 16, borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)' }} /> : null}
+              <View style={{ flex: 1 }}>
+                <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 18, color: theme.text }}>{branch?.merchantName ?? branch?.name ?? ''}</Text>
+                <Text numberOfLines={1} style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted, marginTop: 2 }}>{lines.reduce((n, l) => n + l.quantity, 0)} {ka.cart.items}{branch?.merchantName ? ` · ${branch.name}` : ''}</Text>
+              </View>
+              <Pressable accessibilityRole="button" onPress={() => setConfirmClear(true)} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12.5, color: colors.red }}>{ka.cart.clear}</Text></Pressable>
             </View>
-            <Pressable accessibilityRole="button" onPress={() => setConfirmClear(true)} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12.5, color: colors.red }}>{ka.cart.clear}</Text></Pressable>
           </View>
         ) : null}
         {confirmClear ? (
