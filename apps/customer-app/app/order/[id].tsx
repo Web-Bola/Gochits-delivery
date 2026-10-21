@@ -200,16 +200,6 @@ export default function OrderScreen() {
               ) : null}
             </View>
           ) : null}
-          {!pk && (out || fin || row.status === 'ready_for_pickup') && !(out && courier?.full_name) ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 18, padding: 12 }}>
-              <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}><Icon name={out || fin ? 'bike' : 'bag'} size={22} color={ONB} /></View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{out ? ka.order.courier : fin ? ka.order.delivered : STATUS_LABEL.ready_for_pickup}</Text>
-                <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.order.courierHint}</Text>
-              </View>
-            </View>
-          ) : null}
-
           {phone && !finished ? (
             <PressScale accessibilityRole="button" accessibilityLabel={ka.order.callBranch} onPress={() => Linking.openURL(`tel:${phone.replace(/\s/g, '')}`).catch(() => undefined)} scaleTo={0.97}
               style={{ minHeight: 48, borderRadius: 24, borderWidth: 1.5, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
