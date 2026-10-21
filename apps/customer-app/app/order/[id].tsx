@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Linking, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Linking, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { formatGel, TERMINAL_STATUSES, type OrderStatus } from '@gochits/shared';
 import { errorText, ka } from '@gochits/i18n';
@@ -120,16 +120,17 @@ export default function OrderScreen() {
   const muted = { fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted } as const;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.brand }}>
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <View>
         <View style={{ position: 'absolute', left: 16, right: 16, top: 16, zIndex: 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <BackButton onPress={() => router.replace('/orders')} />
-          <Pressable accessibilityRole="text" delayLongPress={900} onLongPress={() => setDev((d) => !d)} style={{ backgroundColor: 'rgba(11,23,36,0.16)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 7 }}><Text style={{ color: colors.brand, fontFamily: fontFamily.extrabold, fontSize: 12 }}>№{row.number}</Text></Pressable>
+          <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, alignItems: 'center' }}><Image source={require('../../assets/zyro-logo.png')} style={{ height: 44, width: 96 }} resizeMode="contain" accessibilityLabel="ZYRO" /></View>
+          <Pressable accessibilityRole="text" delayLongPress={900} onLongPress={() => setDev((d) => !d)} style={{ backgroundColor: 'rgba(56,217,176,0.14)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 7 }}><Text style={{ color: colors.brand, fontFamily: fontFamily.extrabold, fontSize: 12 }}>№{row.number}</Text></Pressable>
         </View>
         <TrackScene scene={scene} />
         <View style={{ paddingHorizontal: 20, paddingTop: 6, paddingBottom: 38 }}>
-          <Bump value={row.status}><Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 27, color: ONB }}>{h1}</Text></Bump>
-          {h2 ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: ONB }}>{h2}</Text> : null}
+          <Bump value={row.status}><Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 27, color: theme.text }}>{h1}</Text></Bump>
+          {h2 ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: theme.muted }}>{h2}</Text> : null}
         </View>
       </View>
       <View style={{ flex: 1, marginTop: -22, backgroundColor: theme.bg, borderTopLeftRadius: 26, borderTopRightRadius: 26 }}>

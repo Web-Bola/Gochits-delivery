@@ -4,6 +4,7 @@ import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import Constants from 'expo-constants';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { errorText, ka } from '@gochits/i18n';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Body, Button, Card, ErrorText, Field, Header } from '../src/components/ui';
 import { TabBar } from '../src/components/TabBar';
@@ -70,9 +71,9 @@ export default function Profile() {
       <Header title={ka.profile.title} />
       <ScrollView contentContainerStyle={{ padding: 20, gap: 14, paddingBottom: 110 }} keyboardShouldPersistTaps="handled">
         <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-          <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}>
+          <LinearGradient colors={['#7DF2D6', '#2CC9A2']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 24, color: colors.onBrand }}>{(name.trim()[0] ?? '?').toUpperCase()}</Text>
-          </View>
+          </LinearGradient>
           <View style={{ flex: 1 }}>
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{name.trim() || ka.profile.namePh}</Text>
             <Body muted>{phone ? `+${phone.replace(/^\+/, '')}` : ' '}</Body>
@@ -83,10 +84,10 @@ export default function Profile() {
         {error && <ErrorText>{error}</ErrorText>}
 
         <Pressable accessibilityRole="button" onPress={() => router.push('/orders')}>
-          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}><Icon name="receipt" size={20} color={colors.brand} /><Text style={{ flex: 1, fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{ka.tabs.orders}</Text><Text style={{ color: theme.muted, fontSize: 18 }}>›</Text></Card>
+          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}><View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(56,217,176,0.12)', alignItems: 'center', justifyContent: 'center' }}><Icon name="receipt" size={20} color={colors.brand} /></View><Text style={{ flex: 1, fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{ka.tabs.orders}</Text><Text style={{ color: theme.muted, fontSize: 18 }}>›</Text></Card>
         </Pressable>
         <Pressable accessibilityRole="button" onPress={() => router.push('/favorites')}>
-          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}><Icon name="heart" size={20} color={colors.brand} /><Text style={{ flex: 1, fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>ფავორიტები</Text><Text style={{ color: theme.muted, fontSize: 18 }}>›</Text></Card>
+          <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}><View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(56,217,176,0.12)', alignItems: 'center', justifyContent: 'center' }}><Icon name="heart" size={20} color={colors.brand} /></View><Text style={{ flex: 1, fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>ფავორიტები</Text><Text style={{ color: theme.muted, fontSize: 18 }}>›</Text></Card>
         </Pressable>
 
         <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 18, color: theme.text, marginTop: 8 }}>{ka.profile.addresses}</Text>
