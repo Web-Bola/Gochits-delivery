@@ -45,6 +45,7 @@ export default function OrderScreen() {
   const [stars, setStars] = useState(0);
   const [comment, setComment] = useState('');
   const [rated, setRated] = useState(false);
+  const [courier, setCourier] = useState<{ full_name: string | null; phone: string | null } | null>(null);
   const [dev, setDev] = useState(false); // test panel: long-press the order number (works only while the server's test switch is on)
 
   const load = useCallback(async () => {
@@ -54,6 +55,11 @@ export default function OrderScreen() {
     ]);
     if (o.error || !o.data) { if (!row) setFailed(true); return; }
     setFailed(false); setRow(o.data as unknown as Row);
+    if ((o.data as unknown as Row).status === 'out_for_delivery') {
+      const c = await supabase.rpc('order_courier', { p_order_id: id });
+      const first = ((c.data ?? []) as { full_name: string | null; phone: string | null }[])[0];
+      setCourier(first ?? null);
+    } else setCourier(null);
     const st = (r.data as { stars: number } | null)?.stars;
     if (st) { setRated(true); setStars(st); }
   }, [id, row]);
@@ -175,7 +181,26 @@ export default function OrderScreen() {
               </View>
             </View>
           ) : null}
-          {!pk && (out || fin || row.status === 'ready_for_pickup') ? (
+          {!pk && out && courier?.full_name ? (
+            <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 14, gap: 12, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+                <View style={{ width: 64, height: 64, borderRadius: 32, borderWidth: 2, borderColor: colors.brand, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 26, color: colors.brand }}>{courier.full_name.trim()[0]?.toUpperCase()}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 19, color: theme.text }}>{courier.full_name}</Text>
+                  <Text style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>თქვენი კურიერი</Text>
+                </View>
+              </View>
+              {courier.phone ? (
+                <PressScale accessibilityRole="button" onPress={() => Linking.openURL(`tel:${courier.phone!.replace(/\s/g, '')}`).catch(() => undefined)} scaleTo={0.97}
+                  style={{ minHeight: 48, borderRadius: 24, borderWidth: 1.5, borderColor: 'rgba(56,217,176,0.5)', backgroundColor: 'rgba(56,217,176,0.08)', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                  <Icon name="phone" size={18} color={colors.brand} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.brand }}>დაუკავშირდი</Text>
+                </PressScale>
+              ) : null}
+            </View>
+          ) : null}
+          {!pk && (out || fin || row.status === 'ready_for_pickup') && !(out && courier?.full_name) ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 18, padding: 12 }}>
               <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}><Icon name={out || fin ? 'bike' : 'bag'} size={22} color={ONB} /></View>
               <View style={{ flex: 1 }}>

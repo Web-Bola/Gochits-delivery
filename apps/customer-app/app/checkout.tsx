@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '../src/components/Icon';
 import { ActivityIndicator, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { PayOverlay } from '../src/components/PayOverlay';
 import { formatGel, toOrderItems, type BranchOption } from '@gochits/shared';
 import { errorText, ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
@@ -32,6 +33,7 @@ export default function Checkout() {
   const [checking, setChecking] = useState(false);
   const [notes, setNotes] = useState('');
   const [method, setMethod] = useState<Method>('card');
+  const [placed, setPlaced] = useState<{ id: string; number: string; total: string; count: number } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pickAddr, setPickAddr] = useState(false);
@@ -110,10 +112,15 @@ export default function Checkout() {
       setError(isNetworkError(e) ? ka.errors.network : errorText(e.message));
       return;
     }
+    const cnt = lines.reduce((n, l) => n + l.quantity, 0);
     clear();
     registerForPush(true).catch(() => undefined);
     if (chosen === 'card') router.replace({ pathname: '/payment', params: { id: String(data) } });
-    else router.replace({ pathname: '/order/[id]', params: { id: String(data) } });
+    else {
+      const { data: o } = await supabase.from('orders').select('number,total_tetri').eq('id', String(data)).maybeSingle();
+      const r = o as { number: string; total_tetri: number } | null;
+      setPlaced({ id: String(data), number: r?.number ?? '', total: r ? formatGel(r.total_tetri) : '', count: cnt });
+    }
   }
 
   const row = (k: string, v: string, big?: boolean, accent?: boolean) => (
@@ -330,6 +337,7 @@ export default function Checkout() {
         </View>
         <CtaBar title={busy ? '...' : 'შეკვეთის დადასტურება'} onPress={place} disabled={!canPlace} />
       </View>
+      {placed ? <PayOverlay phase="ok" amount={placed.total} number={placed.number} count={placed.count} onTrack={() => router.replace({ pathname: '/order/[id]', params: { id: placed.id } })} onRetry={() => setPlaced(null)} onMenu={() => router.replace('/home')} /> : null}
     </Screen>
   );
 }
