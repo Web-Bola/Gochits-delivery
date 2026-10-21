@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, Text, View, type TextStyle, type ViewStyle } from 'react-native';
+import { Press } from './fx';
 import Svg, { Path } from 'react-native-svg';
 import { colors, fontFamily } from '@gochits/ui-tokens';
 
 /** Clean light courier palette (Glovo / Wolt style): white panels over a map, one yellow accent, green for "go". */
 export const c = {
-  bg: '#F3F3F1', sheet: '#FFFFFF', ink: '#141414', muted: '#6F6F6B', line: '#E7E7E3', soft: '#F3F3F1',
-  yellow: colors.brand, yellowSoft: '#DDF7F0', green: '#12A150', greenSoft: '#E4F6EB', red: '#D92D20', redSoft: '#FDECEA',
+  bg: '#E8E8E2', sheet: '#F5F5F1', ink: '#171A1B', muted: '#6B7378', line: '#CBCBC3', soft: '#DCDFDA',
+  brand: colors.brand, brandDark: '#078A7F', brandSoft: '#D8F1EE', yellowSoft: '#D8F1EE', green: '#12A150', greenSoft: '#DDF1E4', red: '#D92D20', redSoft: '#FBE3E0',
 } as const;
 
 export const gel = (tetri: number) => `₾${(tetri / 100).toFixed(2)}`;
@@ -31,12 +32,12 @@ export function T({ children, size = 15, weight = 'regular', color = c.ink, styl
 }
 
 export function Btn({ title, onPress, icon, kind = 'primary', busy, disabled, style }: { title: string; onPress: () => void; icon?: IconName; kind?: 'primary' | 'soft' | 'dark'; busy?: boolean; disabled?: boolean; style?: ViewStyle }) {
-  const bg = kind === 'primary' ? c.yellow : kind === 'dark' ? c.ink : c.soft;
-  const fg = kind === 'dark' ? '#fff' : c.ink;
+  const bg = kind === 'primary' ? c.brand : kind === 'dark' ? c.ink : c.soft;
+  const fg = kind === 'soft' ? c.ink : '#fff';
   return (
-    <Pressable accessibilityRole="button" onPress={onPress} disabled={busy || disabled} style={({ pressed }) => [{ minHeight: 58, borderRadius: 16, backgroundColor: bg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingHorizontal: 16, opacity: disabled ? 0.4 : pressed ? 0.85 : 1 }, style]}>
+    <Press accessibilityRole="button" onPress={onPress} disabled={busy || disabled} style={[{ minHeight: 58, borderRadius: 16, backgroundColor: bg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingHorizontal: 16, opacity: disabled ? 0.4 : 1 }, style]}>
       {busy ? <ActivityIndicator color={fg} /> : (<>{icon ? <Icon name={icon} color={fg} size={22} /> : null}<T size={17} weight="extrabold" color={fg}>{title}</T></>)}
-    </Pressable>
+    </Press>
   );
 }
 
