@@ -11,8 +11,8 @@ export const colors = {
   success: '#43D6A0',
   orange: '#F5C66B',
   white: '#FFFFFF',
-  cream: '#101C2B',
-  sand: '#35485B',
+  cream: '#0A1522',
+  sand: '#263C52',
   muted: '#ADBFCC',
 } as const;
 
@@ -26,10 +26,10 @@ export const type = { h1: [32, 40], h2: [24, 32], h3: [20, 28], bodyL: [16, 24],
 
 /** App theme: deep navy base, lighter navy cards. */
 export const theme = {
-  bg: '#101C2B',
-  surface: '#182B3D',
-  surface2: '#25384B',
-  border: '#35485B',
+  bg: '#0A1522',
+  surface: '#102033',
+  surface2: '#1A2E44',
+  border: '#263C52',
   text: '#F7FAFC',
   muted: '#ADBFCC',
 } as const;

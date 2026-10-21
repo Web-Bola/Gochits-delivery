@@ -42,7 +42,7 @@ async function currentPosition(): Promise<Pos> {
   return { lat: p.coords.latitude, lng: p.coords.longitude };
 }
 
-const TINT: Record<string, string> = { all: '#25384B', restaurant: '#3A2E3C', cafe: '#3B3426', grocery: '#1F3B35', pharmacy: '#22384D', flowers: '#3B2A38', other: '#2B3345' };
+const TINT: Record<string, string> = { all: '#1A2E44', restaurant: '#3A2E3C', cafe: '#3B3426', grocery: '#1F3B35', pharmacy: '#22384D', flowers: '#3B2A38', other: '#2B3345' };
 
 export default function Home() {
   const router = useRouter();
@@ -170,11 +170,11 @@ export default function Home() {
           <View>
             <Cover m={m} height={138} />
             <View style={{ position: 'absolute', left: 12, top: 12, flexDirection: 'row', gap: 6 }}>
-              <View style={{ backgroundColor: dim ? 'rgba(16,28,43,0.88)' : colors.brand, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}>
+              <View style={{ backgroundColor: dim ? 'rgba(10,21,34,0.88)' : colors.brand, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}>
                 <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 11.5, color: dim ? theme.text : colors.onBrand }}>{dim ? 'ახლა დაკეტილია' : 'ღიაა'}</Text>
               </View>
               {mode === 'pickup' ? (
-                <View style={{ backgroundColor: 'rgba(16,28,43,0.88)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                <View style={{ backgroundColor: 'rgba(10,21,34,0.88)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                   <Icon name="bag" size={12} color={theme.text} /><Text style={{ fontFamily: fontFamily.semibold, fontSize: 11.5, color: theme.text }}>თვითონ წამოღება</Text>
                 </View>
               ) : null}
