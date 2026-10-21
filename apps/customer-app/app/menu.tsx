@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { merchantArt } from '../src/lib/art';
 import { Image, Platform, Pressable, ScrollView, Text, TextInput, View, type LayoutChangeEvent, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { formatGel, productQuantity } from '@gochits/shared';
@@ -146,7 +147,8 @@ export default function MenuScreen() {
     <View>
       <View style={{ height: 190, backgroundColor: theme.surface }}>
         <View style={{ flex: 1, overflow: 'hidden', backgroundColor: '#1E3A5F', alignItems: 'center', justifyContent: 'center' }}>
-          {mer && !hasBundledArt(mer) ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 120, color: 'rgba(255,255,255,0.12)' }}>{initial(mer.name)}</Text>
+          {mer && merchantArt(mer.slug) ? <Image source={merchantArt(mer.slug)!.cover} style={{ position: 'absolute', width: '100%', height: '100%' }} resizeMode="cover" />
+            : mer && !hasBundledArt(mer) ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 120, color: 'rgba(255,255,255,0.12)' }}>{initial(mer.name)}</Text>
             : <Image source={require('../assets/cover.jpg')} style={{ position: 'absolute', width: '100%', height: '100%' }} resizeMode="cover" />}
           <Scrim side="top" height={70} max={0.35} />
           <Scrim side="bottom" height={110} max={0.8} />

@@ -8,6 +8,7 @@ import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Icon } from '../src/components/Icon';
 import { TabBar } from '../src/components/TabBar';
 import { Bump, Shimmer, SlideUp } from '../src/components/fx';
+import { merchantArt } from '../src/lib/art';
 import { Button, FadeIn, StateView } from '../src/components/ui';
 import { supabase } from '../src/lib/supabase';
 import { MerchantLogo } from '../src/components/MerchantLogo';
@@ -18,6 +19,8 @@ const TINTS = ['#1E3A5F', '#2B3F6B', '#1F4B57', '#33406B', '#2A4A6A'];
 const tintOf = (name: string) => TINTS[[...name].reduce((n, c) => n + c.charCodeAt(0), 0) % TINTS.length]!;
 
 function Cover({ m, height }: { m: Merchant; height: number }) {
+  const art = merchantArt(m.slug);
+  if (art) return <Image source={art.card} style={{ width: '100%', height }} resizeMode="cover" />;
   if (hasBundledArt(m)) return <Image source={require('../assets/cover.jpg')} style={{ width: '100%', height }} resizeMode="cover" />;
   return (
     <View style={{ width: '100%', height, backgroundColor: tintOf(m.name), alignItems: 'center', justifyContent: 'center' }}>
