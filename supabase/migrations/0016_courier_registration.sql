@@ -6,6 +6,7 @@ alter table couriers
   add column if not exists city text,
   add column if not exists vehicle text check (vehicle in ('scooter', 'bike', 'car', 'foot')),
   add column if not exists plate text,
+  add column if not exists contact_phone text,
   add column if not exists online boolean not null default true,
   add column if not exists applied_at timestamptz not null default now();
 
@@ -19,11 +20,11 @@ begin
   select status into v_status from couriers where user_id = auth.uid();
   if v_status = 'approved' then raise exception 'already_courier'; end if;
   if v_status = 'suspended' then raise exception 'suspended'; end if;
-  update profiles set full_name = trim(p_full_name), phone = coalesce(nullif(trim(p_phone), ''), phone) where id = auth.uid();
-  insert into couriers (user_id, status, personal_id, city, vehicle, plate, applied_at)
-  values (auth.uid(), 'pending', nullif(trim(p_personal_id), ''), nullif(trim(p_city), ''), p_vehicle, nullif(trim(p_plate), ''), now())
+  update profiles set full_name = trim(p_full_name) where id = auth.uid();  -- phone is protected (OTP only); the applicant's phone goes to couriers.contact_phone
+  insert into couriers (user_id, status, personal_id, city, vehicle, plate, contact_phone, applied_at)
+  values (auth.uid(), 'pending', nullif(trim(p_personal_id), ''), nullif(trim(p_city), ''), p_vehicle, nullif(trim(p_plate), ''), nullif(trim(p_phone), ''), now())
   on conflict (user_id) do update
-    set personal_id = excluded.personal_id, city = excluded.city, vehicle = excluded.vehicle, plate = excluded.plate, applied_at = now();
+    set contact_phone = excluded.contact_phone, personal_id = excluded.personal_id, city = excluded.city, vehicle = excluded.vehicle, plate = excluded.plate, applied_at = now();
 end $$;
 
 -- What the applicant sees about their own application.
@@ -49,6 +50,7 @@ begin
   if p_status not in ('approved', 'pending', 'suspended') then raise exception 'invalid_status'; end if;
   update couriers set status = p_status where user_id = p_user;
   if not found then raise exception 'not_found'; end if;
+  update profiles set phone = coalesce(phone, (select contact_phone from couriers where user_id = p_user)) where id = p_user and p_status = 'approved';
   update profiles set role = case when p_status = 'approved' then 'courier'::user_role else 'customer'::user_role end where id = p_user and role <> 'super_admin';
 end $$;
 
@@ -57,7 +59,7 @@ returns table (user_id uuid, full_name text, phone text, city text, vehicle text
 language plpgsql security definer set search_path = public as $$
 begin
   if not is_super_admin() then raise exception 'forbidden'; end if;
-  return query select c.user_id, p.full_name::text, p.phone::text, c.city, c.vehicle, c.plate, c.status::text, c.applied_at
+  return query select c.user_id, p.full_name::text, coalesce(p.phone, c.contact_phone)::text, c.city, c.vehicle, c.plate, c.status::text, c.applied_at
     from couriers c join profiles p on p.id = c.user_id order by (c.status = 'pending') desc, c.applied_at desc;
 end $$;
 
