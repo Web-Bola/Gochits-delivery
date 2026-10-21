@@ -57,7 +57,7 @@ export default function Register() {
     setBusy(true);
     const r = await supabase.rpc('courier_apply', { p_full_name: name.trim(), p_phone: phone.trim(), p_personal_id: pid.trim(), p_city: city, p_vehicle: vehicle, p_plate: plate.trim() });
     setBusy(false);
-    if (r.error) { setError(/already_courier/.test(r.error.message) ? 'შენ უკვე კურიერი ხარ, შედი ანგარიშით' : /could not find the function|schema cache/.test(r.error.message) ? 'ბაზა ჯერ არ არის განახლებული (გაუშვი 0016 SQL მიგრაცია)' : 'განაცხადი ვერ გაიგზავნა. სცადე თავიდან'); return; }
+    if (r.error) { setError(/already_courier/.test(r.error.message) ? 'შენ უკვე კურიერი ხარ, შედი ანგარიშით' : /could not find the function|schema cache/.test(r.error.message) ? 'ბაზა ჯერ არ არის განახლებული (გაუშვი 0016 SQL მიგრაცია)' : `განაცხადი ვერ გაიგზავნა: ${r.error.message}`); return; }
     router.replace('/pending');
   }
 
