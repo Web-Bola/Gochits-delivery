@@ -112,7 +112,7 @@ export default function OrderScreen() {
   const canCancel = row.status === 'pending_payment' || (row.status === 'placed' && row.payment_status !== 'paid');
   const phone = row.branches?.phone ?? null;
   const [h1, h2] = (pk ? HEAD_PICKUP[row.status] : undefined) ?? HEAD_OF[row.status] ?? [STATUS_LABEL[row.status], ''];
-  const scene = (pk && row.status === 'ready_for_pickup') ? 'shop' : (SCENE_OF[row.status] ?? 'shop');
+  const scene = (pk && row.status === 'ready_for_pickup') ? 'ready' : (SCENE_OF[row.status] ?? 'shop');
   const out = !pk && row.status === 'out_for_delivery';
   const card = { backgroundColor: theme.surface, borderRadius: 18, padding: 14, gap: 9 } as const;
   const mins = Math.max(0, Math.round((Date.now() - new Date(row.created_at).getTime()) / 60000));

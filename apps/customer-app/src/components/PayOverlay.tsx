@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Animated, Easing, Text, View } from 'react-native';
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Icon } from './Icon';
@@ -12,13 +12,13 @@ export type PayPhase = 'processing' | 'ok' | 'fail';
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const BURST = ['#FFCC02', '#D8141C', '#FFF4E0', '#F28C1E'];
 
-/** Full-screen payment result: spinner while the provider answers, then burger drop + tick + confetti (success) or shake + cross (failure). */
+/** Full-screen payment result: spinner while the provider answers, then ripple + tick + confetti (success) or shake + cross (failure). */
 export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onMenu }: { phase: PayPhase; amount: string; number: string; count: number; onTrack: () => void; onRetry: () => void; onMenu: () => void }) {
   const reduce = false;
   const pop = useRef(new Animated.Value(0)).current;
   const spin = useRef(new Animated.Value(0)).current;
   const tick = useRef(new Animated.Value(0)).current;
-  const drop = useRef(new Animated.Value(0)).current;
+  const pulseRing = useRef(new Animated.Value(0)).current;
   const burst = useRef(new Animated.Value(0)).current;
   const shake = useRef(new Animated.Value(0)).current;
   const rise = useRef(new Animated.Value(0)).current;
@@ -37,12 +37,13 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
     if (phase === 'ok') {
       tick.setValue(0);
       Animated.timing(tick, { toValue: 1, duration: 500, delay: 350, useNativeDriver: false }).start();
-      Animated.timing(drop, { toValue: 1, duration: 900, delay: 50, easing: Easing.bounce, useNativeDriver: ND }).start();
+      pulseRing.setValue(0);
+      Animated.timing(pulseRing, { toValue: 1, duration: 1200, delay: 150, easing: Easing.out(Easing.cubic), useNativeDriver: ND }).start();
       Animated.timing(burst, { toValue: 1, duration: 1100, easing: Easing.out(Easing.cubic), useNativeDriver: ND }).start();
     } else {
       Animated.sequence([-9, 9, -9, 9, 0].map((x) => Animated.timing(shake, { toValue: x, duration: 90, useNativeDriver: ND }))).start();
     }
-  }, [phase, rise, tick, drop, burst, shake]);
+  }, [phase, rise, tick, pulseRing, burst, shake]);
 
   const pieces = useMemo(() => Array.from({ length: 22 }, (_, k) => {
     const a = (k / 22) * Math.PI * 2; const d = 90 + (k % 4) * 35;
@@ -64,14 +65,16 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
         )) : null}
 
         {ok ? (
-          <Animated.View style={{ height: 96, transform: [{ translateY: drop.interpolate({ inputRange: [0, 1], outputRange: [-240, 0] }) }, { rotate: drop.interpolate({ inputRange: [0, 1], outputRange: ['-14deg', '0deg'] }) }] }}>
-            <Svg width={96} height={96} viewBox="0 0 100 100">
-              <Path d="M14 52a36 28 0 0 1 72 0z" fill="#F28C1E" stroke="#1A0D0B" strokeWidth={4} strokeLinejoin="round" />
-              <Path d="M12 58q8-6 16 0t16 0t16 0t16 0t12 -2v8H12z" fill="#6DAA4F" stroke="#1A0D0B" strokeWidth={3} />
-              <Rect x={14} y={68} width={72} height={11} rx={5.5} fill="#5A2E1A" stroke="#1A0D0B" strokeWidth={4} />
-              <Path d="M16 82h68q-2 10-12 10H28q-10 0-12-10z" fill="#F28C1E" stroke="#1A0D0B" strokeWidth={4} strokeLinejoin="round" />
-            </Svg>
-          </Animated.View>
+          <View style={{ width: 96, height: 96, alignItems: 'center', justifyContent: 'center' }}>
+            {[0, 1].map((k) => (
+              <Animated.View key={k} pointerEvents="none" style={{ position: 'absolute', width: 84, height: 84, borderRadius: 42, borderWidth: 3, borderColor: colors.yellow,
+                opacity: pulseRing.interpolate({ inputRange: [0, 0.15 + k * 0.1, 1], outputRange: [0, 0.7, 0] }),
+                transform: [{ scale: pulseRing.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1.5 + k * 0.25] }) }] }} />
+            ))}
+            <Animated.View style={{ width: 84, height: 84, borderRadius: 42, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center', transform: [{ scale: pop }] }}>
+              <Svg width={44} height={44} viewBox="0 0 80 80"><AnimatedPath d="M20 42l14 14 28-30" fill="none" stroke={colors.ink} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="80" strokeDashoffset={tick.interpolate({ inputRange: [0, 1], outputRange: [80, 0] })} /></Svg>
+            </Animated.View>
+          </View>
         ) : (
           <View style={{ width: 96, height: 96, alignItems: 'center', justifyContent: 'center' }}>
             <Animated.View style={{ position: 'absolute', transform: [{ rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}>
@@ -83,12 +86,6 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
             {phase === 'processing' ? <Icon name="card" size={34} color={colors.yellow} /> : <Icon name="x" size={38} color={colors.white} strokeWidth={3.5} />}
           </View>
         )}
-
-        {ok ? (
-          <View style={{ width: 54, height: 54, borderRadius: 27, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center', marginTop: -6 }}>
-            <Svg width={30} height={30} viewBox="0 0 80 80"><AnimatedPath d="M20 42l14 14 28-30" fill="none" stroke={colors.ink} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="80" strokeDashoffset={tick.interpolate({ inputRange: [0, 1], outputRange: [80, 0] })} /></Svg>
-          </View>
-        ) : null}
 
         <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 22, color: theme.text, textAlign: 'center', marginTop: 4 }}>{title}</Text>
         <Text style={{ fontFamily: fontFamily.regular, fontSize: 14, color: theme.muted, textAlign: 'center' }}>{amount} · №{number}</Text>
