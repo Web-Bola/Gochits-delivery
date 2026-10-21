@@ -1,34 +1,30 @@
-import { Image, ImageBackground, View } from 'react-native';
+import { Image, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Btn, T, c } from '../src/ui';
-import { FadeIn, Pulse } from '../src/fx';
+import { FadeIn, Pulse, SlideUp } from '../src/fx';
 
 export default function Welcome() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
+  const photoH = Math.round(height * 0.6);
   return (
     <View style={{ flex: 1, backgroundColor: c.bg, alignItems: 'center' }}>
-      <View style={{ flex: 1, width: '100%', maxWidth: 520 }}>
-        <ImageBackground source={require('../assets/courier.jpg')} style={{ flex: 1, justifyContent: 'flex-end' }} resizeMode="cover">
-          <LinearGradient colors={['rgba(23,26,27,0)', 'rgba(23,26,27,0.55)', 'rgba(23,26,27,0.92)']} locations={[0.25, 0.6, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
-          <View style={{ position: 'absolute', top: insets.top + 16, left: 20, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <FadeIn><Image source={require('../assets/zyro-logo-dark.png')} style={{ width: 110, height: 50 }} resizeMode="contain" /></FadeIn>
-            <FadeIn delay={150}><View style={{ backgroundColor: c.brand, borderRadius: 8, paddingHorizontal: 9, paddingVertical: 4 }}><T size={12} weight="extrabold" color="#fff">PARTNER</T></View></FadeIn>
+      <View style={{ flex: 1, width: '100%', maxWidth: 520, overflow: 'hidden', backgroundColor: c.sheet }}>
+        <Image source={require('../assets/courier.jpg')} style={{ position: 'absolute', top: 0, left: 0, right: 0, height: photoH + 40, width: '100%' }} resizeMode="cover" />
+        <FadeIn style={{ position: 'absolute', top: insets.top + 16, left: 18 }}>
+          <View style={{ backgroundColor: c.brand, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 6 }}><T size={13} weight="extrabold" color="#fff">ZYRO PARTNER</T></View>
+        </FadeIn>
+        <SlideUp k="w" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: c.sheet, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 22, paddingTop: 24, paddingBottom: insets.bottom + 22, gap: 12 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><Pulse color={c.brand} size={12} /><T size={14} weight="semibold" color={c.brandDark}>მუშაობა როცა გინდა</T></View>
+          <T size={32} weight="extrabold" style={{ lineHeight: 40 }}>გახდი ZYRO კურიერი</T>
+          <T size={15} color={c.muted}>იმუშავე შენი გრაფიკით, მიიღე შეკვეთები რესტორნებიდან და გამოიმუშავე ყოველი მიტანიდან.</T>
+          <View style={{ gap: 10, paddingTop: 8 }}>
+            <Btn title="რეგისტრაცია" onPress={() => router.push('/register')} />
+            <Btn title="შესვლა" kind="soft" onPress={() => router.push('/login')} />
           </View>
-          <View style={{ paddingHorizontal: 22, paddingBottom: insets.bottom + 24, gap: 14 }}>
-            <FadeIn delay={200}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><Pulse color="#2FC4B6" /><T size={14} weight="semibold" color="#E8E8E2">მუშაობა როცა გინდა</T></View>
-            </FadeIn>
-            <FadeIn delay={300}><T size={36} weight="extrabold" color="#fff" style={{ lineHeight: 44 }}>გახდი ZYRO{'\n'}კურიერი</T></FadeIn>
-            <FadeIn delay={400}><T size={16} color="#DCDFDA">იმუშავე შენი გრაფიკით, მიიღე შეკვეთები რესტორნებიდან და გამოიმუშავე ყოველი მიტანიდან.</T></FadeIn>
-            <FadeIn delay={520} style={{ gap: 10, paddingTop: 6 }}>
-              <Btn title="რეგისტრაცია" onPress={() => router.push('/register')} />
-              <Btn title="შესვლა" kind="soft" onPress={() => router.push('/login')} />
-            </FadeIn>
-          </View>
-        </ImageBackground>
+        </SlideUp>
       </View>
     </View>
   );
