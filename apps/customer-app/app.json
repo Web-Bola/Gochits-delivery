@@ -19,7 +19,7 @@
       [
         "expo-notifications",
         {
-          "color": "#38D9B0"
+          "color": "#8B5CF6"
         }
       ]
     ],
@@ -31,7 +31,7 @@
       "package": "ge.gochits.customer",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#060E18"
+        "backgroundColor": "#0A0814"
       }
     },
     "web": {
@@ -42,7 +42,7 @@
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#060E18"
+      "backgroundColor": "#0A0814"
     }
   }
 }

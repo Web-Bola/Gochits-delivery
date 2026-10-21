@@ -11,7 +11,7 @@ import { ND } from './fx';
 export type PayPhase = 'processing' | 'ok' | 'fail';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
-const BURST = ['#38D9B0', '#FF7185', '#F5C66B', '#7DF2D6'];
+const BURST = ['#8B5CF6', '#FF7185', '#F5C66B', '#B79CFF'];
 
 /** Full-screen payment result: spinner while the provider answers, then ripple + tick + confetti (success) or shake + cross (failure). */
 export function PayOverlay({ phase, reason, amount, number, count, onTrack, onRetry, onMenu }: { phase: PayPhase; reason?: 'funds' | null; amount: string; number: string; count: number; onTrack: () => void; onRetry: () => void; onMenu: () => void }) {
@@ -75,18 +75,18 @@ export function PayOverlay({ phase, reason, amount, number, count, onTrack, onRe
                   opacity: pulseRing.interpolate({ inputRange: [0, 0.15 + k * 0.1, 1], outputRange: [0, 0.6, 0] }),
                   transform: [{ scale: pulseRing.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1.4 + k * 0.25] }) }] }} />
               ))}
-              <Animated.View style={{ width: 132, height: 132, borderRadius: 66, backgroundColor: fail ? 'rgba(255,113,133,0.14)' : 'rgba(56,217,176,0.16)', borderWidth: 2, borderColor: fail ? 'rgba(255,113,133,0.7)' : 'rgba(125,242,214,0.7)', alignItems: 'center', justifyContent: 'center', shadowColor: fail ? colors.red : colors.brand, shadowOpacity: 0.7, shadowRadius: 30, transform: [{ scale: pop }, { translateX: shake }] }}>
+              <Animated.View style={{ width: 132, height: 132, borderRadius: 66, backgroundColor: fail ? 'rgba(255,113,133,0.14)' : 'rgba(139,92,246,0.16)', borderWidth: 2, borderColor: fail ? 'rgba(255,113,133,0.7)' : 'rgba(183,156,255,0.7)', alignItems: 'center', justifyContent: 'center', shadowColor: fail ? colors.red : colors.brand, shadowOpacity: 0.7, shadowRadius: 30, transform: [{ scale: pop }, { translateX: shake }] }}>
 {phase === 'processing' ? (
                   <>
                     <Animated.View style={{ position: 'absolute', transform: [{ rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}>
-                      <Svg width={132} height={132} viewBox="0 0 80 80"><Circle cx={40} cy={40} r={37} fill="none" stroke="#7DF2D6" strokeWidth={3} strokeLinecap="round" strokeDasharray="70 170" /></Svg>
+                      <Svg width={132} height={132} viewBox="0 0 80 80"><Circle cx={40} cy={40} r={37} fill="none" stroke="#B79CFF" strokeWidth={3} strokeLinecap="round" strokeDasharray="70 170" /></Svg>
                     </Animated.View>
                     <Animated.View style={{ position: 'absolute', transform: [{ rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['360deg', '0deg'] }) }] }}>
-                      <Svg width={104} height={104} viewBox="0 0 80 80"><Circle cx={40} cy={40} r={37} fill="none" stroke="#38D9B0" strokeWidth={2} strokeLinecap="round" strokeDasharray="30 200" opacity={0.7} /></Svg>
+                      <Svg width={104} height={104} viewBox="0 0 80 80"><Circle cx={40} cy={40} r={37} fill="none" stroke="#8B5CF6" strokeWidth={2} strokeLinecap="round" strokeDasharray="30 200" opacity={0.7} /></Svg>
                     </Animated.View>
-                    <Icon name="card" size={44} color="#7DF2D6" />
+                    <Icon name="card" size={44} color="#B79CFF" />
                   </>
-                ) : fail ? <Icon name="x" size={56} color={colors.red} strokeWidth={3.5} /> :                 <Svg width={70} height={70} viewBox="0 0 80 80"><AnimatedPath d="M18 42l15 15 30-32" fill="none" stroke="#7DF2D6" strokeWidth={10} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="80" strokeDashoffset={tick.interpolate({ inputRange: [0, 1], outputRange: [80, 0] })} /></Svg>}
+                ) : fail ? <Icon name="x" size={56} color={colors.red} strokeWidth={3.5} /> :                 <Svg width={70} height={70} viewBox="0 0 80 80"><AnimatedPath d="M18 42l15 15 30-32" fill="none" stroke="#B79CFF" strokeWidth={10} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="80" strokeDashoffset={tick.interpolate({ inputRange: [0, 1], outputRange: [80, 0] })} /></Svg>}
               </Animated.View>
             </View>
             <Animated.View style={[{ alignSelf: 'stretch', alignItems: 'center', gap: 10, marginTop: 22 }, rise1]}>
@@ -94,10 +94,10 @@ export function PayOverlay({ phase, reason, amount, number, count, onTrack, onRe
               {sub ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 15, lineHeight: 22, color: theme.muted, textAlign: 'center' }}>{sub}</Text> : null}
               {fail ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.text, lineHeight: 20, backgroundColor: 'rgba(255,113,133,0.14)', borderWidth: 1, borderColor: 'rgba(255,113,133,0.4)', borderRadius: 14, padding: 12, textAlign: 'center' }}>{reason === 'funds' ? `ბარათზე ${amount}-ის გადასახდელად საკმარისი თანხა არ არის. თანხა არ ჩამოგეჭრა, შეკვეთა შენახულია — სცადე სხვა ბარათი.` : ka.payment.failedWhy}</Text> : null}
               {ok ? (
-              <View style={{ alignSelf: 'stretch', backgroundColor: 'rgba(11,24,39,0.88)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(56,217,176,0.16)', marginTop: 8, paddingHorizontal: 16 }}>
+              <View style={{ alignSelf: 'stretch', backgroundColor: 'rgba(19,15,34,0.88)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(139,92,246,0.16)', marginTop: 8, paddingHorizontal: 16 }}>
                 {[['receipt', 'შეკვეთის ნომერი', `#${number}`], ['bag', 'პროდუქტი', `${count} ${ka.cart.items}`], ['wallet', 'ჯამი', amount]].map(([ic, k, v], i, arr) => (
                   <View key={String(k)} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13, borderBottomWidth: i < arr.length - 1 ? 1 : 0, borderBottomColor: theme.border }}>
-                    <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(56,217,176,0.12)', alignItems: 'center', justifyContent: 'center' }}><Icon name={ic as 'receipt'} size={22} color={colors.brand} /></View>
+                    <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(139,92,246,0.12)', alignItems: 'center', justifyContent: 'center' }}><Icon name={ic as 'receipt'} size={22} color={colors.brand} /></View>
                     <View><Text style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{k}</Text><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{v}</Text></View>
                   </View>
                 ))}

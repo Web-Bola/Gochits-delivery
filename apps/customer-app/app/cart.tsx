@@ -71,7 +71,7 @@ export default function Cart() {
         {lines.length > 0 ? (
           <View style={{ height: 112, borderRadius: 22, overflow: 'hidden', backgroundColor: theme.surface2 }}>
             {heroArt ? <Image source={heroArt.cover} style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%' }} resizeMode="cover" /> : <Photo path={imageOf(lines[0]!.productId)} style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: 112 }} rounded={0} />}
-            <LinearGradient colors={['rgba(6,14,24,0.92)', 'rgba(6,14,24,0.35)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
+            <LinearGradient colors={['rgba(10,8,20,0.92)', 'rgba(10,8,20,0.35)']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
             <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14 }}>
               {heroArt ? <Image source={heroArt.logo} style={{ width: 56, height: 56, borderRadius: 16, borderWidth: 2, borderColor: 'rgba(255,255,255,0.2)' }} /> : null}
               <View style={{ flex: 1 }}>
@@ -156,12 +156,12 @@ export default function Cart() {
                   <Pressable accessibilityRole="button" onPress={() => setPromo(null)} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.red }}>{ka.cart.promoRemove}</Text></Pressable>
                 </Card>
               ) : (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.surface, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)', padding: 8, paddingLeft: 14 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.surface, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(139,92,246,0.14)', padding: 8, paddingLeft: 14 }}>
                   <Icon name="star" size={24} color={colors.brand} />
                   <TextInput accessibilityLabel={ka.cart.promo} placeholder={ka.cart.promoPh} placeholderTextColor={theme.muted} value={code} onChangeText={(t) => setCode(t.toUpperCase())} autoCapitalize="characters" autoCorrect={false} maxLength={30}
                     style={[{ flex: 1, minWidth: 0, minHeight: 44, fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
                   <PressScale accessibilityRole="button" onPress={applyCode} disabled={busy || !code.trim()} scaleTo={0.95}
-                    style={{ minHeight: 44, paddingHorizontal: 18, borderRadius: 16, backgroundColor: 'rgba(56,217,176,0.14)', borderWidth: 1, borderColor: 'rgba(56,217,176,0.4)', alignItems: 'center', justifyContent: 'center', opacity: busy || !code.trim() ? 0.5 : 1 }}>
+                    style={{ minHeight: 44, paddingHorizontal: 18, borderRadius: 16, backgroundColor: 'rgba(139,92,246,0.14)', borderWidth: 1, borderColor: 'rgba(139,92,246,0.4)', alignItems: 'center', justifyContent: 'center', opacity: busy || !code.trim() ? 0.5 : 1 }}>
                     <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.brand }}>{ka.cart.promoApply}</Text>
                   </PressScale>
                 </View>

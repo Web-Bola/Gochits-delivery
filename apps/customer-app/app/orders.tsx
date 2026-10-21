@@ -64,23 +64,23 @@ export default function Orders() {
     return (
     <FadeIn key={r.id} index={i}>
       <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: r.status === 'pending_payment' ? '/payment' : '/order/[id]', params: { id: r.id } })}>
-        <View style={{ flexDirection: 'row', gap: 12, backgroundColor: theme.surface, borderRadius: 20, padding: 12, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
+        <View style={{ flexDirection: 'row', gap: 12, backgroundColor: theme.surface, borderRadius: 20, padding: 12, borderWidth: 1, borderColor: 'rgba(139,92,246,0.14)' }}>
           <View style={{ width: 72, height: 72, borderRadius: 14, overflow: 'hidden', backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}>
             {art ? <Image source={art.card} style={{ width: 72, height: 72 }} resizeMode="cover" /> : <Icon name="receipt" size={26} color={colors.brand} />}
           </View>
           <View style={{ flex: 1, gap: 2 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
               <Text numberOfLines={1} style={{ flex: 1, fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{(mid && mnames[mid]) || r.branches?.name || r.number}</Text>
-              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 11.5, color: tone, backgroundColor: act ? 'rgba(56,217,176,0.14)' : 'rgba(173,191,204,0.14)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 3, overflow: 'hidden' }}>{STATUS_LABEL[r.status]}</Text>
+              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 11.5, color: tone, backgroundColor: act ? 'rgba(139,92,246,0.14)' : 'rgba(173,191,204,0.14)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 3, overflow: 'hidden' }}>{STATUS_LABEL[r.status]}</Text>
             </View>
             <Text style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{qty} პროდუქტი · №{r.number}</Text>
             <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{dayText(r.created_at)}</Text>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
               <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{formatGel(r.total_tetri)}</Text>
               {act ? (
-                <View style={{ borderWidth: 1, borderColor: 'rgba(56,217,176,0.5)', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12.5, color: colors.brand }}>თვალყური</Text></View>
+                <View style={{ borderWidth: 1, borderColor: 'rgba(139,92,246,0.5)', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12.5, color: colors.brand }}>თვალყური</Text></View>
               ) : (
-                <Pressable accessibilityRole="button" disabled={busyId === r.id} onPress={() => again(r.id)} style={{ borderWidth: 1, borderColor: 'rgba(56,217,176,0.5)', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 6 }}>
+                <Pressable accessibilityRole="button" disabled={busyId === r.id} onPress={() => again(r.id)} style={{ borderWidth: 1, borderColor: 'rgba(139,92,246,0.5)', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 6 }}>
                   <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12.5, color: colors.brand }}>{busyId === r.id ? '...' : 'გამეორება'}</Text>
                 </Pressable>
               )}
@@ -100,7 +100,7 @@ export default function Orders() {
           {failed && <StateView tone="error" icon="clock" title={ka.errors.network} actionTitle={ka.common.retry} onAction={load} />}
           {msg && <ErrorText>{msg}</ErrorText>}
           {rows.length === 0 && !failed && <StateView icon="receipt" title={ka.orders.empty} hint={ka.orders.emptyHint} actionTitle={ka.orders.toMenu} onAction={() => router.replace('/home')} />}
-          <View accessibilityRole="tablist" style={{ flexDirection: 'row', backgroundColor: theme.surface, borderRadius: 24, padding: 4, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
+          <View accessibilityRole="tablist" style={{ flexDirection: 'row', backgroundColor: theme.surface, borderRadius: 24, padding: 4, borderWidth: 1, borderColor: 'rgba(139,92,246,0.14)' }}>
             {([['active', 'აქტიური'], ['past', 'ისტორია']] as const).map(([id, label]) => (
               <Pressable key={id} accessibilityRole="tab" accessibilityState={{ selected: tab === id }} onPress={() => setTab(id)}
                 style={{ flex: 1, minHeight: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: tab === id ? colors.brand : 'transparent' }}>

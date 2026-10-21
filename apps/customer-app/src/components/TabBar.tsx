@@ -16,7 +16,7 @@ export function TabBar() {
   const router = useRouter();
   const path = usePathname();
   return (
-    <View style={{ position: 'absolute', left: 10, right: 10, bottom: 10, flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(5,12,20,0.86)', borderWidth: 1, borderColor: 'rgba(56,217,176,0.20)', borderRadius: 28, height: 68, ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(18px)', boxShadow: '0 8px 24px rgba(0,0,0,.45)' } as object) : {}) }}>
+    <View style={{ position: 'absolute', left: 10, right: 10, bottom: 10, flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(8,6,16,0.86)', borderWidth: 1, borderColor: 'rgba(139,92,246,0.20)', borderRadius: 28, height: 68, ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(18px)', boxShadow: '0 8px 24px rgba(0,0,0,.45)' } as object) : {}) }}>
       {TABS.map((t) => {
         const on = path === t.path;
         return (

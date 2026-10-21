@@ -66,7 +66,7 @@ export default function Payment() {
         </FadeIn>
 
         <FadeIn index={1}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: 'rgba(56,217,176,0.06)', borderRadius: 20, padding: 14, borderWidth: 1.5, borderColor: colors.brand }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: 'rgba(139,92,246,0.06)', borderRadius: 20, padding: 14, borderWidth: 1.5, borderColor: colors.brand }}>
             <View style={{ width: 84, height: 56, borderRadius: 12, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}><Icon name="card" size={28} color={colors.brand} /></View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{ka.checkout.card}</Text>
@@ -77,7 +77,7 @@ export default function Payment() {
         </FadeIn>
 
         <FadeIn index={2}>
-          <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 16, gap: 8, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
+          <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 16, gap: 8, borderWidth: 1, borderColor: 'rgba(139,92,246,0.14)' }}>
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text, marginBottom: 2 }}>{ka.checkout.yourOrder}</Text>
             {info.items.map((it, i) => (
               <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
@@ -93,7 +93,7 @@ export default function Payment() {
         </FadeIn>
 
         <FadeIn index={3}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 20, padding: 14, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 20, padding: 14, borderWidth: 1, borderColor: 'rgba(139,92,246,0.14)' }}>
             <Icon name="lock" size={30} color={colors.brand} />
             <View style={{ flex: 1 }}>
               <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>თქვენი გადახდები უსაფრთხოა</Text>

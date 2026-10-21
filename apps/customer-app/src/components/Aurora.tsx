@@ -48,8 +48,8 @@ function Doodle({ n, x, y, size, rot, o, i }: D & { i: number }) {
 export function Aurora() {
   return (
     <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, overflow: 'hidden', backgroundColor: theme.bg }}>
-      <LinearGradient colors={['#0B2233', '#08131F', '#060E18']} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
-      <Glow size={340} color="rgba(56,217,176,0.06)" top={-120} left={-80} dx={70} dy={50} duration={9000} delay={0} />
+      <LinearGradient colors={['#1A1038', '#0C0A18', '#0A0814']} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
+      <Glow size={340} color="rgba(139,92,246,0.06)" top={-120} left={-80} dx={70} dy={50} duration={9000} delay={0} />
       <Glow size={300} color="rgba(60,130,220,0.05)" top={260} left={140} dx={-60} dy={60} duration={11000} delay={800} />
       <Glow size={260} color="rgba(255,113,133,0.03)" top={520} left={-90} dx={60} dy={-50} duration={13000} delay={400} />
       {DOODLES.map((d, i) => <Doodle key={i} {...d} i={i} />)}
