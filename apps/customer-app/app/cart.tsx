@@ -63,7 +63,7 @@ export default function Cart() {
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, gap: 12, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
         {lines.length > 0 ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 18, padding: 12, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
-            <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}><Icon name="store" size={24} color={colors.brand} /></View>
+            <Photo path={imageOf(lines[0]!.productId)} style={{ width: 76, height: 56 }} rounded={12} />
             <View style={{ flex: 1 }}>
               <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{branch?.merchantName ?? branch?.name ?? ''}</Text>
               <Text numberOfLines={1} style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{lines.reduce((n, l) => n + l.quantity, 0)} {ka.cart.items}{branch?.merchantName ? ` · ${branch.name}` : ''}</Text>
@@ -83,8 +83,8 @@ export default function Cart() {
 
         {lines.map((l, i) => (
           <FadeIn key={l.key} index={i}>
-            <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10, borderRadius: 18, borderWidth: 0 }}>
-              <Photo path={imageOf(l.productId)} style={{ width: 78, height: 78 }} rounded={14} />
+            <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 10, borderRadius: 20 }}>
+              <Photo path={imageOf(l.productId)} style={{ width: 92, height: 92 }} rounded={14} />
               <View style={{ flex: 1, gap: 2 }}>
                 <Text numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{l.name}</Text>
                 {isGone(l.productId) ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.red }}>{ka.menu.soldOut} · {ka.cart.removeIt}</Text> : null}
@@ -137,8 +137,7 @@ export default function Cart() {
 
         {lines.length > 0 && (
           <>
-            <View style={{ gap: 6, marginTop: 4 }}>
-              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{ka.cart.promo}</Text>
+            <View style={{ gap: 6 }}>
               {promo ? (
                 <Card selected style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                   <Icon name="star" size={20} color={colors.brand} />
@@ -146,19 +145,20 @@ export default function Cart() {
                   <Pressable accessibilityRole="button" onPress={() => setPromo(null)} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.red }}>{ka.cart.promoRemove}</Text></Pressable>
                 </Card>
               ) : (
-                <View style={{ flexDirection: 'row', gap: 8 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.surface, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)', padding: 8, paddingLeft: 14 }}>
+                  <Icon name="star" size={24} color={colors.brand} />
                   <TextInput accessibilityLabel={ka.cart.promo} placeholder={ka.cart.promoPh} placeholderTextColor={theme.muted} value={code} onChangeText={(t) => setCode(t.toUpperCase())} autoCapitalize="characters" autoCorrect={false} maxLength={30}
-                    style={[{ flex: 1, minWidth: 0, minHeight: 48, borderRadius: 14, borderWidth: 2, borderColor: theme.border, backgroundColor: theme.surface, paddingHorizontal: 14, fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
+                    style={[{ flex: 1, minWidth: 0, minHeight: 44, fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
                   <PressScale accessibilityRole="button" onPress={applyCode} disabled={busy || !code.trim()} scaleTo={0.95}
-                    style={{ minHeight: 48, paddingHorizontal: 18, borderRadius: 14, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', opacity: busy || !code.trim() ? 0.5 : 1 }}>
-                    <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.onBrand }}>{ka.cart.promoApply}</Text>
+                    style={{ minHeight: 44, paddingHorizontal: 18, borderRadius: 16, backgroundColor: 'rgba(56,217,176,0.14)', borderWidth: 1, borderColor: 'rgba(56,217,176,0.4)', alignItems: 'center', justifyContent: 'center', opacity: busy || !code.trim() ? 0.5 : 1 }}>
+                    <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.brand }}>{ka.cart.promoApply}</Text>
                   </PressScale>
                 </View>
               )}
               {(err || promoMsg) ? <ErrorText>{err ?? promoMsg}</ErrorText> : null}
             </View>
 
-            <Card>
+            <Card style={{ borderRadius: 20, paddingVertical: 12 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <Body muted>{ka.cart.subtotal}</Body><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{formatGel(subtotal)}</Text>
               </View>
