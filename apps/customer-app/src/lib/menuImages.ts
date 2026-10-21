@@ -1,5 +1,13 @@
 /** Metro needs static require() paths, so images are listed explicitly. Photos: Gochit's Wolt page (Dighomi branch), internal demo use, pending restaurant approval. */
 export const menuImages: Record<string, number> = {
+  'demo/burger-classic.jpg': require('../../assets/art/d/burger-classic.jpg'),
+  'demo/burger-cheese.jpg': require('../../assets/art/d/burger-cheese.jpg'),
+  'demo/salad.jpg': require('../../assets/art/d/salad.jpg'),
+  'demo/salad2.jpg': require('../../assets/art/d/salad2.jpg'),
+  'demo/steak.jpg': require('../../assets/art/d/steak.jpg'),
+  'demo/sushi.jpg': require('../../assets/art/d/sushi.jpg'),
+  'demo/pizza.jpg': require('../../assets/art/d/pizza.jpg'),
+  'demo/khachapuri.jpg': require('../../assets/art/d/khachapuri.jpg'),
   'menu/06eea84f6395d969.jpg': require('../../assets/menu/06eea84f6395d969.jpg'),
   'menu/0f54b406a5b5efa3.jpg': require('../../assets/menu/0f54b406a5b5efa3.jpg'),
   'menu/1025b4e04122acf9.jpg': require('../../assets/menu/1025b4e04122acf9.jpg'),
