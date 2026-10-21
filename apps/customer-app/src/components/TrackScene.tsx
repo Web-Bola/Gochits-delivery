@@ -4,7 +4,7 @@ import { colors } from '@gochits/ui-tokens';
 import { Icon, type IconName } from './Icon';
 import { ND, Pulse, Spin, useReduceMotion } from './fx';
 
-const H = 190;
+const H = 170;
 const ONB = colors.brand;
 
 /** Round badge with an icon; optionally springs in once. */

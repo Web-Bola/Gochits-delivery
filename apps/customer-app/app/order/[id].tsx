@@ -127,7 +127,7 @@ export default function OrderScreen() {
           <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, alignItems: 'center' }}><Image source={require('../../assets/zyro-logo.png')} style={{ height: 44, width: 96 }} resizeMode="contain" accessibilityLabel="ZYRO" /></View>
           <Pressable accessibilityRole="text" delayLongPress={900} onLongPress={() => setDev((d) => !d)} style={{ backgroundColor: 'rgba(56,217,176,0.14)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 7 }}><Text style={{ color: colors.brand, fontFamily: fontFamily.extrabold, fontSize: 12 }}>№{row.number}</Text></Pressable>
         </View>
-        <TrackScene scene={scene} />
+        <View style={{ paddingTop: 58 }}><TrackScene scene={scene} /></View>
         <View style={{ paddingHorizontal: 20, paddingTop: 6, paddingBottom: 38 }}>
           <Bump value={row.status}><Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 27, color: theme.text }}>{h1}</Text></Bump>
           {h2 ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: theme.muted }}>{h2}</Text> : null}
@@ -144,7 +144,7 @@ export default function OrderScreen() {
                 const done = k < stepIdx || fin; const act = k === stepIdx && !fin;
                 return [
                   <View key={label} style={{ alignItems: 'center', gap: 6, width: 62 }}>
-                    <View style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: done ? colors.brand : theme.surface, borderWidth: 2, borderColor: done || act ? colors.brand : theme.border }}>
+                    <View style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: done ? colors.brand : theme.surface, borderWidth: 2, borderColor: done || act ? colors.brand : theme.border, ...(act ? { shadowColor: colors.brand, shadowOpacity: 0.8, shadowRadius: 14 } : {}) }}>
                       <Icon name={done ? 'check' : ic} size={20} color={done ? ONB : act ? colors.brand : theme.muted} strokeWidth={done ? 3 : 2} />
                     </View>
                     <Text style={{ fontFamily: fontFamily.semibold, fontSize: 11, color: done ? theme.text : act ? colors.brand : theme.muted }}>{label}</Text>
