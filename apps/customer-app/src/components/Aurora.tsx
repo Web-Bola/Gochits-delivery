@@ -1,8 +1,7 @@
-import { Animated, View } from 'react-native';
+import { Animated, Image, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '@gochits/ui-tokens';
 import { useLoop } from './fx';
-import { Icon } from './Icon';
 
 /** Animated brand backdrop (no photo): deep navy, three soft glows drifting slowly and faint rings. */
 function Glow({ size, color, top, left, dx, dy, duration, delay }: { size: number; color: string; top: number; left: number; dx: number; dy: number; duration: number; delay: number }) {
@@ -13,6 +12,12 @@ function Glow({ size, color, top, left, dx, dy, duration, delay }: { size: numbe
   return <Animated.View pointerEvents="none" style={{ position: 'absolute', top, left, width: size, height: size, borderRadius: size / 2, backgroundColor: color, transform: [{ translateX: x }, { translateY: y }, { scale: s }] }} />;
 }
 
+const F = {
+  hamburger: require('../../assets/art/f/hamburger_3d.png'), pizza: require('../../assets/art/f/pizza_3d.png'), sushi: require('../../assets/art/f/sushi_3d.png'),
+  coffee: require('../../assets/art/f/hot_beverage_3d.png'), fries: require('../../assets/art/f/french_fries_3d.png'), bowl: require('../../assets/art/f/steaming_bowl_3d.png'),
+  salad: require('../../assets/art/f/green_salad_3d.png'), taco: require('../../assets/art/f/taco_3d.png'), donut: require('../../assets/art/f/doughnut_3d.png'), meat: require('../../assets/art/f/cut_of_meat_3d.png'),
+} as const;
+const ORDER = ['hamburger', 'pizza', 'sushi', 'coffee', 'fries', 'bowl', 'salad', 'taco', 'donut', 'meat'] as const;
 type D = { n: string; x: string; y: string; size: number; rot: number; o: number };
 const DOODLES: D[] = [
   { n: 'cburger', x: '8%', y: '7%', size: 54, rot: -14, o: 0.2 }, { n: 'cfries', x: '74%', y: '5%', size: 48, rot: 12, o: 0.16 },
@@ -30,7 +35,7 @@ function Doodle({ n, x, y, size, rot, o, i }: D & { i: number }) {
   const r = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [`${rot}deg`, `${rot + 6}deg`, `${rot}deg`] });
   return (
     <Animated.View pointerEvents="none" style={{ position: 'absolute', left: x as `${number}%`, top: y as `${number}%`, transform: [{ translateY: dy }, { rotate: r }] }}>
-      <Icon name={n} size={size} color={`rgba(125,242,214,${o})`} strokeWidth={1.6} />
+      <Image source={F[ORDER[i % ORDER.length]!]} style={{ width: size * 1.3, height: size * 1.3, opacity: Math.min(0.5, o * 2.6) }} resizeMode="contain" />
     </Animated.View>
   );
 }
