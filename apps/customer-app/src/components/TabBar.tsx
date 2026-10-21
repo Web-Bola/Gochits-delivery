@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, Text, View } from 'react-native';
 import { usePathname, useRouter } from 'expo-router';
 import { ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
@@ -16,7 +16,7 @@ export function TabBar() {
   const router = useRouter();
   const path = usePathname();
   return (
-    <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', backgroundColor: theme.surface, borderTopWidth: 1, borderTopColor: theme.border, paddingBottom: 6, paddingTop: 4 }}>
+    <View style={{ position: 'absolute', left: 10, right: 10, bottom: 10, flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(8,20,33,0.86)', borderWidth: 1, borderColor: 'rgba(56,217,176,0.20)', borderRadius: 28, height: 68, ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(18px)', boxShadow: '0 8px 24px rgba(0,0,0,.45)' } as object) : {}) }}>
       {TABS.map((t) => {
         const on = path === t.path;
         return (
@@ -24,6 +24,7 @@ export function TabBar() {
             style={{ flex: 1, minHeight: 52, alignItems: 'center', justifyContent: 'center', gap: 3 }}>
             <Icon name={t.icon} size={22} color={on ? colors.brand : theme.muted} />
             <Text style={{ fontFamily: on ? fontFamily.extrabold : fontFamily.semibold, fontSize: 11, color: on ? colors.brand : theme.muted }}>{t.label}</Text>
+            {on ? <View style={{ position: 'absolute', bottom: 2, width: 34, height: 3, borderRadius: 2, backgroundColor: colors.brand }} /> : null}
           </Pressable>
         );
       })}
