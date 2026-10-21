@@ -45,7 +45,8 @@ export default function Register() {
     if (step === 0 && !signedIn) {
       setBusy(true);
       const r = await supabase.auth.signUp({ email: email.trim(), password });
-      if (r.error && !/already/i.test(r.error.message)) { setBusy(false); setError(/password/i.test(r.error.message) ? 'პაროლი ძალიან მარტივია' : 'რეგისტრაცია ვერ მოხერხდა'); return; }
+      if (r.error && !/already/i.test(r.error.message)) { setBusy(false); const m = r.error.message;
+        setError(/password/i.test(m) ? 'პაროლი ძალიან მარტივია' : /rate limit|too many/i.test(m) ? 'ძალიან ბევრი მცდელობაა, სცადე რამდენიმე წუთში' : /disabled/i.test(m) ? 'რეგისტრაცია ჩართული არ არის (Supabase → Auth → Sign In / Providers → Email)' : `რეგისტრაცია ვერ მოხერხდა: ${m}`); return; }
       if (!r.data.session) {
         const s = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (s.error) { setBusy(false); setError(/confirm/i.test(s.error.message) ? 'დაადასტურე ელფოსტა წერილში მოსული ბმულით და შემდეგ შედი' : 'ეს ელფოსტა უკვე გამოიყენება. შედი შენი პაროლით'); return; }
