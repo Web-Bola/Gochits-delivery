@@ -24,19 +24,19 @@ export function Heart({ on, onPress, size = 36, dark }: { on: boolean; onPress: 
   return (
     <PressScale accessibilityRole="button" accessibilityLabel={on ? ka.menu.favRemove : ka.menu.favAdd} accessibilityState={{ selected: on }} onPress={onPress} scaleTo={0.8}
       style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: dark ? 'rgba(20,11,10,0.55)' : 'rgba(255,255,255,0.9)', alignItems: 'center', justifyContent: 'center' }}>
-      <Bump value={on ? 1 : 0}><Text style={{ fontSize: size * 0.5, color: on ? colors.red : dark ? colors.white : colors.ink }}>{on ? '♥' : '♡'}</Text></Bump>
+      <Bump value={on ? 1 : 0}><Text style={{ fontSize: size * 0.5, color: on ? colors.red : dark ? colors.white : colors.onBrand }}>{on ? '♥' : '♡'}</Text></Bump>
     </PressScale>
   );
 }
 
 /** Round − 1 + control. */
 export function Stepper({ value, onMinus, onPlus, min = 0, max = 50, tone = 'dark' }: { value: number; onMinus: () => void; onPlus: () => void; min?: number; max?: number; tone?: 'dark' | 'light' }) {
-  const bg = tone === 'dark' ? theme.surface2 : '#FFF1BF';
-  const fg = tone === 'dark' ? theme.text : colors.ink;
+  const bg = tone === 'dark' ? theme.surface2 : colors.brandSoft;
+  const fg = tone === 'dark' ? theme.text : colors.onBrand;
   const btn = (label: string, fn: () => void, disabled: boolean, a11y: string, accent: boolean) => (
     <PressScale accessibilityRole="button" accessibilityLabel={a11y} accessibilityState={{ disabled }} disabled={disabled} onPress={fn} scaleTo={0.85}
-      style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: accent ? colors.yellow : tone === 'dark' ? theme.border : colors.white, opacity: disabled ? 0.4 : 1 }}>
-      <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 22, color: accent ? colors.ink : fg, marginTop: -2 }}>{label}</Text>
+      style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: accent ? colors.brand : tone === 'dark' ? theme.border : colors.white, opacity: disabled ? 0.4 : 1 }}>
+      <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 22, color: accent ? colors.onBrand : fg, marginTop: -2 }}>{label}</Text>
     </PressScale>
   );
   return (
@@ -58,12 +58,12 @@ export function ProductCard({ item, width, qty, fav, bumped, onAdd, onOpen, onFa
   const off = discountPercent(item);
   const sold = !item.available;
   return (
-    <View style={{ width, backgroundColor: theme.surface, borderRadius: radius.card, overflow: 'hidden', borderWidth: 1, borderColor: qty > 0 ? colors.yellow : theme.border }}>
+    <View style={{ width, backgroundColor: theme.surface, borderRadius: radius.card, overflow: 'hidden', borderWidth: 1, borderColor: qty > 0 ? colors.brand : theme.border }}>
       <View style={{ height: 130 }}>
         <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={onOpen} style={{ flex: 1, opacity: sold ? 0.45 : 1 }}>
           <Photo path={item.image_path} rounded={0} style={{ flex: 1 }} />
         </Pressable>
-        {off && !sold ? <View style={{ position: 'absolute', left: 8, top: 8, backgroundColor: colors.yellow, borderRadius: 12, paddingHorizontal: 9, paddingVertical: 3 }}><Text style={{ color: colors.ink, fontFamily: fontFamily.extrabold, fontSize: 12 }}>-{off}%</Text></View> : null}
+        {off && !sold ? <View style={{ position: 'absolute', left: 8, top: 8, backgroundColor: colors.brand, borderRadius: 12, paddingHorizontal: 9, paddingVertical: 3 }}><Text style={{ color: colors.onBrand, fontFamily: fontFamily.extrabold, fontSize: 12 }}>-{off}%</Text></View> : null}
         <View style={{ position: 'absolute', right: 8, top: 8 }}><Heart on={fav} onPress={onFav} size={32} dark /></View>
         {sold ? (
           <View pointerEvents="none" style={{ position: 'absolute', left: 8, bottom: 8, backgroundColor: theme.bg, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 4 }}>
@@ -83,7 +83,7 @@ export function ProductCard({ item, width, qty, fav, bumped, onAdd, onOpen, onFa
         <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{item.name}</Text>
         <Text numberOfLines={1} style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{item.description_ka ?? ' '}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.yellow }}>{formatGel(item.price_tetri)}</Text>
+          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.brand }}>{formatGel(item.price_tetri)}</Text>
           {item.old_price_tetri ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted, textDecorationLine: 'line-through' }}>{formatGel(item.old_price_tetri)}</Text> : null}
         </View>
       </Pressable>
@@ -106,7 +106,7 @@ export function AddButton({ qty, onPress, label, size = 36 }: { qty: number; onP
   return (
     <PressScale accessibilityRole="button" accessibilityLabel={label} onPress={onPress} scaleTo={0.8}
       style={{ minWidth: size, height: size, paddingHorizontal: qty > 0 ? 8 : 0, borderRadius: size / 2, backgroundColor: qty > 0 ? colors.red : colors.white, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.45, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
-      {qty > 0 ? <Text style={{ color: colors.white, fontFamily: fontFamily.extrabold, fontSize: 15 }}>{qty}</Text> : <Icon name="plus" size={20} color={colors.ink} strokeWidth={2.4} />}
+      {qty > 0 ? <Text style={{ color: colors.white, fontFamily: fontFamily.extrabold, fontSize: 15 }}>{qty}</Text> : <Icon name="plus" size={20} color={colors.onBrand} strokeWidth={2.4} />}
     </PressScale>
   );
 }
@@ -123,7 +123,7 @@ function ProductRowImpl({ item, qty, bumped, onAdd, onOpen }: { item: Product; q
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2, flexWrap: 'wrap' }}>
           <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{formatGel(item.price_tetri)}</Text>
           {item.old_price_tetri ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted, textDecorationLine: 'line-through' }}>{formatGel(item.old_price_tetri)}</Text> : null}
-          {off && !sold ? <View style={{ backgroundColor: colors.yellow, borderRadius: 6, paddingHorizontal: 7, paddingVertical: 1 }}><Text style={{ color: colors.ink, fontFamily: fontFamily.extrabold, fontSize: 12 }}>-{off}%</Text></View> : null}
+          {off && !sold ? <View style={{ backgroundColor: colors.brand, borderRadius: 6, paddingHorizontal: 7, paddingVertical: 1 }}><Text style={{ color: colors.onBrand, fontFamily: fontFamily.extrabold, fontSize: 12 }}>-{off}%</Text></View> : null}
           {sold ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.red }}>{ka.menu.soldOut}</Text> : null}
         </View>
       </Pressable>

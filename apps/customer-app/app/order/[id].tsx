@@ -23,7 +23,7 @@ const TK = [['receipt', 'მიღებულია'], ['flame', 'მზად�
 const TK_PICKUP = [['receipt', 'მიღებულია'], ['flame', 'მზადდება'], ['bag', 'მზადაა'], ['check', 'გაიცა']] as const;
 const STEP_PICKUP: Partial<Record<OrderStatus, number>> = { placed: 0, accepted: 0, preparing: 1, ready_for_pickup: 2, delivered: 3 };
 const HEAD_PICKUP: Partial<Record<OrderStatus, [string, string]>> = { ready_for_pickup: ['მზადაა, მოდი აიღე!', 'შენი შეკვეთა ფილიალში გელოდება'], delivered: ['გაიცა!', 'ისიამოვნე კერძით'] };
-const INK = colors.ink;
+const ONB = colors.onBrand;
 
 interface Item { product_id: string; name_snapshot: string; quantity: number; unit_price_tetri: number; note: string | null }
 interface Row {
@@ -102,7 +102,7 @@ export default function OrderScreen() {
   }
 
   if (failed) return <Screen><BackButton onPress={() => router.replace('/orders')} /><StateView tone="error" icon="clock" title={ka.order.loadFail} hint={ka.errors.network} actionTitle={ka.common.retry} onAction={load} /></Screen>;
-  if (!row) return <Screen><ActivityIndicator color={colors.yellow} /></Screen>;
+  if (!row) return <Screen><ActivityIndicator color={colors.brand} /></Screen>;
 
   const pk = row.fulfillment === 'pickup';
   const TKS = pk ? TK_PICKUP : TK;
@@ -120,16 +120,16 @@ export default function OrderScreen() {
   const muted = { fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted } as const;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.yellow }}>
+    <View style={{ flex: 1, backgroundColor: colors.brand }}>
       <View>
         <View style={{ position: 'absolute', left: 16, right: 16, top: 16, zIndex: 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <BackButton onPress={() => router.replace('/orders')} />
-          <Pressable accessibilityRole="text" delayLongPress={900} onLongPress={() => setDev((d) => !d)} style={{ backgroundColor: 'rgba(26,13,11,0.88)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 7 }}><Text style={{ color: colors.yellow, fontFamily: fontFamily.extrabold, fontSize: 12 }}>№{row.number}</Text></Pressable>
+          <Pressable accessibilityRole="text" delayLongPress={900} onLongPress={() => setDev((d) => !d)} style={{ backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 7 }}><Text style={{ color: colors.brand, fontFamily: fontFamily.extrabold, fontSize: 12 }}>№{row.number}</Text></Pressable>
         </View>
         <TrackScene scene={scene} />
         <View style={{ paddingHorizontal: 20, paddingTop: 6, paddingBottom: 38 }}>
-          <Bump value={row.status}><Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 27, color: INK }}>{h1}</Text></Bump>
-          {h2 ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: INK }}>{h2}</Text> : null}
+          <Bump value={row.status}><Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 27, color: ONB }}>{h1}</Text></Bump>
+          {h2 ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: ONB }}>{h2}</Text> : null}
         </View>
       </View>
       <View style={{ flex: 1, marginTop: -22, backgroundColor: theme.bg, borderTopLeftRadius: 26, borderTopRightRadius: 26 }}>
@@ -143,20 +143,20 @@ export default function OrderScreen() {
                 const done = k < stepIdx || fin; const act = k === stepIdx && !fin;
                 return [
                   <View key={label} style={{ alignItems: 'center', gap: 6, width: 62 }}>
-                    <View style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: done ? colors.yellow : theme.surface, borderWidth: 2, borderColor: done || act ? colors.yellow : theme.border }}>
-                      <Icon name={done ? 'check' : ic} size={20} color={done ? INK : act ? colors.yellow : theme.muted} strokeWidth={done ? 3 : 2} />
+                    <View style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: done ? colors.brand : theme.surface, borderWidth: 2, borderColor: done || act ? colors.brand : theme.border }}>
+                      <Icon name={done ? 'check' : ic} size={20} color={done ? ONB : act ? colors.brand : theme.muted} strokeWidth={done ? 3 : 2} />
                     </View>
-                    <Text style={{ fontFamily: fontFamily.semibold, fontSize: 11, color: done ? theme.text : act ? colors.yellow : theme.muted }}>{label}</Text>
+                    <Text style={{ fontFamily: fontFamily.semibold, fontSize: 11, color: done ? theme.text : act ? colors.brand : theme.muted }}>{label}</Text>
                   </View>,
-                  k < 3 ? <View key={`${label}-l`} style={{ flex: 1, height: 4, borderRadius: 2, marginTop: 20, backgroundColor: k < stepIdx || fin ? colors.yellow : theme.border }} /> : null,
+                  k < 3 ? <View key={`${label}-l`} style={{ flex: 1, height: 4, borderRadius: 2, marginTop: 20, backgroundColor: k < stepIdx || fin ? colors.brand : theme.border }} /> : null,
                 ];
               })}
             </View>
           )}
 
           {pk && row.status === 'ready_for_pickup' ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: 'rgba(61,220,132,0.1)', borderRadius: 18, padding: 14, borderWidth: 1.5, borderColor: '#3DDC84' }}>
-              <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}><Icon name="pin" size={22} color={INK} /></View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: 'rgba(30,142,90,0.1)', borderRadius: 18, padding: 14, borderWidth: 1.5, borderColor: '#1E8E5A' }}>
+              <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}><Icon name="pin" size={22} color={ONB} /></View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>აიღე აქ: {row.branches?.name}</Text>
                 {row.branches?.address ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted }}>{row.branches.address}</Text> : null}
@@ -166,7 +166,7 @@ export default function OrderScreen() {
           ) : null}
           {pk && !finished && row.status !== 'ready_for_pickup' && row.status !== 'pending_payment' ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 18, padding: 12 }}>
-              <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}><Icon name="bag" size={22} color={INK} /></View>
+              <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}><Icon name="bag" size={22} color={ONB} /></View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>თვითონ წამოღება{row.pickup_minutes ? ` · ~${row.pickup_minutes} წთ-ში` : ''}</Text>
                 <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{row.branches?.name}{row.branches?.address ? `, ${row.branches.address}` : ''}</Text>
@@ -175,7 +175,7 @@ export default function OrderScreen() {
           ) : null}
           {!pk && (out || fin || row.status === 'ready_for_pickup') ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 18, padding: 12 }}>
-              <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}><Icon name={out || fin ? 'bike' : 'bag'} size={22} color={INK} /></View>
+              <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}><Icon name={out || fin ? 'bike' : 'bag'} size={22} color={ONB} /></View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{out ? ka.order.courier : fin ? ka.order.delivered : STATUS_LABEL.ready_for_pickup}</Text>
                 <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.order.courierHint}</Text>
@@ -186,7 +186,7 @@ export default function OrderScreen() {
           {phone && !finished ? (
             <PressScale accessibilityRole="button" accessibilityLabel={ka.order.callBranch} onPress={() => Linking.openURL(`tel:${phone.replace(/\s/g, '')}`).catch(() => undefined)} scaleTo={0.97}
               style={{ minHeight: 48, borderRadius: 24, borderWidth: 1.5, borderColor: theme.border, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              <Icon name="phone" size={18} color={colors.yellow} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{ka.order.callBranch}</Text>
+              <Icon name="phone" size={18} color={colors.brand} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{ka.order.callBranch}</Text>
             </PressScale>
           ) : null}
 
@@ -196,7 +196,7 @@ export default function OrderScreen() {
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 {[1, 2, 3, 4, 5].map((n) => (
                   <PressScale key={n} accessibilityRole="button" accessibilityLabel={`${n}`} disabled={rated} onPress={() => setStars(n)} scaleTo={0.8}>
-                    <Icon name="star" size={34} color={n <= stars ? colors.yellow : '#5A4A43'} fill={n <= stars ? colors.yellow : '#5A4A43'} strokeWidth={1} />
+                    <Icon name="star" size={34} color={n <= stars ? colors.brand : '#D5CBBE'} fill={n <= stars ? colors.brand : '#D5CBBE'} strokeWidth={1} />
                   </PressScale>
                 ))}
               </View>
@@ -218,7 +218,7 @@ export default function OrderScreen() {
                   <Text style={[muted, { flex: 1 }]}>{it.name_snapshot}</Text>
                   <Text style={muted}>× {it.quantity}</Text>
                 </View>
-                {it.note ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: colors.yellow }}>{it.note}</Text> : null}
+                {it.note ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: colors.brand }}>{it.note}</Text> : null}
               </View>
             ))}
             {row.notes ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.order.notePrefix}: {row.notes}</Text> : null}
@@ -235,7 +235,7 @@ export default function OrderScreen() {
 
           {demo && dev && !finished && row.status !== 'pending_payment' && (
             <View style={{ gap: 10, backgroundColor: theme.surface, borderRadius: 18, padding: 14, borderWidth: 1, borderColor: theme.border }}>
-              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.yellow, letterSpacing: 0.5 }}>{ka.order.demoBanner}</Text>
+              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.brand, letterSpacing: 0.5 }}>{ka.order.demoBanner}</Text>
               <Button variant="ink" title={busy ? '...' : ka.order.demoNext} onPress={advance} disabled={busy} />
               <Button variant="outline" title={auto ? ka.order.demoStop : ka.order.demoAuto} onPress={() => setAuto((a) => !a)} />
             </View>

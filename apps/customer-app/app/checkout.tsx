@@ -114,7 +114,7 @@ export default function Checkout() {
 
   const row = (k: string, v: string, big?: boolean, accent?: boolean) => (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
-      <Body muted>{k}</Body><Text style={{ fontFamily: fontFamily.extrabold, fontSize: big ? 18 : 14, color: big || accent ? colors.yellow : theme.text, flexShrink: 1, textAlign: 'right' }}>{v}</Text>
+      <Body muted>{k}</Body><Text style={{ fontFamily: fontFamily.extrabold, fontSize: big ? 18 : 14, color: big || accent ? colors.brand : theme.text, flexShrink: 1, textAlign: 'right' }}>{v}</Text>
     </View>
   );
 
@@ -132,12 +132,12 @@ export default function Checkout() {
   const showList = pickAddr || !picked;
   const eta = here ? 25 + here.extra_minutes : null;
   const tone = status?.tone;
-  const toneColor = tone === 'bad' ? '#FF7A7F' : tone === 'ok' ? '#3DDC84' : theme.muted;
+  const toneColor = tone === 'bad' ? '#D63A2F' : tone === 'ok' ? '#1E8E5A' : theme.muted;
 
   const sectionTitle = (n: number, t: string) => (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 6 }}>
-      <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.ink }}>{n}</Text>
+      <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.onBrand }}>{n}</Text>
       </View>
       <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{t}</Text>
     </View>
@@ -146,11 +146,11 @@ export default function Checkout() {
     const on = chosen === m;
     return (
       <Pressable key={m} accessibilityRole="radio" accessibilityState={{ selected: on, disabled: !enabled }} disabled={!enabled} onPress={() => setMethod(m)}
-        style={{ flex: 1, minHeight: 112, borderRadius: 18, padding: 14, gap: 8, backgroundColor: on ? 'rgba(255,204,2,0.1)' : theme.surface, borderWidth: 2, borderColor: on ? colors.yellow : 'transparent', opacity: enabled ? 1 : 0.4 }}>
+        style={{ flex: 1, minHeight: 112, borderRadius: 18, padding: 14, gap: 8, backgroundColor: on ? 'rgba(14,107,87,0.08)' : theme.surface, borderWidth: 2, borderColor: on ? colors.brand : 'transparent', opacity: enabled ? 1 : 0.4 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Icon name={icon} size={26} color={colors.yellow} />
-          <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: on ? colors.yellow : theme.border, alignItems: 'center', justifyContent: 'center' }}>
-            {on && <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: colors.yellow }} />}
+          <Icon name={icon} size={26} color={colors.brand} />
+          <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: on ? colors.brand : theme.border, alignItems: 'center', justifyContent: 'center' }}>
+            {on && <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: colors.brand }} />}
           </View>
         </View>
         <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{title}</Text>
@@ -163,7 +163,7 @@ export default function Checkout() {
     <Screen scroll>
       <Header back title={ka.checkout.title} subtitle={branch?.name} right={
         <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}>
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{ka.checkout.changeBranch}</Text>
+          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.brand }}>{ka.checkout.changeBranch}</Text>
         </Pressable>} />
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 20, gap: 14, paddingBottom: 24 }}>
 
@@ -172,9 +172,9 @@ export default function Checkout() {
             const on = mode === m;
             return (
               <Pressable key={m} accessibilityRole="radio" accessibilityState={{ selected: on }} onPress={() => { setMode(m); setError(null); }}
-                style={{ flex: 1, minHeight: 48, borderRadius: 14, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? colors.yellow : 'transparent' }}>
-                <Icon name={ic} size={18} color={on ? colors.ink : theme.muted} />
-                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: on ? colors.ink : theme.text }}>{t}</Text>
+                style={{ flex: 1, minHeight: 48, borderRadius: 14, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? colors.brand : 'transparent' }}>
+                <Icon name={ic} size={18} color={on ? colors.onBrand : theme.muted} />
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: on ? colors.onBrand : theme.text }}>{t}</Text>
               </Pressable>
             );
           })}
@@ -185,27 +185,27 @@ export default function Checkout() {
             {sectionTitle(1, 'ფილიალი და დრო')}
             <View style={{ backgroundColor: theme.surface, borderRadius: 18, padding: 14, gap: 12 }}>
               {!branch ? (
-                <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 48, borderRadius: 24, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.ink }}>აირჩიე ფილიალი</Text>
+                <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 48, borderRadius: 24, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.onBrand }}>აირჩიე ფილიალი</Text>
                 </Pressable>
               ) : (
                 <>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                    <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,204,2,0.14)', alignItems: 'center', justifyContent: 'center' }}><Icon name="pin" size={22} color={colors.yellow} /></View>
+                    <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(14,107,87,0.12)', alignItems: 'center', justifyContent: 'center' }}><Icon name="pin" size={22} color={colors.brand} /></View>
                     <View style={{ flex: 1 }}>
                       <Text numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{branch.name}</Text>
                       {pb?.address ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{pb.address}</Text> : null}
                     </View>
-                    <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 40, justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{ka.branch.change}</Text></Pressable>
+                    <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 40, justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.brand }}>{ka.branch.change}</Text></Pressable>
                   </View>
                   {pb && !pickupReady ? (
-                    <View style={{ backgroundColor: 'rgba(216,20,28,0.12)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9 }}>
+                    <View style={{ backgroundColor: 'rgba(232,85,61,0.12)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9 }}>
                       <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: theme.text }}>{!pb.pickup_enabled ? 'ამ ფილიალში თვითონ წამოღება ამჟამად გამორთულია' : !pb.is_open ? 'ფილიალი ახლა დახურულია' : 'ფილიალი ახლა შეკვეთებს არ იღებს'}</Text>
                     </View>
                   ) : null}
                   {pb && pb.pickup_discount_percent > 0 ? (
-                    <View style={{ backgroundColor: 'rgba(61,220,132,0.1)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9 }}>
-                      <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#3DDC84' }}>თვითონ წამოღებაზე −{pb.pickup_discount_percent}%</Text>
+                    <View style={{ backgroundColor: 'rgba(30,142,90,0.1)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9 }}>
+                      <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#1E8E5A' }}>თვითონ წამოღებაზე −{pb.pickup_discount_percent}%</Text>
                     </View>
                   ) : null}
                   <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: theme.muted }}>როდის მოხვალ?</Text>
@@ -214,8 +214,8 @@ export default function Checkout() {
                       const on = minutes === v;
                       return (
                         <Pressable key={String(v)} accessibilityRole="radio" accessibilityState={{ selected: on }} onPress={() => setMinutes(v as number)}
-                          style={{ minHeight: 40, borderRadius: 20, paddingHorizontal: 14, justifyContent: 'center', backgroundColor: on ? colors.yellow : theme.surface2 }}>
-                          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: on ? colors.ink : theme.text }}>{t}</Text>
+                          style={{ minHeight: 40, borderRadius: 20, paddingHorizontal: 14, justifyContent: 'center', backgroundColor: on ? colors.brand : theme.surface2 }}>
+                          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: on ? colors.onBrand : theme.text }}>{t}</Text>
                         </Pressable>
                       );
                     })}
@@ -227,34 +227,34 @@ export default function Checkout() {
         ) : null}
 
         {!pickup ? sectionTitle(1, ka.checkout.addressTitle) : null}
-        {!pickup && (!addrs ? <ActivityIndicator color={colors.yellow} /> : (
+        {!pickup && (!addrs ? <ActivityIndicator color={colors.brand} /> : (
           <>
             {picked && !showList ? (
               <View style={{ backgroundColor: theme.surface, borderRadius: 18, padding: 14, gap: 12 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,204,2,0.14)', alignItems: 'center', justifyContent: 'center' }}><Icon name="pin" size={22} color={colors.yellow} /></View>
+                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(14,107,87,0.12)', alignItems: 'center', justifyContent: 'center' }}><Icon name="pin" size={22} color={colors.brand} /></View>
                   <View style={{ flex: 1 }}>
                     <Text numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{picked.street}</Text>
                     {detail(picked) ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{detail(picked)}</Text> : null}
                   </View>
-                  {<Pressable accessibilityRole="button" onPress={() => setPickAddr(true)} style={{ minHeight: 40, justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{ka.branch.change}</Text></Pressable>}
+                  {<Pressable accessibilityRole="button" onPress={() => setPickAddr(true)} style={{ minHeight: 40, justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.brand }}>{ka.branch.change}</Text></Pressable>}
                 </View>
                 {status ? (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: tone === 'bad' ? 'rgba(216,20,28,0.12)' : tone === 'ok' ? 'rgba(61,220,132,0.1)' : theme.surface2, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: tone === 'bad' ? 'rgba(232,85,61,0.12)' : tone === 'ok' ? 'rgba(30,142,90,0.1)' : theme.surface2, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9 }}>
                     <Icon name={tone === 'bad' ? 'x' : tone === 'ok' ? 'check' : 'clock'} size={17} color={toneColor} strokeWidth={2.4} />
                     <Text style={{ flex: 1, fontFamily: fontFamily.semibold, fontSize: 13, color: theme.text, lineHeight: 18 }}>{status.text}</Text>
                   </View>
                 ) : null}
                 {tone === 'bad' && !here ? others.map((o) => (
                   <Pressable key={o.branch_id} accessibilityRole="button" onPress={() => setBranch({ id: o.branch_id, name: o.branch_name })}
-                    style={{ minHeight: 44, borderRadius: 22, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}>
-                    <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.ink }}>{ka.checkout.switchTo}: {o.branch_name}</Text>
+                    style={{ minHeight: 44, borderRadius: 22, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}>
+                    <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.onBrand }}>{ka.checkout.switchTo}: {o.branch_name}</Text>
                   </Pressable>
                 )) : null}
                 {here && eta ? (
                   <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 16, paddingHorizontal: 11, paddingVertical: 6 }}><Icon name="clock" size={14} color={colors.yellow} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>~{eta} წთ</Text></View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 16, paddingHorizontal: 11, paddingVertical: 6 }}><Icon name="bike" size={14} color={colors.yellow} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>{fee === null ? '—' : fee === 0 ? '0.00 ₾' : formatGel(fee)}</Text></View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 16, paddingHorizontal: 11, paddingVertical: 6 }}><Icon name="clock" size={14} color={colors.brand} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>~{eta} წთ</Text></View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 16, paddingHorizontal: 11, paddingVertical: 6 }}><Icon name="bike" size={14} color={colors.brand} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>{fee === null ? '—' : fee === 0 ? '0.00 ₾' : formatGel(fee)}</Text></View>
                   </View>
                 ) : null}
               </View>
@@ -266,8 +266,8 @@ export default function Checkout() {
                   return (
                     <Pressable key={a.id} accessibilityRole="radio" accessibilityState={{ selected: on }}
                       onPress={() => { setAddress({ id: a.id, street: a.street, lat: a.lat, lng: a.lng, entrance: a.entrance, floor: a.floor, apartment: a.apartment } satisfies DeliveryAddress); setPickAddr(false); }}
-                      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 16, padding: 14, borderWidth: 2, borderColor: on ? colors.yellow : 'transparent' }}>
-                      <Icon name="pin" size={20} color={on ? colors.yellow : theme.muted} />
+                      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 16, padding: 14, borderWidth: 2, borderColor: on ? colors.brand : 'transparent' }}>
+                      <Icon name="pin" size={20} color={on ? colors.brand : theme.muted} />
                       <View style={{ flex: 1 }}>
                         <Text numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{a.street}</Text>
                         {detail(a) ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{detail(a)}</Text> : null}
@@ -276,7 +276,7 @@ export default function Checkout() {
                   );
                 })}
                 <Pressable accessibilityRole="button" onPress={() => router.push('/address')} style={{ minHeight: 48, borderRadius: 16, borderWidth: 2, borderColor: theme.border, borderStyle: 'dashed', flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon name="plus" size={18} color={colors.yellow} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{ka.checkout.addAddress}</Text>
+                  <Icon name="plus" size={18} color={colors.brand} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{ka.checkout.addAddress}</Text>
                 </Pressable>
               </View>
             )}
@@ -306,8 +306,8 @@ export default function Checkout() {
           {discount > 0 ? row(`${ka.cart.discount} ${promo?.code ?? ''}`, `−${formatGel(discount)}`, false, true) : null}
           {pickupDiscount > 0 ? row(`თვითონ წამოღება −${pb?.pickup_discount_percent}%`, `−${formatGel(pickupDiscount)}`, false, true) : null}
           {pickup ? null : row(ka.checkout.delivery, fee === null ? '—' : fee === 0 ? formatGel(0) : formatGel(fee))}
-          {!pickup && belowMin > 0 ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#FF7A7F' }}>{ka.checkout.minLeft} {formatGel(belowMin)}</Text> : null}
-          {!pickup && untilFree > 0 ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: colors.yellow }}>{ka.checkout.freeFrom} {formatGel(untilFree)}</Text> : null}
+          {!pickup && belowMin > 0 ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#D63A2F' }}>{ka.checkout.minLeft} {formatGel(belowMin)}</Text> : null}
+          {!pickup && untilFree > 0 ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: colors.brand }}>{ka.checkout.freeFrom} {formatGel(untilFree)}</Text> : null}
         </View>
         {(error || promoMsg) && <ErrorText>{error ?? promoMsg}</ErrorText>}
       </ScrollView>

@@ -83,8 +83,8 @@ export default function Profile() {
       <Header title={ka.profile.title} />
       <ScrollView contentContainerStyle={{ padding: 20, gap: 14, paddingBottom: 110 }} keyboardShouldPersistTaps="handled">
         <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-          <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 24, color: colors.ink }}>{(name.trim()[0] ?? '?').toUpperCase()}</Text>
+          <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 24, color: colors.onBrand }}>{(name.trim()[0] ?? '?').toUpperCase()}</Text>
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{name.trim() || ka.profile.namePh}</Text>
@@ -102,7 +102,7 @@ export default function Profile() {
               <Photo path={p.image_path} style={{ width: 56, height: 56 }} rounded={14} />
               <View style={{ flex: 1 }}>
                 <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{p.name}</Text>
-                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{formatGel(p.price_tetri)}</Text>
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.brand }}>{formatGel(p.price_tetri)}</Text>
               </View>
               <Pressable accessibilityRole="button" accessibilityLabel={ka.menu.favRemove} onPress={() => fav.toggle(p.id)} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name="heart" size={22} color={colors.red} fill={colors.red} />
@@ -115,9 +115,9 @@ export default function Profile() {
         {addrs.length === 0 && <Body muted>{ka.profile.noAddresses}</Body>}
         {addrs.map((a) => (
           <Card key={a.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <Icon name="pin" size={20} color={colors.yellow} />
+            <Icon name="pin" size={20} color={colors.brand} />
             <Text numberOfLines={2} style={{ flex: 1, fontFamily: fontFamily.semibold, fontSize: 14, color: theme.text }}>{a.street}</Text>
-            <Text accessibilityRole="button" onPress={() => removeAddr(a.id)} style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#FF6B6B', padding: 8 }}>{ka.profile.delete}</Text>
+            <Text accessibilityRole="button" onPress={() => removeAddr(a.id)} style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#D63A2F', padding: 8 }}>{ka.profile.delete}</Text>
           </Card>
         ))}
         <Button variant="outline" title={`+ ${ka.profile.addNew}`} onPress={() => router.push('/address')} />
@@ -125,7 +125,7 @@ export default function Profile() {
         <Pressable accessibilityRole="button" onPress={() => Linking.openURL(`tel:${SUPPORT_PHONE.replace(/\s/g, '')}`).catch(() => undefined)}>
           <Card>
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{ka.profile.support}</Text>
-            <Body muted>{ka.profile.supportTxt}: <Text style={{ color: colors.yellow, fontFamily: fontFamily.extrabold }}>{SUPPORT_PHONE}</Text></Body>
+            <Body muted>{ka.profile.supportTxt}: <Text style={{ color: colors.brand, fontFamily: fontFamily.extrabold }}>{SUPPORT_PHONE}</Text></Body>
           </Card>
         </Pressable>
         <Card>
@@ -136,7 +136,7 @@ export default function Profile() {
         <Button variant="outline" title={ka.profile.logout} onPress={logout} />
         {!confirmDelete ? (
           <Pressable accessibilityRole="button" onPress={() => setConfirmDelete(true)} style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: '#FF6B6B' }}>{ka.profile.deleteAccount}</Text>
+            <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: '#D63A2F' }}>{ka.profile.deleteAccount}</Text>
           </Pressable>
         ) : (
           <Card style={{ borderColor: colors.red, gap: 10 }}>

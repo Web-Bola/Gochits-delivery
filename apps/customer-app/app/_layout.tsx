@@ -41,7 +41,7 @@ function OfflineBanner() {
 
 export default function Layout() {
   const [loaded] = useFonts({ NotoSansGeorgian_400Regular, NotoSansGeorgian_600SemiBold, NotoSansGeorgian_800ExtraBold });
-  if (!loaded) return <View style={{ flex: 1, justifyContent: 'center', backgroundColor: colors.yellow }}><ActivityIndicator color={colors.ink} /></View>;
+  if (!loaded) return <View style={{ flex: 1, justifyContent: 'center', backgroundColor: colors.brand }}><ActivityIndicator color={colors.onBrand} /></View>;
   return (
     <CartProvider>
       <FavoritesProvider>

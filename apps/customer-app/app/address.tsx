@@ -91,10 +91,10 @@ export default function Address() {
                 const on = zoneId === z.id;
                 return (
                   <Pressable key={z.id} accessibilityRole="radio" accessibilityState={{ selected: on }} onPress={() => pickZone(z)}
-                    style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, borderRadius: 22, backgroundColor: on ? colors.yellow : theme.surface }}>
-                    <Icon name="pin" size={16} color={on ? colors.ink : colors.yellow} />
-                    <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: on ? colors.ink : theme.text }}>{z.name}</Text>
-                    {z.fee_tetri != null ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: on ? colors.ink : theme.muted }}>{formatGel(z.fee_tetri)}</Text> : null}
+                    style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, borderRadius: 22, backgroundColor: on ? colors.brand : theme.surface }}>
+                    <Icon name="pin" size={16} color={on ? colors.onBrand : colors.brand} />
+                    <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: on ? colors.onBrand : theme.text }}>{z.name}</Text>
+                    {z.fee_tetri != null ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: on ? colors.onBrand : theme.muted }}>{formatGel(z.fee_tetri)}</Text> : null}
                   </Pressable>
                 );
               })}

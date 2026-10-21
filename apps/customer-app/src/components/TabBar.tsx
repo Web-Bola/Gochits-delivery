@@ -21,8 +21,8 @@ export function TabBar() {
         return (
           <Pressable key={t.path} accessibilityRole="tab" accessibilityState={{ selected: on }} onPress={() => !on && router.replace(t.path)}
             style={{ flex: 1, minHeight: 52, alignItems: 'center', justifyContent: 'center', gap: 3 }}>
-            <Icon name={t.icon} size={22} color={on ? colors.yellow : theme.muted} />
-            <Text style={{ fontFamily: on ? fontFamily.extrabold : fontFamily.semibold, fontSize: 11, color: on ? colors.yellow : theme.muted }}>{t.label}</Text>
+            <Icon name={t.icon} size={22} color={on ? colors.brand : theme.muted} />
+            <Text style={{ fontFamily: on ? fontFamily.extrabold : fontFamily.semibold, fontSize: 11, color: on ? colors.brand : theme.muted }}>{t.label}</Text>
           </Pressable>
         );
       })}

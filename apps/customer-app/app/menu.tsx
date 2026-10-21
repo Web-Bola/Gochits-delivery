@@ -122,8 +122,8 @@ export default function MenuScreen() {
     const on = filter === id;
     return (
       <Pressable key={id} accessibilityRole="button" accessibilityState={{ selected: on }} onPress={() => setFilter(on ? null : id)}
-        style={{ height: 34, paddingHorizontal: 14, borderRadius: 17, justifyContent: 'center', backgroundColor: on ? colors.yellow : theme.surface }}>
-        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: on ? colors.ink : theme.muted }}>{label}</Text>
+        style={{ height: 34, paddingHorizontal: 14, borderRadius: 17, justifyContent: 'center', backgroundColor: on ? colors.brand : theme.surface }}>
+        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: on ? colors.onBrand : theme.muted }}>{label}</Text>
       </Pressable>
     );
   };
@@ -146,7 +146,7 @@ export default function MenuScreen() {
           <Scrim side="top" height={70} max={0.35} />
           <Scrim side="bottom" height={110} max={0.8} />
         </View>
-        <View style={{ position: 'absolute', left: 20, bottom: -30, width: 76, height: 76, borderRadius: 38, backgroundColor: colors.yellow, borderWidth: 4, borderColor: theme.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ position: 'absolute', left: 20, bottom: -30, width: 76, height: 76, borderRadius: 38, backgroundColor: colors.brand, borderWidth: 4, borderColor: theme.bg, alignItems: 'center', justifyContent: 'center' }}>
           <Image source={require('../assets/logo.png')} style={{ width: 56, height: 40 }} resizeMode="contain" accessibilityLabel="Gochit's" />
         </View>
       </View>
@@ -155,12 +155,12 @@ export default function MenuScreen() {
         <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted, marginTop: -6 }}>{ka.menu.tagline}</Text>
         <Pressable accessibilityRole="button" accessibilityLabel={ka.branch.change} onPress={() => router.push('/branches')}
           style={{ flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 40, paddingHorizontal: 12, borderRadius: 20, backgroundColor: theme.surface, alignSelf: 'flex-start', maxWidth: '100%' }}>
-          <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: openNow ? '#3DDC84' : theme.muted }} />
+          <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: openNow ? '#1E8E5A' : theme.muted }} />
           <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: theme.text, flexShrink: 1 }}>{branch?.name}</Text>
-          {statusText ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: openNow ? '#3DDC84' : colors.red }}>· {statusText}</Text> : null}
-          <Text style={{ color: colors.yellow, fontSize: 13 }}>▾</Text>
+          {statusText ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: openNow ? '#1E8E5A' : colors.red }}>· {statusText}</Text> : null}
+          <Text style={{ color: colors.brand, fontSize: 13 }}>▾</Text>
         </Pressable>
-        {state?.address ? pill(state.address, <Icon name="pin" size={16} color={colors.yellow} />) : null}
+        {state?.address ? pill(state.address, <Icon name="pin" size={16} color={colors.brand} />) : null}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.surface, borderRadius: 14, paddingHorizontal: 14, minHeight: 46 }}>
           <Icon name="search" size={20} color={theme.muted} />
           <TextInput accessibilityLabel={ka.menu.search} placeholder={ka.menu.search} placeholderTextColor={theme.muted} value={q} onChangeText={setQ}
@@ -223,9 +223,9 @@ export default function MenuScreen() {
                 return (
                   <Pressable key={cat.id} accessibilityRole="tab" accessibilityState={{ selected: on }} onPress={() => goTo(cat.id)}
                     onLayout={(e: LayoutChangeEvent) => { tabX.current[cat.id] = e.nativeEvent.layout.x; }}
-                    style={{ minHeight: 48, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 6, borderBottomWidth: 3, borderBottomColor: on ? colors.yellow : 'transparent' }}>
-                    <Icon name={categoryIcon(cat.name_ka)} size={17} color={on ? colors.yellow : theme.muted} />
-                    <Text style={{ fontFamily: on ? fontFamily.extrabold : fontFamily.semibold, fontSize: 14, color: on ? colors.yellow : theme.muted }}>{cat.name_ka}</Text>
+                    style={{ minHeight: 48, paddingHorizontal: 10, flexDirection: 'row', alignItems: 'center', gap: 6, borderBottomWidth: 3, borderBottomColor: on ? colors.brand : 'transparent' }}>
+                    <Icon name={categoryIcon(cat.name_ka)} size={17} color={on ? colors.brand : theme.muted} />
+                    <Text style={{ fontFamily: on ? fontFamily.extrabold : fontFamily.semibold, fontSize: 14, color: on ? colors.brand : theme.muted }}>{cat.name_ka}</Text>
                   </Pressable>
                 );
               })}
@@ -254,10 +254,10 @@ export default function MenuScreen() {
         <SlideUp style={{ position: 'absolute', left: 16, right: 16, bottom: 70 }}>
           <Bump value={count}>
             <Pressable accessibilityRole="button" onPress={() => router.push('/cart')}
-              style={{ minHeight: 54, borderRadius: 27, backgroundColor: colors.yellow, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18, shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 20, shadowOffset: { width: 0, height: 8 } }}>
-              <View style={{ minWidth: 26, height: 26, borderRadius: 13, backgroundColor: 'rgba(26,13,11,0.15)', alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.ink }}>{count}</Text></View>
-              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.ink }}>{ka.menu.viewCart}</Text>
-              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.ink }}>{formatGel(subtotal)}</Text>
+              style={{ minHeight: 54, borderRadius: 27, backgroundColor: colors.brand, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18, shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 20, shadowOffset: { width: 0, height: 8 } }}>
+              <View style={{ minWidth: 26, height: 26, borderRadius: 13, backgroundColor: 'rgba(255,255,255,0.25)', alignItems: 'center', justifyContent: 'center' }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.onBrand }}>{count}</Text></View>
+              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.onBrand }}>{ka.menu.viewCart}</Text>
+              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.onBrand }}>{formatGel(subtotal)}</Text>
             </Pressable>
           </Bump>
         </SlideUp>

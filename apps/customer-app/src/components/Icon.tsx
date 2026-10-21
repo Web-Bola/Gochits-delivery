@@ -53,7 +53,7 @@ function parse(name: string) {
 
 const TAG = { path: Path, circle: Circle, rect: Rect } as const;
 
-export function Icon({ name, size = 22, color = '#FFF4E0', fill, strokeWidth = 2 }: { name: IconName; size?: number; color?: string; fill?: string; strokeWidth?: number }) {
+export function Icon({ name, size = 22, color = '#1B2420', fill, strokeWidth = 2 }: { name: IconName; size?: number; color?: string; fill?: string; strokeWidth?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill={fill ?? 'none'} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" {...(Platform.OS === 'web' ? {} : { accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const })}>
       {parse(name).map((e, i) => createElement(TAG[e.tag] as never, { key: i, ...camel(e.props) }))}

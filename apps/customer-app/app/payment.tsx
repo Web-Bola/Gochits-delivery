@@ -44,25 +44,25 @@ export default function Payment() {
     setPhase('ok');
   }
 
-  if (!info || enabled === null) return <Screen><ActivityIndicator color={colors.yellow} /></Screen>;
+  if (!info || enabled === null) return <Screen><ActivityIndicator color={colors.brand} /></Screen>;
   const amount = formatGel(info.total_tetri);
   const count = info.items.reduce((n, i) => n + i.quantity, 0);
   const line = (k: string, v: string, accent?: boolean) => (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
       <Text style={{ fontFamily: fontFamily.regular, fontSize: 14, color: theme.muted }}>{k}</Text>
-      <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: accent ? colors.yellow : theme.text }}>{v}</Text>
+      <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: accent ? colors.brand : theme.text }}>{v}</Text>
     </View>
   );
 
   return (
     <Screen scroll>
-      <View style={{ backgroundColor: colors.yellow, borderBottomLeftRadius: 32, borderBottomRightRadius: 32, paddingHorizontal: 20, paddingTop: 18, paddingBottom: 28, alignItems: 'center', gap: 6 }}>
+      <View style={{ backgroundColor: colors.brand, borderBottomLeftRadius: 32, borderBottomRightRadius: 32, paddingHorizontal: 20, paddingTop: 18, paddingBottom: 28, alignItems: 'center', gap: 6 }}>
         <Image source={require('../assets/logo.png')} style={{ width: 84, height: 54 }} resizeMode="contain" accessibilityLabel="Gochit's" />
-        <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: colors.ink, opacity: 0.75, marginTop: 6 }}>{ka.payment.toPay}</Text>
-        <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 40, color: colors.ink, lineHeight: 48 }}>{amount}</Text>
+        <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: colors.onBrand, opacity: 0.75, marginTop: 6 }}>{ka.payment.toPay}</Text>
+        <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 40, color: colors.onBrand, lineHeight: 48 }}>{amount}</Text>
         <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
-          <View style={{ backgroundColor: colors.ink, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 5 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.yellow }}>№{info.number}</Text></View>
-          <View style={{ backgroundColor: 'rgba(26,13,11,0.14)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 5 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.ink }}>{count} {ka.cart.items}</Text></View>
+          <View style={{ backgroundColor: colors.onBrand, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 5 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.brand }}>№{info.number}</Text></View>
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 5 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.onBrand }}>{count} {ka.cart.items}</Text></View>
         </View>
       </View>
 
@@ -82,7 +82,7 @@ export default function Payment() {
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 18, padding: 14 }}>
-          <View style={{ width: 46, height: 36, borderRadius: 9, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}><Icon name="card" size={22} color={colors.yellow} /></View>
+          <View style={{ width: 46, height: 36, borderRadius: 9, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}><Icon name="card" size={22} color={colors.brand} /></View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{ka.checkout.card}</Text>
             <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.payment.note}</Text>

@@ -63,8 +63,8 @@ export function Guard({ children, area = 'admin' }: { children: ReactNode; area?
         </nav>
         <div className="who">
           <div className="small muted" style={{ padding: '0 6px', wordBreak: 'break-all' }}>{email}</div>
-          {area !== 'admin' && isAdmin ? <Link href="/admin" className="small" style={{ padding: '0 6px', color: 'var(--yellow)' }}>← ადმინ პანელი</Link> : null}
-          {area === 'admin' ? <Link href="/restaurant" className="small" style={{ padding: '0 6px', color: 'var(--yellow)' }}>რესტორნის პანელი →</Link> : null}
+          {area !== 'admin' && isAdmin ? <Link href="/admin" className="small" style={{ padding: '0 6px', color: 'var(--brand)' }}>← ადმინ პანელი</Link> : null}
+          {area === 'admin' ? <Link href="/restaurant" className="small" style={{ padding: '0 6px', color: 'var(--brand)' }}>რესტორნის პანელი →</Link> : null}
           <button className="ghost" onClick={out}>გასვლა</button>
         </div>
       </aside>

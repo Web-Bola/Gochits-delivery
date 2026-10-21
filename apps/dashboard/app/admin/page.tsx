@@ -36,7 +36,7 @@ export default function Dashboard() {
         <h2>გაშვების მზადყოფნა</h2>
         {ready.data ? (
           <>
-            {ready.data.branches.length === 0 ? <p className="muted">ფილიალი ჯერ არ არის. დაამატე <Link href="/admin/branches" style={{ color: 'var(--yellow)' }}>ფილიალები</Link> გვერდზე.</p> : null}
+            {ready.data.branches.length === 0 ? <p className="muted">ფილიალი ჯერ არ არის. დაამატე <Link href="/admin/branches" style={{ color: 'var(--brand)' }}>ფილიალები</Link> გვერდზე.</p> : null}
             <div className="tblwrap"><table>
               <thead><tr><th>ფილიალი</th><th>მისამართი</th><th>ტელეფონი</th><th>კოორდინატები</th><th>საათები</th><th>ზონა + ფასი</th><th>იღებს შეკვეთებს</th></tr></thead>
               <tbody>

@@ -96,8 +96,8 @@ export default function Cart() {
                 const on = g.id === group.id;
                 return (
                   <Pressable key={g.id} accessibilityRole="tab" accessibilityState={{ selected: on }} onPress={() => setTab(g.id)}
-                    style={{ minHeight: 40, paddingHorizontal: 16, borderRadius: 20, justifyContent: 'center', backgroundColor: on ? colors.yellow : theme.surface }}>
-                    <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: on ? colors.ink : theme.text }}>{g.name}</Text>
+                    style={{ minHeight: 40, paddingHorizontal: 16, borderRadius: 20, justifyContent: 'center', backgroundColor: on ? colors.brand : theme.surface }}>
+                    <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: on ? colors.onBrand : theme.text }}>{g.name}</Text>
                   </Pressable>
                 );
               })}
@@ -111,8 +111,8 @@ export default function Cart() {
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                       <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{formatGel(p.price_tetri)}</Text>
                       <PressScale accessibilityRole="button" accessibilityLabel={`${ka.menu.add}: ${p.name}`} onPress={() => add({ productId: p.id, name: p.name, unitPriceTetri: p.price_tetri })} scaleTo={0.8}
-                        style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center' }}>
-                        <Icon name="plus" size={18} color={colors.ink} strokeWidth={2.4} />
+                        style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}>
+                        <Icon name="plus" size={18} color={colors.onBrand} strokeWidth={2.4} />
                       </PressScale>
                     </View>
                   </View>
@@ -128,8 +128,8 @@ export default function Cart() {
               <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{ka.cart.promo}</Text>
               {promo ? (
                 <Card selected style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                  <Icon name="star" size={20} color={colors.yellow} />
-                  <Text style={{ flex: 1, fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{promo.code}  <Text style={{ color: colors.yellow }}>−{formatGel(promo.discountTetri)}</Text></Text>
+                  <Icon name="star" size={20} color={colors.brand} />
+                  <Text style={{ flex: 1, fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{promo.code}  <Text style={{ color: colors.brand }}>−{formatGel(promo.discountTetri)}</Text></Text>
                   <Pressable accessibilityRole="button" onPress={() => setPromo(null)} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.red }}>{ka.cart.promoRemove}</Text></Pressable>
                 </Card>
               ) : (
@@ -137,8 +137,8 @@ export default function Cart() {
                   <TextInput accessibilityLabel={ka.cart.promo} placeholder={ka.cart.promoPh} placeholderTextColor={theme.muted} value={code} onChangeText={(t) => setCode(t.toUpperCase())} autoCapitalize="characters" autoCorrect={false} maxLength={30}
                     style={[{ flex: 1, minWidth: 0, minHeight: 48, borderRadius: 14, borderWidth: 2, borderColor: theme.border, backgroundColor: theme.surface, paddingHorizontal: 14, fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
                   <PressScale accessibilityRole="button" onPress={applyCode} disabled={busy || !code.trim()} scaleTo={0.95}
-                    style={{ minHeight: 48, paddingHorizontal: 18, borderRadius: 14, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center', opacity: busy || !code.trim() ? 0.5 : 1 }}>
-                    <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.ink }}>{ka.cart.promoApply}</Text>
+                    style={{ minHeight: 48, paddingHorizontal: 18, borderRadius: 14, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', opacity: busy || !code.trim() ? 0.5 : 1 }}>
+                    <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.onBrand }}>{ka.cart.promoApply}</Text>
                   </PressScale>
                 </View>
               )}
@@ -151,7 +151,7 @@ export default function Cart() {
               </View>
               {discount > 0 ? (
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Body muted>{ka.cart.discount}</Body><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.yellow }}>−{formatGel(discount)}</Text>
+                  <Body muted>{ka.cart.discount}</Body><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.brand }}>−{formatGel(discount)}</Text>
                 </View>
               ) : null}
               <View style={{ height: 1, backgroundColor: theme.border }} />

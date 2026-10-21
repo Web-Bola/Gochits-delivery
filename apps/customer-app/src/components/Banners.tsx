@@ -11,11 +11,11 @@ export const FRAME = Platform.OS === 'web' ? Math.min(430, Dimensions.get('windo
 export function PromoBanner({ maxPercent, onPress }: { maxPercent: number; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" onPress={onPress}
-      style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 18, backgroundColor: colors.yellow }}>
+      style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 18, backgroundColor: colors.brand }}>
       <Image source={require('../../assets/logo.png')} style={{ width: 54, height: 54 }} resizeMode="contain" />
       <View style={{ flex: 1 }}>
-        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.ink }}>{ka.menu.promoTitle}</Text>
-        <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12.5, color: colors.ink }}>{ka.menu.promoSub.replace('{n}', String(maxPercent))}</Text>
+        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.onBrand }}>{ka.menu.promoTitle}</Text>
+        <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12.5, color: colors.onBrand }}>{ka.menu.promoSub.replace('{n}', String(maxPercent))}</Text>
       </View>
     </Pressable>
   );

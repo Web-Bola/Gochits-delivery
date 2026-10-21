@@ -47,16 +47,16 @@ export default function Orders() {
         <Card selected={active(r.status)}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{r.number}</Text>
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: active(r.status) ? colors.ink : colors.white, backgroundColor: active(r.status) ? colors.yellow : r.status === 'delivered' ? '#2E7D4F' : theme.surface2, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 3, overflow: 'hidden' }}>{STATUS_LABEL[r.status]}</Text>
+            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: active(r.status) ? colors.onBrand : colors.white, backgroundColor: active(r.status) ? colors.brand : r.status === 'delivered' ? '#2E7D4F' : theme.surface2, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 3, overflow: 'hidden' }}>{STATUS_LABEL[r.status]}</Text>
           </View>
           {r.order_items.length > 0 ? <Text numberOfLines={2} style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted }}>{r.order_items.map((it) => `${it.quantity}× ${it.name_snapshot}`).join(', ')}</Text> : null}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Body muted>{dateText(r.created_at)}{r.branches ? ` · ${r.branches.name}` : ''}</Body>
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.yellow }}>{formatGel(r.total_tetri)}</Text>
+            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.brand }}>{formatGel(r.total_tetri)}</Text>
           </View>
-          {active(r.status) ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.yellow }}>{ka.orders.track} →</Text> : (
+          {active(r.status) ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.brand }}>{ka.orders.track} →</Text> : (
             <Pressable accessibilityRole="button" disabled={busyId === r.id} onPress={() => again(r.id)} style={{ minHeight: 44, borderRadius: 22, backgroundColor: theme.surface2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}>
-              <Icon name="repeat" size={18} color={colors.yellow} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{busyId === r.id ? '...' : ka.orders.reorder}</Text>
+              <Icon name="repeat" size={18} color={colors.brand} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{busyId === r.id ? '...' : ka.orders.reorder}</Text>
             </Pressable>
           )}
         </Card>
@@ -67,7 +67,7 @@ export default function Orders() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <Header title={ka.orders.title} />
-      {!rows ? <ActivityIndicator color={colors.yellow} style={{ marginTop: 40 }} /> : (
+      {!rows ? <ActivityIndicator color={colors.brand} style={{ marginTop: 40 }} /> : (
         <ScrollView contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: 110 }}>
           {failed && <StateView tone="error" icon="clock" title={ka.errors.network} actionTitle={ka.common.retry} onAction={load} />}
           {msg && <ErrorText>{msg}</ErrorText>}

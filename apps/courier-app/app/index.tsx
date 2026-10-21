@@ -148,8 +148,8 @@ export default function Home() {
               <RoundBtn icon="out" label="გასვლა" bg={c.soft} onPress={() => supabase.auth.signOut({ scope: 'local' })} />
             </View>
             <View style={{ backgroundColor: c.yellow, borderRadius: 24, padding: 22, gap: 4 }}>
-              <T size={15} color={c.ink}>შენი საფასური</T>
-              <T size={46} weight="extrabold">{gel(earned)}</T>
+              <T size={15} color="#fff">შენი საფასური</T>
+              <T size={46} weight="extrabold" color="#fff">{gel(earned)}</T>
             </View>
             <View style={{ flexDirection: 'row', gap: 12 }}>
               <View style={{ flex: 1, backgroundColor: c.soft, borderRadius: 20, padding: 16 }}><T size={14} color={c.muted}>მიტანილი</T><T size={28} weight="extrabold">{String(done.length)}</T></View>

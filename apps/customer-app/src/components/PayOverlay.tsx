@@ -10,7 +10,7 @@ import { ND } from './fx';
 export type PayPhase = 'processing' | 'ok' | 'fail';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
-const BURST = ['#FFCC02', '#D8141C', '#FFF4E0', '#F28C1E'];
+const BURST = ['#0E6B57', '#E8553D', '#F2A33A', '#1B2420'];
 
 /** Full-screen payment result: spinner while the provider answers, then ripple + tick + confetti (success) or shake + cross (failure). */
 export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onMenu }: { phase: PayPhase; amount: string; number: string; count: number; onTrack: () => void; onRetry: () => void; onMenu: () => void }) {
@@ -47,7 +47,7 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
 
   const pieces = useMemo(() => Array.from({ length: 22 }, (_, k) => {
     const a = (k / 22) * Math.PI * 2; const d = 90 + (k % 4) * 35;
-    return { x: Math.round(Math.cos(a) * d), y: Math.round(Math.sin(a) * d), r: (k * 47) % 360, c: BURST[k % 4] ?? colors.yellow };
+    return { x: Math.round(Math.cos(a) * d), y: Math.round(Math.sin(a) * d), r: (k * 47) % 360, c: BURST[k % 4] ?? colors.brand };
   }), []);
 
   const ok = phase === 'ok'; const fail = phase === 'fail'; const done = ok || fail;
@@ -67,12 +67,12 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
         {ok ? (
           <View style={{ width: 96, height: 96, alignItems: 'center', justifyContent: 'center' }}>
             {[0, 1].map((k) => (
-              <Animated.View key={k} pointerEvents="none" style={{ position: 'absolute', width: 84, height: 84, borderRadius: 42, borderWidth: 3, borderColor: colors.yellow,
+              <Animated.View key={k} pointerEvents="none" style={{ position: 'absolute', width: 84, height: 84, borderRadius: 42, borderWidth: 3, borderColor: colors.brand,
                 opacity: pulseRing.interpolate({ inputRange: [0, 0.15 + k * 0.1, 1], outputRange: [0, 0.7, 0] }),
                 transform: [{ scale: pulseRing.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1.5 + k * 0.25] }) }] }} />
             ))}
-            <Animated.View style={{ width: 84, height: 84, borderRadius: 42, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center', transform: [{ scale: pop }] }}>
-              <Svg width={44} height={44} viewBox="0 0 80 80"><AnimatedPath d="M20 42l14 14 28-30" fill="none" stroke={colors.ink} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="80" strokeDashoffset={tick.interpolate({ inputRange: [0, 1], outputRange: [80, 0] })} /></Svg>
+            <Animated.View style={{ width: 84, height: 84, borderRadius: 42, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', transform: [{ scale: pop }] }}>
+              <Svg width={44} height={44} viewBox="0 0 80 80"><AnimatedPath d="M20 42l14 14 28-30" fill="none" stroke={colors.onBrand} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="80" strokeDashoffset={tick.interpolate({ inputRange: [0, 1], outputRange: [80, 0] })} /></Svg>
             </Animated.View>
           </View>
         ) : (
@@ -80,10 +80,10 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
             <Animated.View style={{ position: 'absolute', transform: [{ rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}>
               <Svg width={96} height={96} viewBox="0 0 80 80">
                 <Circle cx={40} cy={40} r={34} fill={fail ? colors.red : 'none'} stroke={fail ? colors.red : theme.border} strokeWidth={5} />
-                {!done ? <Circle cx={40} cy={40} r={34} fill="none" stroke={colors.yellow} strokeWidth={5} strokeLinecap="round" strokeDasharray="60 160" /> : null}
+                {!done ? <Circle cx={40} cy={40} r={34} fill="none" stroke={colors.brand} strokeWidth={5} strokeLinecap="round" strokeDasharray="60 160" /> : null}
               </Svg>
             </Animated.View>
-            {phase === 'processing' ? <Icon name="card" size={34} color={colors.yellow} /> : <Icon name="x" size={38} color={colors.white} strokeWidth={3.5} />}
+            {phase === 'processing' ? <Icon name="card" size={34} color={colors.brand} /> : <Icon name="x" size={38} color={colors.white} strokeWidth={3.5} />}
           </View>
         )}
 
@@ -96,14 +96,14 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
               <>
                 <Text style={{ fontFamily: fontFamily.regular, fontSize: 14, color: theme.muted, textAlign: 'center' }}>{ka.payment.okSub}</Text>
                 <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7 }}><Icon name="check" size={15} color={colors.yellow} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>{ka.payment.paidChip}</Text></View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7 }}><Icon name="bag" size={15} color={colors.yellow} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>{count} {ka.cart.items}</Text></View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7 }}><Icon name="check" size={15} color={colors.brand} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>{ka.payment.paidChip}</Text></View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7 }}><Icon name="bag" size={15} color={colors.brand} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>{count} {ka.cart.items}</Text></View>
                 </View>
                 <Button title={ka.payment.viewOrder} onPress={onTrack} />
               </>
             ) : (
               <>
-                <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.text, lineHeight: 20, backgroundColor: 'rgba(216,20,28,0.14)', borderWidth: 1, borderColor: 'rgba(216,20,28,0.4)', borderRadius: 14, padding: 12 }}>{ka.payment.failedWhy}</Text>
+                <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.text, lineHeight: 20, backgroundColor: 'rgba(232,85,61,0.14)', borderWidth: 1, borderColor: 'rgba(232,85,61,0.4)', borderRadius: 14, padding: 12 }}>{ka.payment.failedWhy}</Text>
                 <Button title={ka.payment.retry} onPress={onRetry} />
                 <Button variant="outline" title={ka.orders.toMenu} onPress={onMenu} />
               </>

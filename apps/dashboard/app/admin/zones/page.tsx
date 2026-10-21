@@ -41,7 +41,7 @@ function ZoneForm({ zone, branches, branchId, onDone }: { zone: Zone | null; bra
   }, 'წაშლილია');
 
   return (
-    <div className="card stack" style={{ borderColor: zone ? 'var(--border)' : 'var(--yellow)' }}>
+    <div className="card stack" style={{ borderColor: zone ? 'var(--border)' : 'var(--brand)' }}>
       <h2>{zone ? zone.name : 'ახალი ზონა'}</h2>
       <div className="grid2">
         <Field label="ზონის სახელი"><input value={name} onChange={(e) => setName(e.target.value)} placeholder="დიღომი, 3 კმ" /></Field>

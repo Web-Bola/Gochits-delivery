@@ -11,7 +11,7 @@ const logo = require('../../assets/logo.png');
 export function AppFrame({ children }: { children: ReactNode }) {
   if (Platform.OS !== 'web') return <>{children}</>;
   return (
-    <View style={{ flex: 1, backgroundColor: '#0A0605', alignItems: 'center' }}>
+    <View style={{ flex: 1, backgroundColor: '#EAE4D8', alignItems: 'center' }}>
       <View style={{ flex: 1, width: '100%', maxWidth: 430, backgroundColor: theme.bg, overflow: 'hidden' }}>{children}</View>
     </View>
   );
@@ -41,10 +41,10 @@ export function Stripe({ height = 12 }: { height?: number }) {
     return () => loop.stop();
   }, [v, reduce]);
   return (
-    <View style={{ height, overflow: 'hidden', backgroundColor: colors.yellow }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+    <View style={{ height, overflow: 'hidden', backgroundColor: colors.brand }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       <Animated.View style={{ flexDirection: 'row', width: 1400, transform: [{ translateX: v.interpolate({ inputRange: [0, 1], outputRange: [-28, 0] }) }] }}>
         {Array.from({ length: 100 }).map((_, i) => (
-          <View key={i} style={{ width: 14, height, backgroundColor: i % 2 === 0 ? colors.ink : colors.yellow, transform: [{ skewX: '-40deg' }] }} />
+          <View key={i} style={{ width: 14, height, backgroundColor: i % 2 === 0 ? colors.onBrand : colors.brand, transform: [{ skewX: '-40deg' }] }} />
         ))}
       </Animated.View>
     </View>
@@ -80,7 +80,7 @@ export function Hero({ children, small }: { children: ReactNode; small?: boolean
   const size = small ? 110 : 150;
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <View style={{ height: small ? 170 : 210, backgroundColor: colors.yellow, alignItems: 'center', justifyContent: 'center', borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' }}>
+      <View style={{ height: small ? 170 : 210, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' }}>
         <Float amplitude={6} duration={2200}><Image source={logo} style={{ width: size, height: size }} resizeMode="contain" accessibilityLabel="Gochit's" /></Float>
       </View>
       <View style={{ flex: 1, padding: 20, gap: 14 }}>{children}</View>
@@ -101,22 +101,22 @@ export function Body({ children, muted }: { children: ReactNode; muted?: boolean
 }
 
 export function ErrorText({ children }: { children: ReactNode }) {
-  return <Text accessibilityLiveRegion="polite" style={{ color: '#FF6B6B', fontFamily: fontFamily.semibold, fontSize: 13 }}>{children}</Text>;
+  return <Text accessibilityLiveRegion="polite" style={{ color: '#D63A2F', fontFamily: fontFamily.semibold, fontSize: 13 }}>{children}</Text>;
 }
 
 export function Card({ children, style, selected }: { children: ReactNode; style?: ViewStyle; selected?: boolean }) {
-  return <View style={[s.card, selected && { borderColor: colors.yellow }, style]}>{children}</View>;
+  return <View style={[s.card, selected && { borderColor: colors.brand }, style]}>{children}</View>;
 }
 
 /** red = main action, ink = yellow secondary action, outline = quiet. */
 export function Button({ title, onPress, disabled, variant = 'red' }: { title: string; onPress: () => void; disabled?: boolean; variant?: 'red' | 'ink' | 'outline' | 'outlineDark' }) {
-  const bg = variant === 'red' ? colors.red : variant === 'ink' ? colors.yellow : 'transparent';
-  const fg = variant === 'red' ? colors.white : variant === 'ink' ? colors.ink : variant === 'outlineDark' ? colors.ink : theme.text;
+  const bg = variant === 'red' ? colors.red : variant === 'ink' ? colors.brand : 'transparent';
+  const fg = variant === 'red' ? colors.white : variant === 'ink' ? colors.onBrand : variant === 'outlineDark' ? colors.onBrand : theme.text;
   return (
     <PressScale accessibilityRole="button" accessibilityState={{ disabled: !!disabled }} onPress={onPress} disabled={disabled} scaleTo={0.97}
       style={{ ...s.btn, backgroundColor: bg, opacity: disabled ? 0.45 : 1,
         ...(variant === 'red' && !disabled ? { shadowColor: colors.red, shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } } : {}),
-        ...(variant === 'ink' && !disabled ? { shadowColor: colors.yellow, shadowOpacity: 0.3, shadowRadius: 14, shadowOffset: { width: 0, height: 6 } } : {}),
+        ...(variant === 'ink' && !disabled ? { shadowColor: colors.brand, shadowOpacity: 0.3, shadowRadius: 14, shadowOffset: { width: 0, height: 6 } } : {}),
         ...(variant === 'outline' ? { borderWidth: 2, borderColor: theme.border } : {}),
         ...(variant === 'outlineDark' ? { borderWidth: 2, borderColor: '#E8DDB8' } : {}) }}>
       <Text style={[s.btnText, { color: fg }]}>{title}</Text>
@@ -129,7 +129,7 @@ export function StateView({ icon, title, hint, actionTitle, onAction, tone = 'em
   return (
     <View style={{ alignItems: 'center', gap: 12, paddingTop: 50, paddingHorizontal: 12 }} accessibilityLiveRegion="polite">
       <View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: theme.surface, alignItems: 'center', justifyContent: 'center', borderWidth: tone === 'error' ? 2 : 0, borderColor: colors.red }}>
-        <Icon name={icon} size={44} color={tone === 'error' ? colors.red : colors.yellow} />
+        <Icon name={icon} size={44} color={tone === 'error' ? colors.red : colors.brand} />
       </View>
       <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 18, color: theme.text, textAlign: 'center' }}>{title}</Text>
       {hint ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 14, color: theme.muted, textAlign: 'center', lineHeight: 20 }}>{hint}</Text> : null}
