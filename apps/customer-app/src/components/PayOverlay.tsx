@@ -53,12 +53,13 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
 
   const ok = phase === 'ok'; const fail = phase === 'fail'; const done = ok || fail;
   const title = phase === 'processing' ? ka.payment.processing : ok ? ka.payment.okTitle : ka.payment.failedTitle;
-  const rise1 = { opacity: rise, transform: [{ translateY: rise.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }] };
+  const rise1 = phase === 'processing' ? {} : { opacity: rise, transform: [{ translateY: rise.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }] };
 
-  if (ok) {
-    return (
-      <View accessibilityRole="alert" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 40 }}>
-        <Backdrop source={art.success ?? undefined} fade={0.75}>
+  const heading = ok ? 'შეკვეთა\nმიღებულია!' : fail ? ka.payment.failedTitle : ka.payment.processing;
+  const sub = ok ? 'შენი გემრიელი შეკვეთა\nგზაშია შენთან' : fail ? '' : `${amount} · №${number}`;
+  return (
+    <View accessibilityRole="alert" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 40 }}>
+      <Backdrop source={art.success ?? undefined} fade={0.78}>
           {pieces.map((p, i) => (
             <Animated.View key={i} pointerEvents="none" style={{ position: 'absolute', left: '50%', top: '30%', width: 9, height: 9, borderRadius: 2, backgroundColor: p.c,
               opacity: burst.interpolate({ inputRange: [0, 0.1, 1], outputRange: [0, 1, 0] }),
@@ -72,13 +73,25 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
                   opacity: pulseRing.interpolate({ inputRange: [0, 0.15 + k * 0.1, 1], outputRange: [0, 0.6, 0] }),
                   transform: [{ scale: pulseRing.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1.4 + k * 0.25] }) }] }} />
               ))}
-              <Animated.View style={{ width: 132, height: 132, borderRadius: 66, backgroundColor: 'rgba(56,217,176,0.16)', borderWidth: 2, borderColor: 'rgba(125,242,214,0.7)', alignItems: 'center', justifyContent: 'center', shadowColor: colors.brand, shadowOpacity: 0.7, shadowRadius: 30, transform: [{ scale: pop }] }}>
-                <Svg width={70} height={70} viewBox="0 0 80 80"><AnimatedPath d="M18 42l15 15 30-32" fill="none" stroke="#7DF2D6" strokeWidth={10} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="80" strokeDashoffset={tick.interpolate({ inputRange: [0, 1], outputRange: [80, 0] })} /></Svg>
+              <Animated.View style={{ width: 132, height: 132, borderRadius: 66, backgroundColor: fail ? 'rgba(255,113,133,0.14)' : 'rgba(56,217,176,0.16)', borderWidth: 2, borderColor: fail ? 'rgba(255,113,133,0.7)' : 'rgba(125,242,214,0.7)', alignItems: 'center', justifyContent: 'center', shadowColor: colors.brand, shadowOpacity: 0.7, shadowRadius: 30, transform: [{ scale: pop }] }}>
+{phase === 'processing' ? (
+                  <>
+                    <Animated.View style={{ position: 'absolute', transform: [{ rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}>
+                      <Svg width={132} height={132} viewBox="0 0 80 80"><Circle cx={40} cy={40} r={37} fill="none" stroke="#7DF2D6" strokeWidth={3} strokeLinecap="round" strokeDasharray="70 170" /></Svg>
+                    </Animated.View>
+                    <Animated.View style={{ position: 'absolute', transform: [{ rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['360deg', '0deg'] }) }] }}>
+                      <Svg width={104} height={104} viewBox="0 0 80 80"><Circle cx={40} cy={40} r={37} fill="none" stroke="#38D9B0" strokeWidth={2} strokeLinecap="round" strokeDasharray="30 200" opacity={0.7} /></Svg>
+                    </Animated.View>
+                    <Icon name="card" size={44} color="#7DF2D6" />
+                  </>
+                ) : fail ? <Icon name="x" size={56} color={colors.red} strokeWidth={3.5} /> :                 <Svg width={70} height={70} viewBox="0 0 80 80"><AnimatedPath d="M18 42l15 15 30-32" fill="none" stroke="#7DF2D6" strokeWidth={10} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="80" strokeDashoffset={tick.interpolate({ inputRange: [0, 1], outputRange: [80, 0] })} /></Svg>}
               </Animated.View>
             </View>
             <Animated.View style={[{ alignSelf: 'stretch', alignItems: 'center', gap: 10, marginTop: 22 }, rise1]}>
-              <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 30, lineHeight: 38, color: theme.text, textAlign: 'center' }}>შეკვეთა{'\n'}მიღებულია!</Text>
-              <Text style={{ fontFamily: fontFamily.regular, fontSize: 15, lineHeight: 22, color: theme.muted, textAlign: 'center' }}>შენი გემრიელი შეკვეთა{'\n'}გზაშია შენთან</Text>
+              <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 30, lineHeight: 38, color: theme.text, textAlign: 'center' }}>{heading}</Text>
+              {sub ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 15, lineHeight: 22, color: theme.muted, textAlign: 'center' }}>{sub}</Text> : null}
+              {fail ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.text, lineHeight: 20, backgroundColor: 'rgba(255,113,133,0.14)', borderWidth: 1, borderColor: 'rgba(255,113,133,0.4)', borderRadius: 14, padding: 12, textAlign: 'center' }}>{ka.payment.failedWhy}</Text> : null}
+              {ok ? (
               <View style={{ alignSelf: 'stretch', backgroundColor: 'rgba(11,24,39,0.88)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(56,217,176,0.16)', marginTop: 8, paddingHorizontal: 16 }}>
                 {[['receipt', 'შეკვეთის ნომერი', `#${number}`], ['bag', 'პროდუქტი', `${count} ${ka.cart.items}`], ['wallet', 'ჯამი', amount]].map(([ic, k, v], i, arr) => (
                   <View key={String(k)} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13, borderBottomWidth: i < arr.length - 1 ? 1 : 0, borderBottomColor: theme.border }}>
@@ -87,78 +100,24 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
                   </View>
                 ))}
               </View>
+              ) : null}
             </Animated.View>
             <View style={{ flex: 1 }} />
-            <View style={{ alignSelf: 'stretch', gap: 8 }}>
-              <CtaBar icon="bike" title="შეკვეთის თვალყური" onPress={onTrack} />
-              <Pressable accessibilityRole="button" onPress={onMenu} style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.muted }}>მთავარ გვერდზე დაბრუნება</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Backdrop>
-      </View>
-    );
-  }
-
-  return (
-    <View accessibilityRole="alert" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 40, backgroundColor: 'rgba(10,6,5,0.86)', alignItems: 'center', justifyContent: 'center', padding: 22 }}>
-      <Animated.View style={{ width: '100%', backgroundColor: theme.surface, borderWidth: 1, borderColor: theme.border, borderRadius: 26, paddingHorizontal: 22, paddingTop: 28, paddingBottom: 22, alignItems: 'center', gap: 10, overflow: 'hidden',
-        opacity: pop, transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }) }, { translateX: shake }] }}>
-        {ok ? pieces.map((p, i) => (
-          <Animated.View key={i} pointerEvents="none" style={{ position: 'absolute', left: '50%', top: '38%', width: 9, height: 9, borderRadius: 2, backgroundColor: p.c,
-            opacity: burst.interpolate({ inputRange: [0, 0.1, 1], outputRange: [0, 1, 0] }),
-            transform: [{ translateX: burst.interpolate({ inputRange: [0, 1], outputRange: [0, p.x] }) }, { translateY: burst.interpolate({ inputRange: [0, 1], outputRange: [0, p.y] }) }, { rotate: burst.interpolate({ inputRange: [0, 1], outputRange: ['0deg', `${p.r}deg`] }) }] }} />
-        )) : null}
-
-        {ok ? (
-          <View style={{ width: 96, height: 96, alignItems: 'center', justifyContent: 'center' }}>
-            {[0, 1].map((k) => (
-              <Animated.View key={k} pointerEvents="none" style={{ position: 'absolute', width: 84, height: 84, borderRadius: 42, borderWidth: 3, borderColor: colors.brand,
-                opacity: pulseRing.interpolate({ inputRange: [0, 0.15 + k * 0.1, 1], outputRange: [0, 0.7, 0] }),
-                transform: [{ scale: pulseRing.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1.5 + k * 0.25] }) }] }} />
-            ))}
-            <Animated.View style={{ width: 84, height: 84, borderRadius: 42, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', transform: [{ scale: pop }] }}>
-              <Svg width={44} height={44} viewBox="0 0 80 80"><AnimatedPath d="M20 42l14 14 28-30" fill="none" stroke={colors.onBrand} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="80" strokeDashoffset={tick.interpolate({ inputRange: [0, 1], outputRange: [80, 0] })} /></Svg>
-            </Animated.View>
-          </View>
-        ) : (
-          <View style={{ width: 96, height: 96, alignItems: 'center', justifyContent: 'center' }}>
-            <Animated.View style={{ position: 'absolute', transform: [{ rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}>
-              <Svg width={96} height={96} viewBox="0 0 80 80">
-                <Circle cx={40} cy={40} r={34} fill={fail ? colors.red : 'none'} stroke={fail ? colors.red : theme.border} strokeWidth={5} />
-                {!done ? <Circle cx={40} cy={40} r={34} fill="none" stroke={colors.brand} strokeWidth={5} strokeLinecap="round" strokeDasharray="60 160" /> : null}
-              </Svg>
-            </Animated.View>
-            {phase === 'processing' ? <Icon name="card" size={34} color={colors.brand} /> : <Icon name="x" size={38} color={colors.white} strokeWidth={3.5} />}
-          </View>
-        )}
-
-        <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 22, color: theme.text, textAlign: 'center', marginTop: 4 }}>{title}</Text>
-        <Text style={{ fontFamily: fontFamily.regular, fontSize: 14, color: theme.muted, textAlign: 'center' }}>{amount} · №{number}</Text>
-
-        {done ? (
-          <Animated.View style={[{ alignSelf: 'stretch', gap: 10, marginTop: 6 }, rise1]}>
             {ok ? (
-              <>
-                <Text style={{ fontFamily: fontFamily.regular, fontSize: 14, color: theme.muted, textAlign: 'center' }}>{ka.payment.okSub}</Text>
-                <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7 }}><Icon name="check" size={15} color={colors.brand} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>{ka.payment.paidChip}</Text></View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7 }}><Icon name="bag" size={15} color={colors.brand} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>{count} {ka.cart.items}</Text></View>
-                </View>
-                <Button title="შეკვეთის თვალყური" onPress={onTrack} />
-                <Button variant="outline" title="მთავარ გვერდზე დაბრუნება" onPress={onMenu} />
-              </>
-            ) : (
-              <>
-                <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.text, lineHeight: 20, backgroundColor: 'rgba(232,85,61,0.14)', borderWidth: 1, borderColor: 'rgba(232,85,61,0.4)', borderRadius: 14, padding: 12 }}>{ka.payment.failedWhy}</Text>
-                <Button title={ka.payment.retry} onPress={onRetry} />
+              <View style={{ alignSelf: 'stretch', gap: 8 }}>
+                <CtaBar icon="bike" title="შეკვეთის თვალყური" onPress={onTrack} />
+                <Pressable accessibilityRole="button" onPress={onMenu} style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.muted }}>მთავარ გვერდზე დაბრუნება</Text>
+                </Pressable>
+              </View>
+            ) : fail ? (
+              <View style={{ alignSelf: 'stretch', gap: 8 }}>
+                <Button title={ka.payment.retry} onPress={onRetry} arrow />
                 <Button variant="outline" title={ka.orders.toMenu} onPress={onMenu} />
-              </>
-            )}
-          </Animated.View>
-        ) : null}
-      </Animated.View>
+              </View>
+            ) : null}
+          </View>
+      </Backdrop>
     </View>
   );
 }
