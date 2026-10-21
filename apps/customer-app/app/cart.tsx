@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { formatGel } from '@gochits/shared';
 import { errorText, ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
-import { Body, Button, Card, ErrorText, FadeIn, Header, Screen, StateView } from '../src/components/ui';
+import { Body, Button, Card, CtaBar, ErrorText, FadeIn, Screen, StateView, TopBar } from '../src/components/ui';
 import { PressScale } from '../src/components/fx';
 import { Photo, Stepper } from '../src/components/product';
 import { Icon } from '../src/components/Icon';
@@ -58,11 +58,19 @@ export default function Cart() {
   const discount = promo?.discountTetri ?? 0;
   return (
     <Screen scroll>
-      <Header back title={ka.cart.title} subtitle={lines.length > 0 ? `${lines.reduce((n, l) => n + l.quantity, 0)} ${ka.cart.items} · ${branch?.name ?? ''}` : undefined} right={lines.length > 0 ? (
-        <Pressable accessibilityRole="button" onPress={() => setConfirmClear(true)} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}>
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.red }}>{ka.cart.clear}</Text>
-        </Pressable>) : undefined} />
-      <ScrollView contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+      <TopBar />
+      <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 22, color: theme.text, textAlign: 'center', paddingBottom: 8 }}>{ka.cart.title}</Text>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, gap: 12, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
+        {lines.length > 0 ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 18, padding: 12, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
+            <View style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}><Icon name="store" size={24} color={colors.brand} /></View>
+            <View style={{ flex: 1 }}>
+              <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{branch?.merchantName ?? branch?.name ?? ''}</Text>
+              <Text numberOfLines={1} style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{lines.reduce((n, l) => n + l.quantity, 0)} {ka.cart.items}{branch?.merchantName ? ` · ${branch.name}` : ''}</Text>
+            </View>
+            <Pressable accessibilityRole="button" onPress={() => setConfirmClear(true)} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12.5, color: colors.red }}>{ka.cart.clear}</Text></Pressable>
+          </View>
+        ) : null}
         {confirmClear ? (
           <Card style={{ borderColor: colors.red, gap: 10 }}>
             <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: theme.text }}>{ka.cart.clear}?</Text>
@@ -81,9 +89,14 @@ export default function Cart() {
                 <Text numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{l.name}</Text>
                 {isGone(l.productId) ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.red }}>{ka.menu.soldOut} · {ka.cart.removeIt}</Text> : null}
                 {l.note ? <Text numberOfLines={3} style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{l.note}</Text> : null}
-                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{formatGel(l.unitPriceTetri * l.quantity)}</Text>
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{formatGel(l.unitPriceTetri * l.quantity)}</Text>
               </View>
-              <Stepper value={l.quantity} onMinus={() => remove(l.key)} onPlus={() => add({ productId: l.productId, name: l.name, unitPriceTetri: l.unitPriceTetri, note: l.note })} />
+              <View style={{ alignItems: 'flex-end', justifyContent: 'space-between', alignSelf: 'stretch', gap: 8 }}>
+                <Pressable accessibilityRole="button" accessibilityLabel={ka.cart.removeIt} onPress={() => setLines(lines.filter((x) => x.key !== l.key))} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="trash" size={18} color={theme.text} />
+                </Pressable>
+                <Stepper value={l.quantity} onMinus={() => remove(l.key)} onPlus={() => add({ productId: l.productId, name: l.name, unitPriceTetri: l.unitPriceTetri, note: l.note })} />
+              </View>
             </Card>
           </FadeIn>
         ))}
@@ -161,10 +174,14 @@ export default function Cart() {
               </View>
               <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.checkout.deliveryAtCheckout}</Text>
             </Card>
-            <Button title={`შეკვეთის გაფორმება · ${formatGel(subtotal - discount)}`} onPress={() => router.push('/checkout')} disabled={anyGone} />
           </>
         )}
       </ScrollView>
+      {lines.length > 0 ? (
+        <View style={{ paddingHorizontal: 16, paddingTop: 10, paddingBottom: 16, backgroundColor: theme.bg }}>
+          <CtaBar title="შეკვეთის გაფორმება" price={formatGel(subtotal - discount)} onPress={() => router.push('/checkout')} disabled={anyGone} />
+        </View>
+      ) : null}
     </Screen>
   );
 }

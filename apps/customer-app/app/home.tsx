@@ -152,8 +152,8 @@ export default function Home() {
     const on = kind === id;
     return (
       <Pressable key={id} accessibilityRole="button" accessibilityState={{ selected: on }} onPress={() => setKind(id)}
-        style={{ width: 88, alignItems: 'center', gap: 8 }}>
-        <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: on ? colors.brand : TINT[id] ?? theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: on ? 0 : 1, borderColor: theme.border }}>
+        style={{ width: 78, alignItems: 'center', gap: 8 }}>
+        <View style={{ width: 58, height: 58, borderRadius: 18, backgroundColor: on ? colors.brand : TINT[id] ?? theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: on ? 0 : 1, borderColor: 'rgba(56,217,176,0.14)', ...(on ? { shadowColor: colors.brand, shadowOpacity: 0.5, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } } : {}) }}>
           <Icon name={icon} size={28} color={on ? colors.onBrand : theme.text} />
         </View>
         <Text numberOfLines={1} style={{ fontFamily: on ? fontFamily.extrabold : fontFamily.semibold, fontSize: 12.5, color: on ? theme.text : theme.muted }}>{label}</Text>
@@ -161,31 +161,35 @@ export default function Home() {
     );
   };
 
+  const etaOf = (m: Merchant): number | null => {
+    const e = (options ?? []).filter((o) => o.merchant_id === m.id && o.can_order).map((o) => o.extra_minutes as number);
+    return e.length ? 25 + Math.min(...e) : null;
+  };
   const card = (m: Merchant, i: number, dim: boolean) => {
     const fee = mode === 'delivery' ? feeOf(m) : null;
+    const eta = mode === 'delivery' ? etaOf(m) : null;
+    const meta = (icon: string, text: string) => (
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}><Icon name={icon} size={14} color={colors.brand} /><Text style={{ fontFamily: fontFamily.semibold, fontSize: 12.5, color: theme.text }}>{text}</Text></View>
+    );
     return (
     <FadeIn key={m.id} index={i}>
-      <Pressable accessibilityRole="button" accessibilityLabel={m.name} onPress={() => openMerchant(m)} style={{ opacity: dim ? 0.62 : 1 }}>
-        <View style={{ backgroundColor: theme.surface, borderRadius: 20, overflow: 'hidden', borderWidth: 1, borderColor: theme.border }}>
-          <View>
-            <Cover m={m} height={138} />
-            <View style={{ position: 'absolute', left: 12, top: 12, flexDirection: 'row', gap: 6 }}>
-              <View style={{ backgroundColor: dim ? 'rgba(6,14,24,0.88)' : colors.brand, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}>
-                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 11.5, color: dim ? theme.text : colors.onBrand }}>{dim ? 'ახლა დაკეტილია' : 'ღიაა'}</Text>
-              </View>
-              {mode === 'pickup' ? (
-                <View style={{ backgroundColor: 'rgba(6,14,24,0.88)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                  <Icon name="bag" size={12} color={theme.text} /><Text style={{ fontFamily: fontFamily.semibold, fontSize: 11.5, color: theme.text }}>თვითონ წამოღება</Text>
-                </View>
-              ) : null}
-            </View>
+      <Pressable accessibilityRole="button" accessibilityLabel={m.name} onPress={() => openMerchant(m)} style={{ opacity: dim ? 0.6 : 1 }}>
+        <View style={{ flexDirection: 'row', backgroundColor: theme.surface, borderRadius: 20, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)', minHeight: 116 }}>
+          <View style={{ width: '42%' }}>
+            <Cover m={m} height={116} />
+            <View style={{ position: 'absolute', left: 8, bottom: 8 }}><MerchantLogo m={m} size={46} /></View>
           </View>
-          <View style={{ padding: 14, paddingTop: 12, gap: 3 }}>
-            <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 18, color: theme.text }}>{m.name}</Text>
-            <Text numberOfLines={1} style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted }}>{[KIND_ONE[m.kind], m.description].filter(Boolean).join(' · ')}</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
-              <Icon name={mode === 'delivery' ? 'bike' : 'pin'} size={14} color={colors.brand} />
-              <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12.5, color: theme.muted }}>{mode === 'delivery' ? (fee != null ? `მიტანა ${formatGel(fee)}` : 'მიტანა') : 'წამოღება ფილიალიდან'}</Text>
+          <View style={{ flex: 1, padding: 12, gap: 3, justifyContent: 'center' }}>
+            <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{m.name}</Text>
+            <Text numberOfLines={1} style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{[KIND_ONE[m.kind], m.description].filter(Boolean).join(' · ')}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 6, flexWrap: 'wrap' }}>
+              {mode === 'delivery' ? (
+                <>
+                  {eta != null ? meta('clock', `~${eta} წთ`) : null}
+                  {meta('bike', fee != null ? formatGel(fee) : 'მიტანა')}
+                </>
+              ) : meta('bag', 'წამოღება')}
+              {dim ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 11.5, color: colors.red }}>დაკეტილია</Text> : null}
             </View>
           </View>
         </View>
@@ -215,11 +219,17 @@ export default function Home() {
         <View style={{ paddingHorizontal: 20, paddingTop: 24, gap: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <Image source={require('../assets/zyro-logo.png')} style={{ width: 92, height: 42 }} resizeMode="contain" accessibilityLabel="ZYRO" />
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+            <Pressable accessibilityRole="button" accessibilityLabel={ka.tabs.profile} onPress={() => router.push('/profile')}
+              style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="user" size={24} color={theme.text} />
+            </Pressable>
             <Pressable accessibilityRole="button" accessibilityLabel={ka.menu.viewCart} onPress={() => router.push('/cart')}
               style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.surface, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border }}>
               <Icon name="bag" size={22} color={theme.text} />
               {count > 0 ? <View style={{ position: 'absolute', top: -2, right: -2, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 11, color: colors.onBrand }}>{count}</Text></View> : null}
             </Pressable>
+            </View>
           </View>
           <Pressable accessibilityRole="button" accessibilityLabel="მისამართის შეცვლა" onPress={() => router.push('/address')}
             style={{ flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start', maxWidth: '100%', minHeight: 40 }}>
@@ -236,13 +246,6 @@ export default function Home() {
           <View accessibilityRole="tablist" style={{ flexDirection: 'row', backgroundColor: theme.surface, borderRadius: 24, padding: 4, borderWidth: 1, borderColor: theme.border }}>
             {seg('delivery', 'მიტანა', 'bike')}{seg('pickup', 'წამოღება', 'bag')}
           </View>
-        </View>
-
-        <View style={{ marginHorizontal: 20, marginTop: 20, borderRadius: 20, backgroundColor: colors.brand, padding: 18, overflow: 'hidden', minHeight: 110, justifyContent: 'center' }}>
-          <View style={{ position: 'absolute', right: -24, top: -24, width: 120, height: 120, borderRadius: 60, backgroundColor: 'rgba(255,255,255,0.18)' }} />
-          <View style={{ position: 'absolute', right: 30, bottom: -40, width: 90, height: 90, borderRadius: 45, backgroundColor: 'rgba(11,23,36,0.10)' }} />
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 22, lineHeight: 28, color: colors.onBrand }}>ყველაფერი,{'\n'}მიტანით</Text>
-          <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: colors.onBrand, marginTop: 4 }}>რესტორნები, მაღაზიები და სხვა — ერთ აპში</Text>
         </View>
 
         {kinds.length > 1 ? (
@@ -278,7 +281,7 @@ export default function Home() {
               hint={mode === 'delivery' && !needle && kind === 'all' ? 'სცადე სხვა მისამართი ან აირჩიე „წამოღება“' : 'სცადე სხვა სიტყვა ან კატეგორია'}
               actionTitle={mode === 'delivery' && !needle && kind === 'all' ? 'წამოღების რეჟიმი' : undefined} onAction={mode === 'delivery' && !needle && kind === 'all' ? () => setMode('pickup') : undefined} />
           ) : null}
-          {live.length > 0 ? <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 20, color: theme.text }}>{mode === 'delivery' ? 'მიგიტანენ შენთან' : 'ახლა მუშაობს'}</Text> : null}
+          {live.length > 0 ? <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 20, color: theme.text }}>ახლომაბლო ობიექტები</Text> : null}
           {live.map((m, i) => card(m, i, false))}
           {later.length > 0 ? <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 20, color: theme.text, marginTop: 6 }}>ამჟამად დაკეტილია</Text> : null}
           {later.map((m, i) => card(m, i + live.length, true))}

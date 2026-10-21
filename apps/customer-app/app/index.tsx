@@ -3,6 +3,7 @@ import { Animated, Easing, Image, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { supabase } from '../src/lib/supabase';
+import { art } from '../src/lib/art';
 import { ND } from '../src/components/fx';
 
 const MIN_MS = 1800;
@@ -40,7 +41,9 @@ export default function Splash() {
   }, [router]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.bg, alignItems: 'center', justifyContent: 'center', gap: 36 }}>
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+    <Image source={art.splash!} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, width: '100%', height: '100%' }} resizeMode="cover" accessibilityElementsHidden />
+    <View style={{ flex: 1, backgroundColor: 'rgba(6,14,24,0.35)', alignItems: 'center', justifyContent: 'center', gap: 28 }}>
       <Animated.View style={{ width: 260, height: 200, alignItems: 'center', justifyContent: 'center', opacity: pop, transform: [{ translateY: pop.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }}>
         <Animated.View pointerEvents="none" style={{ position: 'absolute', width: 200, height: 200, borderRadius: 100, borderWidth: 2, borderColor: 'rgba(56,217,176,0.35)',
           opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.8, 0] }), transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.75, 1.3] }) }] }} />
@@ -48,10 +51,14 @@ export default function Splash() {
           <Image source={require('../assets/zyro-logo.png')} style={{ width: 220, height: 101 }} resizeMode="contain" accessibilityLabel="ZYRO" />
         </Animated.View>
       </Animated.View>
-      <Text style={{ fontFamily: fontFamily.semibold, fontSize: 15, color: theme.muted, marginTop: -20 }}>ყველაფერი, მიტანით</Text>
-      <View style={{ width: 150, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.12)', overflow: 'hidden' }}>
+      <View style={{ alignItems: 'center', gap: 6, marginTop: -20 }}>
+        <Text style={{ fontFamily: fontFamily.semibold, fontSize: 19, color: theme.text }}>Everything, delivered.</Text>
+      </View>
+      <Text style={{ fontFamily: fontFamily.semibold, fontSize: 16, lineHeight: 24, color: theme.text, textAlign: 'center', position: 'absolute', bottom: 120 }}>თბილისის ყველა საყვარელი{'\n'}ადგილი ერთ აპში</Text>
+      <View style={{ width: 150, height: 4, position: 'absolute', bottom: 70, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.12)', overflow: 'hidden' }}>
         <Animated.View style={{ width: 150, height: 4, borderRadius: 2, backgroundColor: colors.brand, transform: [{ translateX: bar.interpolate({ inputRange: [0, 1], outputRange: [-150, 0] }) }] }} />
       </View>
+    </View>
     </View>
   );
 }

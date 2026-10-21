@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { Animated, Easing, Image, Platform, Pressable, StyleSheet, Text, TextInput, View, type TextInputProps, type ViewStyle } from 'react-native';
+import { Animated, Easing, Image, Platform, Pressable, StyleSheet, Text, TextInput, View, type ImageSourcePropType, type TextInputProps, type ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fontFamily, minTouch, radius, theme } from '@gochits/ui-tokens';
 import { Float, ND, PressScale, useReduceMotion } from './fx';
 import { Icon } from './Icon';
@@ -109,19 +110,69 @@ export function Card({ children, style, selected }: { children: ReactNode; style
   return <View style={[s.card, selected && { borderColor: colors.brand }, style]}>{children}</View>;
 }
 
-/** red = main action, ink = yellow secondary action, outline = quiet. */
-export function Button({ title, onPress, disabled, variant = 'red' }: { title: string; onPress: () => void; disabled?: boolean; variant?: 'red' | 'ink' | 'outline' | 'outlineDark' }) {
-  const bg = variant === 'red' || variant === 'ink' ? colors.brand : 'transparent';
-  const fg = variant === 'red' ? colors.onBrand : variant === 'ink' ? colors.onBrand : variant === 'outlineDark' ? colors.onBrand : theme.text;
+/** Main action = mint gradient pill (optional arrow), outline = quiet. */
+export function Button({ title, onPress, disabled, variant = 'red', arrow }: { title: string; onPress: () => void; disabled?: boolean; variant?: 'red' | 'ink' | 'outline' | 'outlineDark'; arrow?: boolean }) {
+  const solid = variant === 'red' || variant === 'ink';
+  const fg = solid || variant === 'outlineDark' ? colors.onBrand : theme.text;
+  const inner = (
+    <>
+      <Text style={[s.btnText, { color: fg }]}>{title}</Text>
+      {arrow ? <View style={{ position: 'absolute', right: 20 }}><Icon name="arrow" size={22} color={fg} /></View> : null}
+    </>
+  );
   return (
     <PressScale accessibilityRole="button" accessibilityState={{ disabled: !!disabled }} onPress={onPress} disabled={disabled} scaleTo={0.97}
-      style={{ ...s.btn, backgroundColor: bg, opacity: disabled ? 0.45 : 1,
-        ...(variant === 'red' && !disabled ? { shadowColor: colors.brand, shadowOpacity: 0.35, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } } : {}),
-        ...(variant === 'ink' && !disabled ? { shadowColor: colors.brand, shadowOpacity: 0.3, shadowRadius: 14, shadowOffset: { width: 0, height: 6 } } : {}),
-        ...(variant === 'outline' ? { borderWidth: 2, borderColor: theme.border } : {}),
+      style={{ ...s.btn, opacity: disabled ? 0.45 : 1, paddingHorizontal: 0, overflow: 'hidden',
+        ...(solid && !disabled ? { shadowColor: colors.brand, shadowOpacity: 0.4, shadowRadius: 16, shadowOffset: { width: 0, height: 6 } } : {}),
+        ...(variant === 'outline' ? { borderWidth: 1.5, borderColor: theme.border } : {}),
         ...(variant === 'outlineDark' ? { borderWidth: 2, borderColor: 'rgba(11,23,36,0.45)' } : {}) }}>
-      <Text style={[s.btnText, { color: fg }]}>{title}</Text>
+      {solid ? (
+        <LinearGradient colors={['#7DF2D6', '#38D9B0', '#2CC9A2']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>{inner}</LinearGradient>
+      ) : inner}
     </PressScale>
+  );
+}
+
+/** Wide mint call-to-action bar: icon + label on the left, price and arrow on the right (cart, product, checkout). */
+export function CtaBar({ title, price, icon, onPress, disabled, divider }: { title: string; price?: string; icon?: Parameters<typeof Icon>[0]['name']; onPress: () => void; disabled?: boolean; divider?: boolean }) {
+  return (
+    <PressScale accessibilityRole="button" accessibilityLabel={price ? `${title} ${price}` : title} accessibilityState={{ disabled: !!disabled }} onPress={onPress} disabled={disabled} scaleTo={0.98}
+      style={{ height: 58, borderRadius: 29, overflow: 'hidden', opacity: disabled ? 0.45 : 1, shadowColor: colors.brand, shadowOpacity: disabled ? 0 : 0.4, shadowRadius: 16, shadowOffset: { width: 0, height: 6 } }}>
+      <LinearGradient colors={['#7DF2D6', '#38D9B0', '#2CC9A2']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', paddingLeft: 22, paddingRight: 10, gap: 12 }}>
+        {icon ? <Icon name={icon} size={24} color={colors.onBrand} /> : null}
+        <Text numberOfLines={1} style={{ flex: 1, fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.onBrand }}>{title}</Text>
+        {divider ? <View style={{ width: 1, height: 26, backgroundColor: 'rgba(11,23,36,0.25)' }} /> : null}
+        {price ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.onBrand }}>{price}</Text> : null}
+        <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.onBrand, alignItems: 'center', justifyContent: 'center' }}><Icon name="arrow" size={20} color={colors.brand} /></View>
+      </LinearGradient>
+    </PressScale>
+  );
+}
+
+/** Top row used on inner screens: round back button, ZYRO logo in the middle, optional right slot (same width as the back button keeps the logo centered). */
+export function TopBar({ right, noBack }: { right?: ReactNode; noBack?: boolean }) {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 14, paddingBottom: 8 }}>
+      <View style={{ minWidth: 44 }}>{noBack ? null : <BackButton />}</View>
+      <Image source={logo} style={{ height: 44, width: 96 }} resizeMode="contain" accessibilityLabel="ZYRO" />
+      <View style={{ minWidth: 44, alignItems: 'flex-end' }}>{right}</View>
+    </View>
+  );
+}
+
+/** Dark navy backdrop with soft glows. `source` is a food photo (when provided) shown under a dark fade. */
+export function Backdrop({ source, children, fade = 0.55 }: { source?: ImageSourcePropType; children: ReactNode; fade?: number }) {
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.bg }}>
+      {source ? <Image source={source} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '62%', width: '100%' }} resizeMode="cover" accessibilityElementsHidden /> : (
+        <>
+          <View style={{ position: 'absolute', right: -90, top: -60, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(56,217,176,0.10)' }} />
+          <View style={{ position: 'absolute', left: -110, top: 200, width: 260, height: 260, borderRadius: 130, backgroundColor: 'rgba(255,113,133,0.06)' }} />
+        </>
+      )}
+      <LinearGradient colors={['rgba(6,14,24,0.15)', `rgba(6,14,24,${fade})`, theme.bg]} locations={[0, 0.45, 0.8]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none" />
+      {children}
+    </View>
   );
 }
 
@@ -154,7 +205,7 @@ const s = StyleSheet.create({
   h1: { fontFamily: fontFamily.extrabold, fontSize: 24, color: theme.text },
   sub: { fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted, lineHeight: 19 },
   body: { fontFamily: fontFamily.regular, fontSize: 15, color: theme.text, lineHeight: 22 },
-  card: { backgroundColor: theme.surface, borderRadius: radius.card, padding: 16, gap: 6, borderWidth: 2, borderColor: theme.border },
+  card: { backgroundColor: theme.surface, borderRadius: radius.card, padding: 16, gap: 6, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' },
   btn: { minHeight: 56, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 },
   btnText: { fontFamily: fontFamily.extrabold, fontSize: 17 },
   label: { fontFamily: fontFamily.semibold, fontSize: 13, color: theme.text },

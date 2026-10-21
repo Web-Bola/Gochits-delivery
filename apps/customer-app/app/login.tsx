@@ -8,7 +8,7 @@ import { AuthShell } from '../src/components/AuthShell';
 import { Keypad } from '../src/components/Keypad';
 import { supabase } from '../src/lib/supabase';
 
-const group = (d: string) => [d.slice(0, 3), d.slice(3, 5), d.slice(5, 7), d.slice(7, 9)].filter(Boolean).join(' ');
+const group = (d: string) => [d.slice(0, 3), d.slice(3, 6), d.slice(6, 9)].filter(Boolean).join(' ');
 
 export default function Login() {
   const router = useRouter();
@@ -26,18 +26,21 @@ export default function Login() {
   }
 
   return (
-    <AuthShell title="შესვლა ნომრით" subtitle="შეიყვანე ნომერი რომ გააგრძელო"
+    <AuthShell photo="login" title="კეთილი იყოს თქვენი მობრძანება!" subtitle="შეიყვანეთ თქვენი ტელეფონის ნომერი ანგარიშზე შესასვლელად"
       bottom={<Keypad onDigit={(d) => setDigits((v) => (v.length < 9 ? v + d : v))} onBack={() => setDigits((v) => v.slice(0, -1))} />}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 54, borderRadius: 14, borderWidth: 1.5, borderColor: digits ? colors.brand : theme.border, backgroundColor: theme.surface, paddingHorizontal: 14 }}>
-        <Text style={{ fontSize: 20 }}>🇬🇪</Text>
-        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>+995</Text>
-        <TextInput accessibilityLabel={ka.login.phone} value={group(digits)} onChangeText={(t) => setDigits(t.replace(/\D/g, '').slice(0, 9))} placeholder="5XX XX XX XX" placeholderTextColor={theme.muted}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 54, borderRadius: 27, borderWidth: 1.5, borderColor: digits ? colors.brand : theme.border, backgroundColor: 'rgba(11,24,39,0.85)', paddingHorizontal: 8 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: theme.surface2, borderRadius: 12, paddingHorizontal: 10, height: 38 }}>
+          <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: '#fff', overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}><View style={{ position: 'absolute', width: 4, height: 24, backgroundColor: '#E8112D' }} /><View style={{ position: 'absolute', width: 24, height: 4, backgroundColor: '#E8112D' }} /></View>
+          <Text style={{ fontFamily: fontFamily.semibold, fontSize: 15, color: theme.text }}>+995</Text>
+        </View>
+        <View style={{ width: 1, height: 22, backgroundColor: theme.border }} />
+        <TextInput accessibilityLabel={ka.login.phone} value={group(digits)} onChangeText={(t) => setDigits(t.replace(/\D/g, '').slice(0, 9))} placeholder="555 123 456" placeholderTextColor={theme.muted}
           keyboardType="number-pad" showSoftInputOnFocus={false} autoComplete="tel"
           style={[{ flex: 1, minWidth: 0, fontFamily: fontFamily.semibold, fontSize: 17, color: theme.text }, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
       </View>
       {digits.length > 0 && !valid ? <ErrorText>{ka.login.invalid}</ErrorText> : null}
       {error ? <ErrorText>{error}</ErrorText> : null}
-      <Button title={busy ? '…' : 'კოდის გაგზავნა'} onPress={send} disabled={!valid || busy} variant="ink" />
+      <Button title={busy ? '…' : 'გაგრძელება'} onPress={send} disabled={!valid || busy} arrow />
     </AuthShell>
   );
 }

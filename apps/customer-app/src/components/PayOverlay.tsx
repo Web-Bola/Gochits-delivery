@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { Animated, Easing, Text, View } from 'react-native';
+import { Animated, Easing, Image, Pressable, Text, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Icon } from './Icon';
-import { Button } from './ui';
+import { Backdrop, Button, CtaBar } from './ui';
+import { art } from '../lib/art';
 import { ND } from './fx';
 
 export type PayPhase = 'processing' | 'ok' | 'fail';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
-const BURST = ['#0E6B57', '#E8553D', '#F2A33A', '#1B2420'];
+const BURST = ['#38D9B0', '#FF7185', '#F5C66B', '#7DF2D6'];
 
 /** Full-screen payment result: spinner while the provider answers, then ripple + tick + confetti (success) or shake + cross (failure). */
 export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onMenu }: { phase: PayPhase; amount: string; number: string; count: number; onTrack: () => void; onRetry: () => void; onMenu: () => void }) {
@@ -53,6 +54,52 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
   const ok = phase === 'ok'; const fail = phase === 'fail'; const done = ok || fail;
   const title = phase === 'processing' ? ka.payment.processing : ok ? ka.payment.okTitle : ka.payment.failedTitle;
   const rise1 = { opacity: rise, transform: [{ translateY: rise.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }] };
+
+  if (ok) {
+    return (
+      <View accessibilityRole="alert" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 40 }}>
+        <Backdrop source={art.success ?? undefined} fade={0.75}>
+          {pieces.map((p, i) => (
+            <Animated.View key={i} pointerEvents="none" style={{ position: 'absolute', left: '50%', top: '30%', width: 9, height: 9, borderRadius: 2, backgroundColor: p.c,
+              opacity: burst.interpolate({ inputRange: [0, 0.1, 1], outputRange: [0, 1, 0] }),
+              transform: [{ translateX: burst.interpolate({ inputRange: [0, 1], outputRange: [0, p.x] }) }, { translateY: burst.interpolate({ inputRange: [0, 1], outputRange: [0, p.y] }) }, { rotate: burst.interpolate({ inputRange: [0, 1], outputRange: ['0deg', `${p.r}deg`] }) }] }} />
+          ))}
+          <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 30, paddingBottom: 24, alignItems: 'center' }}>
+            <Image source={require('../../assets/zyro-logo.png')} style={{ width: 130, height: 60 }} resizeMode="contain" accessibilityLabel="ZYRO" />
+            <View style={{ width: 150, height: 150, alignItems: 'center', justifyContent: 'center', marginTop: 34 }}>
+              {[0, 1].map((k) => (
+                <Animated.View key={k} pointerEvents="none" style={{ position: 'absolute', width: 140, height: 140, borderRadius: 70, borderWidth: 2, borderColor: colors.brand,
+                  opacity: pulseRing.interpolate({ inputRange: [0, 0.15 + k * 0.1, 1], outputRange: [0, 0.6, 0] }),
+                  transform: [{ scale: pulseRing.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1.4 + k * 0.25] }) }] }} />
+              ))}
+              <Animated.View style={{ width: 132, height: 132, borderRadius: 66, backgroundColor: 'rgba(56,217,176,0.16)', borderWidth: 2, borderColor: 'rgba(125,242,214,0.7)', alignItems: 'center', justifyContent: 'center', shadowColor: colors.brand, shadowOpacity: 0.7, shadowRadius: 30, transform: [{ scale: pop }] }}>
+                <Svg width={70} height={70} viewBox="0 0 80 80"><AnimatedPath d="M18 42l15 15 30-32" fill="none" stroke="#7DF2D6" strokeWidth={10} strokeLinecap="round" strokeLinejoin="round" strokeDasharray="80" strokeDashoffset={tick.interpolate({ inputRange: [0, 1], outputRange: [80, 0] })} /></Svg>
+              </Animated.View>
+            </View>
+            <Animated.View style={[{ alignSelf: 'stretch', alignItems: 'center', gap: 10, marginTop: 22 }, rise1]}>
+              <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 30, lineHeight: 38, color: theme.text, textAlign: 'center' }}>შეკვეთა{'\n'}მიღებულია!</Text>
+              <Text style={{ fontFamily: fontFamily.regular, fontSize: 15, lineHeight: 22, color: theme.muted, textAlign: 'center' }}>შენი გემრიელი შეკვეთა{'\n'}გზაშია შენთან</Text>
+              <View style={{ alignSelf: 'stretch', backgroundColor: 'rgba(11,24,39,0.88)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(56,217,176,0.16)', marginTop: 8, paddingHorizontal: 16 }}>
+                {[['receipt', 'შეკვეთის ნომერი', `#${number}`], ['bag', 'პროდუქტი', `${count} ${ka.cart.items}`], ['wallet', 'ჯამი', amount]].map(([ic, k, v], i, arr) => (
+                  <View key={String(k)} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13, borderBottomWidth: i < arr.length - 1 ? 1 : 0, borderBottomColor: theme.border }}>
+                    <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(56,217,176,0.12)', alignItems: 'center', justifyContent: 'center' }}><Icon name={ic as 'receipt'} size={22} color={colors.brand} /></View>
+                    <View><Text style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{k}</Text><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{v}</Text></View>
+                  </View>
+                ))}
+              </View>
+            </Animated.View>
+            <View style={{ flex: 1 }} />
+            <View style={{ alignSelf: 'stretch', gap: 8 }}>
+              <CtaBar icon="bike" title="შეკვეთის თვალყური" onPress={onTrack} />
+              <Pressable accessibilityRole="button" onPress={onMenu} style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.muted }}>მთავარ გვერდზე დაბრუნება</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Backdrop>
+      </View>
+    );
+  }
 
   return (
     <View accessibilityRole="alert" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 40, backgroundColor: 'rgba(10,6,5,0.86)', alignItems: 'center', justifyContent: 'center', padding: 22 }}>

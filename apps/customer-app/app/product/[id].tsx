@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { formatGel } from '@gochits/shared';
 import { ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
-import { BackButton } from '../../src/components/ui';
+import { BackButton, CtaBar } from '../../src/components/ui';
 import { Icon } from '../../src/components/Icon';
 import { Bump, PressScale } from '../../src/components/fx';
 import { photoOf, Scrim, Stepper } from '../../src/components/product';
@@ -105,6 +105,9 @@ export default function ProductScreen() {
         <View style={{ paddingHorizontal: 20, paddingTop: 14, gap: 4 }}>
           {p.description_ka ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 14, color: theme.muted, lineHeight: 21, paddingBottom: 6 }}>{p.description_ka}</Text> : null}
           {sold ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.red }}>{ka.menu.soldOut}</Text> : null}
+          <View style={{ flexDirection: 'row', paddingBottom: 10 }}>
+            <Stepper value={qty} min={1} max={20} onMinus={() => setQty((q) => Math.max(1, q - 1))} onPlus={() => setQty((q) => Math.min(20, q + 1))} />
+          </View>
           {p.price_source === 'unapproved' ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted, lineHeight: 18, backgroundColor: theme.surface, borderRadius: 12, padding: 10, overflow: 'hidden' }}>{ka.menu.unapprovedPrices}</Text> : null}
 
           {ingredients.length > 0 && (
@@ -153,15 +156,8 @@ export default function ProductScreen() {
         </View>
       </ScrollView>
 
-      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 18, backgroundColor: theme.surface, borderTopWidth: 1, borderTopColor: theme.border, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-        <Stepper value={qty} min={1} max={20} onMinus={() => setQty((q) => Math.max(1, q - 1))} onPlus={() => setQty((q) => Math.min(20, q + 1))} />
-        <View style={{ flex: 1 }}>
-          <PressScale accessibilityRole="button" accessibilityLabel={ka.product.addFor} accessibilityState={{ disabled: sold }} disabled={sold} scaleTo={0.97}
-            style={{ minHeight: 54, borderRadius: 27, backgroundColor: sold ? '#3A4A6B' : colors.brand, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 }} onPress={addToCart}>
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: sold ? theme.muted : colors.onBrand }}>{sold ? ka.menu.soldOut : 'კალათაში დამატება'}</Text>
-            <Bump value={total}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: sold ? theme.muted : colors.onBrand }}>{formatGel(total)}</Text></Bump>
-          </PressScale>
-        </View>
+      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 18, backgroundColor: 'rgba(6,14,24,0.92)' }}>
+        <CtaBar icon="bag" title={sold ? ka.menu.soldOut : 'კალათაში დამატება'} price={sold ? undefined : formatGel(total)} disabled={sold} onPress={addToCart} />
       </View>
     </KeyboardAvoidingView>
   );

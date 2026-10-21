@@ -43,14 +43,14 @@ export default function Otp() {
   const mmss = `00:${String(left).padStart(2, '0')}`;
 
   return (
-    <AuthShell back title="შეიყვანე 6-ნიშნა კოდი" subtitle={`კოდი გაიგზავნა +995 ${phone ?? ''} ნომერზე`}
-      bottom={<Keypad onDigit={(d) => !busy && setCode((v) => (v.length < 6 ? v + d : v))} onBack={() => setCode((v) => v.slice(0, -1))} />}>
+    <AuthShell back photo="otp" title="შეიყვანე SMS კოდი" subtitle={<>გამოგიგზავნეთ 6-ნიშნა კოდი ნომერზე <Text style={{ color: theme.text, fontFamily: fontFamily.extrabold }}>+995 {phone ?? ''}</Text></>}
+      bottom={<Keypad letters="en" onDigit={(d) => !busy && setCode((v) => (v.length < 6 ? v + d : v))} onBack={() => setCode((v) => v.slice(0, -1))} confirm={{ enabled: code.length === 6 && !busy, onPress: () => setCode((v) => v) }} />}>
       <View accessibilityLabel={ka.otp.title} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
         {Array.from({ length: 6 }).map((_, i) => {
           const on = i === code.length;
           return (
-            <View key={i} style={{ flex: 1, height: 56, borderRadius: 12, backgroundColor: theme.surface, borderWidth: 1.5, borderColor: on ? colors.brand : code[i] ? theme.border : theme.border, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 24, color: theme.text }}>{code[i] ?? ''}</Text>
+            <View key={i} style={{ flex: 1, height: 60, borderRadius: 14, backgroundColor: 'rgba(11,24,39,0.85)', borderWidth: 1.5, borderColor: on ? colors.brand : theme.border, alignItems: 'center', justifyContent: 'center' }}>
+              {code[i] ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 24, color: theme.text }}>{code[i]}</Text> : <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: on ? colors.brand : theme.border }} />}
             </View>
           );
         })}

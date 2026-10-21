@@ -105,8 +105,8 @@ export function Ribbon({ off }: { off: number }) {
 export function AddButton({ qty, onPress, label, size = 36 }: { qty: number; onPress: () => void; label: string; size?: number }) {
   return (
     <PressScale accessibilityRole="button" accessibilityLabel={label} onPress={onPress} scaleTo={0.8}
-      style={{ minWidth: size, height: size, paddingHorizontal: qty > 0 ? 8 : 0, borderRadius: size / 2, backgroundColor: qty > 0 ? colors.brand : colors.white, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.45, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
-      {qty > 0 ? <Text style={{ color: colors.onBrand, fontFamily: fontFamily.extrabold, fontSize: 15 }}>{qty}</Text> : <Icon name="plus" size={20} color="#0B1424" strokeWidth={2.4} />}
+      style={{ minWidth: size, height: size, paddingHorizontal: qty > 0 ? 8 : 0, borderRadius: size / 2, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', shadowColor: colors.brand, shadowOpacity: 0.45, shadowRadius: 10, shadowOffset: { width: 0, height: 3 } }}>
+      {qty > 0 ? <Text style={{ color: colors.onBrand, fontFamily: fontFamily.extrabold, fontSize: 16 }}>{qty}</Text> : <Icon name="plus" size={24} color={colors.onBrand} strokeWidth={2.6} />}
     </PressScale>
   );
 }
@@ -116,29 +116,28 @@ function ProductRowImpl({ item, qty, bumped, onAdd, onOpen }: { item: Product; q
   const off = discountPercent(item);
   const sold = !item.available;
   return (
-    <View style={{ flexDirection: 'row', gap: 14, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.border }}>
+    <View style={{ flexDirection: 'row', gap: 12, padding: 10, marginBottom: 10, backgroundColor: theme.surface, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)', alignItems: 'center' }}>
+      <View style={{ width: 92, height: 92 }}>
+        <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={() => onOpen(item)} style={{ flex: 1, opacity: sold ? 0.45 : 1 }}>
+          <Photo path={item.image_path} rounded={14} style={{ flex: 1 }} />
+        </Pressable>
+        {off && !sold ? <View pointerEvents="none" style={{ position: 'absolute', left: 6, bottom: 6, backgroundColor: colors.brand, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2 }}><Text style={{ color: colors.onBrand, fontFamily: fontFamily.extrabold, fontSize: 10.5 }}>-{off}%</Text></View> : null}
+      </View>
       <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={() => onOpen(item)} style={{ flex: 1, minWidth: 0, gap: 4, opacity: sold ? 0.5 : 1 }}>
         <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text, lineHeight: 21 }}>{item.name}</Text>
         {item.description_ka ? <Text numberOfLines={2} style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted, lineHeight: 19 }}>{item.description_ka}</Text> : null}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2, flexWrap: 'wrap' }}>
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{formatGel(item.price_tetri)}</Text>
+          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.brand }}>{formatGel(item.price_tetri)}</Text>
           {item.old_price_tetri ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted, textDecorationLine: 'line-through' }}>{formatGel(item.old_price_tetri)}</Text> : null}
-          {off && !sold ? <View style={{ backgroundColor: colors.brand, borderRadius: 6, paddingHorizontal: 7, paddingVertical: 1 }}><Text style={{ color: colors.onBrand, fontFamily: fontFamily.extrabold, fontSize: 12 }}>-{off}%</Text></View> : null}
-          {sold ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.red }}>{ka.menu.soldOut}</Text> : null}
+                    {sold ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.red }}>{ka.menu.soldOut}</Text> : null}
         </View>
       </Pressable>
-      <View style={{ width: 104, height: 104 }}>
-        <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={() => onOpen(item)} style={{ flex: 1, opacity: sold ? 0.45 : 1 }}>
-          <Photo path={item.image_path} rounded={14} style={{ flex: 1 }} />
-        </Pressable>
-        {off && !sold ? <Ribbon off={off} /> : null}
-        {!sold ? (
-          <View style={{ position: 'absolute', right: -6, bottom: -6 }}>
-            <AddButton qty={qty} onPress={() => onAdd(item)} label={`${ka.menu.add}: ${item.name}`} />
-            <FloatUp trigger={bumped} />
-          </View>
-        ) : null}
-      </View>
+      {!sold ? (
+        <View>
+          <AddButton qty={qty} onPress={() => onAdd(item)} label={`${ka.menu.add}: ${item.name}`} size={44} />
+          <FloatUp trigger={bumped} />
+        </View>
+      ) : null}
     </View>
   );
 }
