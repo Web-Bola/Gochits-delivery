@@ -6,6 +6,8 @@ import { formatGel, toOrderItems, type BranchOption } from '@gochits/shared';
 import { errorText, ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Body, CtaBar, ErrorText, Header, Screen } from '../src/components/ui';
+import { Photo } from '../src/components/product';
+import { loadMenu, type Menu } from '../src/lib/menuData';
 import { supabase } from '../src/lib/supabase';
 import { useDemoMode } from '../src/lib/demo';
 import { registerForPush } from '../src/lib/push';
@@ -22,6 +24,8 @@ export default function Checkout() {
   const router = useRouter();
   const demo = useDemoMode();
   const { lines, address, setAddress, branch, setBranch, subtotal, promo, setPromo, clear } = useCart();
+  const [menu, setMenu] = useState<Menu | null>(null);
+  useEffect(() => { if (branch) loadMenu(branch.id).then(setMenu).catch(() => undefined); }, [branch?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const promoMsg = usePromoSync();
   const [addrs, setAddrs] = useState<AddrRow[] | null>(null);
   const [options, setOptions] = useState<BranchOption[] | null>(null);
@@ -137,7 +141,7 @@ export default function Checkout() {
   const sectionTitle = (n: number, t: string) => (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 8 }}>
       <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(56,217,176,0.14)', alignItems: 'center', justifyContent: 'center' }}>
-        <Icon name={(['pin', 'card', 'receipt', 'bag'] as const)[Math.min(n, 4) - 1] ?? 'pin'} size={17} color={colors.brand} />
+        <Icon name={(['pin', 'receipt', 'bag', 'card'] as const)[Math.min(n, 4) - 1] ?? 'pin'} size={17} color={colors.brand} />
       </View>
       <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{t}</Text>
     </View>
@@ -283,22 +287,23 @@ export default function Checkout() {
           </>
         ))}
 
-        {sectionTitle(2, ka.checkout.payment)}
-        <View style={{ flexDirection: 'row', gap: 12 }}>
-          {tile('card', 'card', ka.checkout.card, cardOk, cardOk ? ka.payment.note : ka.payment.demoOff)}
-          {tile('cash', 'cash', pickup ? 'ადგილზე' : ka.checkout.cash, cashOk, pickup ? 'გადაიხდი ფილიალში' : cashOk ? undefined : ka.checkout.cashOff)}
+        {sectionTitle(2, 'დამატებითი ინფორმაცია')}
+        <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 12, gap: 6, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
+          <TextInput accessibilityLabel={ka.checkout.notes} value={notes} onChangeText={setNotes} multiline maxLength={300} placeholder="მაგ. კართან დადეთ, არ დარეკოთ…" placeholderTextColor={theme.muted}
+            style={[{ minHeight: 64, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 12, paddingTop: 10, paddingBottom: 10, fontFamily: fontFamily.regular, fontSize: 14, color: theme.text, textAlignVertical: 'top' }, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
+          <Text style={{ alignSelf: 'flex-end', fontFamily: fontFamily.regular, fontSize: 11, color: theme.muted }}>{notes.length}/300 · არასავალდებულო</Text>
         </View>
 
-        {sectionTitle(3, ka.checkout.notes)}
-        <TextInput accessibilityLabel={ka.checkout.notes} value={notes} onChangeText={setNotes} multiline maxLength={300} placeholder="…" placeholderTextColor={theme.muted}
-          style={[{ minHeight: 76, borderRadius: 16, backgroundColor: theme.surface, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 12, fontFamily: fontFamily.regular, fontSize: 14, color: theme.text, textAlignVertical: 'top' }, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
-
-        {sectionTitle(4, ka.checkout.yourOrder)}
+        {sectionTitle(3, 'შეკვეთის შემაჯამებელი')}
         <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 16, gap: 8, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
           {lines.map((l) => (
-            <View key={l.key} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
-              <Text numberOfLines={2} style={{ flex: 1, fontFamily: fontFamily.regular, fontSize: 14, color: theme.text }}>{l.quantity}× {l.name}</Text>
-              <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: theme.text }}>{formatGel(l.unitPriceTetri * l.quantity)}</Text>
+            <View key={l.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <Photo path={menu?.products.find((x) => x.id === l.productId)?.image_path ?? null} style={{ width: 62, height: 46 }} rounded={10} />
+              <View style={{ flex: 1 }}>
+                <Text numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{l.name}</Text>
+                <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{l.quantity} ×</Text>
+              </View>
+              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>{formatGel(l.unitPriceTetri * l.quantity)}</Text>
             </View>
           ))}
           <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 4 }} />
@@ -309,6 +314,12 @@ export default function Checkout() {
           {!pickup && belowMin > 0 ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#D63A2F' }}>{ka.checkout.minLeft} {formatGel(belowMin)}</Text> : null}
           {!pickup && untilFree > 0 ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: colors.brand }}>{ka.checkout.freeFrom} {formatGel(untilFree)}</Text> : null}
         </View>
+        {sectionTitle(4, ka.checkout.payment)}
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          {tile('card', 'card', ka.checkout.card, cardOk, cardOk ? ka.payment.note : ka.payment.demoOff)}
+          {tile('cash', 'cash', pickup ? 'ადგილზე' : ka.checkout.cash, cashOk, pickup ? 'გადაიხდი ფილიალში' : cashOk ? undefined : ka.checkout.cashOff)}
+        </View>
+
         {(error || promoMsg) && <ErrorText>{error ?? promoMsg}</ErrorText>}
       </ScrollView>
 
