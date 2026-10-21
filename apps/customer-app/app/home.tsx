@@ -61,7 +61,7 @@ const catHit = (m: Merchant, id: string) => {
   return !!CATS.find((c) => c.id === id)?.re?.test(hay);
 };
 
-const TINT: Record<string, string> = { all: '#EEF1EE', restaurant: '#3A2E3C', cafe: '#3B3426', grocery: '#1F3B35', pharmacy: '#22384D', flowers: '#3B2A38', other: '#2B3345' };
+const TINT: Record<string, string> = { all: '#DCDFDA', restaurant: '#3A2E3C', cafe: '#3B3426', grocery: '#1F3B35', pharmacy: '#22384D', flowers: '#3B2A38', other: '#2B3345' };
 
 export default function Home() {
   const router = useRouter();

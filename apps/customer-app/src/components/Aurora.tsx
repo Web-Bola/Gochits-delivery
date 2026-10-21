@@ -48,7 +48,7 @@ function Doodle({ n, x, y, size, rot, o, i }: D & { i: number }) {
 export function Aurora() {
   return (
     <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, overflow: 'hidden', backgroundColor: theme.bg }}>
-      <LinearGradient colors={['#E3F5F2', '#F9F8F5', '#F9F8F5']} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
+      <LinearGradient colors={['#D5ECE8', '#E8E8E2', '#E8E8E2']} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
       <Glow size={340} color="rgba(11,167,154,0.06)" top={-120} left={-80} dx={70} dy={50} duration={9000} delay={0} />
       <Glow size={300} color="rgba(60,130,220,0.05)" top={260} left={140} dx={-60} dy={60} duration={11000} delay={800} />
       <Glow size={260} color="rgba(255,113,133,0.03)" top={520} left={-90} dx={60} dy={-50} duration={13000} delay={400} />

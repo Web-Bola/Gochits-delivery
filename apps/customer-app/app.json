@@ -31,7 +31,7 @@
       "package": "ge.gochits.customer",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#F9F8F5"
+        "backgroundColor": "#E8E8E2"
       }
     },
     "web": {
@@ -42,7 +42,7 @@
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#F9F8F5"
+      "backgroundColor": "#E8E8E2"
     }
   }
 }
