@@ -63,14 +63,15 @@ export function BackButton({ onPress }: { onPress?: () => void }) {
 }
 
 /** Dark header: optional back button, logo, title, right slot. Thin divider underneath (as in the demo). */
-export function Header({ title, subtitle, back, showLogo, right }: { title?: string; subtitle?: string; back?: boolean; showLogo?: boolean; right?: ReactNode }) {
+export function Header({ title, subtitle, back, right }: { title?: string; subtitle?: string; back?: boolean; showLogo?: boolean; right?: ReactNode }) {
   return (
-    <View style={[s.header, { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
+    <View style={[s.header, { paddingTop: 14, paddingBottom: 12, gap: 6 }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        {back ? <BackButton /> : showLogo ? <Image source={logo} style={{ height: 32, width: 70 }} resizeMode="contain" accessibilityLabel="ZYRO" /> : <View />}
-        {right}
+        <View style={{ minWidth: 44 }}>{back ? <BackButton /> : null}</View>
+        <Image source={logo} style={{ height: 44, width: 96 }} resizeMode="contain" accessibilityLabel="ZYRO" />
+        <View style={{ minWidth: 44, alignItems: 'flex-end' }}>{right}</View>
       </View>
-      {title && <Text style={s.h1} accessibilityRole="header">{title}</Text>}
+      {title && <Text style={[s.h1, { fontSize: 26, marginTop: 4 }]} accessibilityRole="header">{title}</Text>}
       {subtitle && <Text style={s.sub}>{subtitle}</Text>}
     </View>
   );

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { formatGel } from '@gochits/shared';
 import { errorText, ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
-import { Button, ErrorText, Screen } from '../src/components/ui';
+import { Backdrop, Button, ErrorText, FadeIn, Screen, TopBar } from '../src/components/ui';
+import { art } from '../src/lib/art';
 import { Icon } from '../src/components/Icon';
 import { PayOverlay, type PayPhase } from '../src/components/PayOverlay';
 import { supabase } from '../src/lib/supabase';
@@ -55,51 +56,61 @@ export default function Payment() {
   );
 
   return (
-    <Screen scroll>
-      <View style={{ backgroundColor: colors.brand, borderBottomLeftRadius: 32, borderBottomRightRadius: 32, paddingHorizontal: 20, paddingTop: 18, paddingBottom: 28, alignItems: 'center', gap: 6 }}>
-        <Image source={require('../assets/zyro-logo-dark.png')} style={{ width: 90, height: 42 }} resizeMode="contain" accessibilityLabel="ZYRO" />
-        <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: colors.onBrand, opacity: 0.75, marginTop: 6 }}>{ka.payment.toPay}</Text>
-        <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 40, color: colors.onBrand, lineHeight: 48 }}>{amount}</Text>
-        <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
-          <View style={{ backgroundColor: colors.onBrand, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 5 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.brand }}>№{info.number}</Text></View>
-          <View style={{ backgroundColor: 'rgba(11,23,36,0.16)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 5 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.onBrand }}>{count} {ka.cart.items}</Text></View>
-        </View>
-      </View>
-
+    <Backdrop source={art.payment ?? undefined} fade={0.8}>
+      <TopBar noBack={false} />
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20, gap: 14, paddingBottom: 24 }}>
-        <View style={{ backgroundColor: theme.surface, borderRadius: 18, padding: 16, gap: 8 }}>
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text, marginBottom: 2 }}>{ka.checkout.yourOrder}</Text>
-          {info.items.map((it, i) => (
-            <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
-              <Text numberOfLines={2} style={{ flex: 1, fontFamily: fontFamily.regular, fontSize: 14, color: theme.text }}>{it.quantity}× {it.name_snapshot}</Text>
-              <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: theme.text }}>{formatGel(it.unit_price_tetri * it.quantity)}</Text>
-            </View>
-          ))}
-          <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 4 }} />
-          {line(ka.cart.subtotal, formatGel(info.subtotal_tetri))}
-          {info.discount_tetri > 0 ? line(ka.cart.discount, `−${formatGel(info.discount_tetri)}`, true) : null}
-          {line(ka.checkout.delivery, formatGel(info.delivery_fee_tetri))}
-        </View>
+        <FadeIn>
+          <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 30, color: theme.text }}>გადახდის მეთოდი</Text>
+          <Text style={{ fontFamily: fontFamily.regular, fontSize: 14, color: theme.muted, marginTop: 4 }}>{ka.payment.toPay}: <Text style={{ color: colors.brand, fontFamily: fontFamily.extrabold }}>{amount}</Text> · {count} პროდუქტი</Text>
+        </FadeIn>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 18, padding: 14 }}>
-          <View style={{ width: 46, height: 36, borderRadius: 9, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}><Icon name="card" size={22} color={colors.brand} /></View>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{ka.checkout.card}</Text>
-            <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.payment.note}</Text>
+        <FadeIn index={1}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: 'rgba(56,217,176,0.06)', borderRadius: 20, padding: 14, borderWidth: 1.5, borderColor: colors.brand }}>
+            <View style={{ width: 84, height: 56, borderRadius: 12, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}><Icon name="card" size={28} color={colors.brand} /></View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{ka.checkout.card}</Text>
+              <Text style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{ka.payment.note}</Text>
+            </View>
+            <View style={{ width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}><View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: colors.brand }} /></View>
           </View>
-          <Icon name="lock" size={18} color={theme.muted} />
-        </View>
+        </FadeIn>
+
+        <FadeIn index={2}>
+          <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 16, gap: 8, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
+            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text, marginBottom: 2 }}>{ka.checkout.yourOrder}</Text>
+            {info.items.map((it, i) => (
+              <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12 }}>
+                <Text numberOfLines={2} style={{ flex: 1, fontFamily: fontFamily.regular, fontSize: 14, color: theme.text }}>{it.quantity}× {it.name_snapshot}</Text>
+                <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: theme.text }}>{formatGel(it.unit_price_tetri * it.quantity)}</Text>
+              </View>
+            ))}
+            <View style={{ height: 1, backgroundColor: theme.border, marginVertical: 4 }} />
+            {line(ka.cart.subtotal, formatGel(info.subtotal_tetri))}
+            {info.discount_tetri > 0 ? line(ka.cart.discount, `−${formatGel(info.discount_tetri)}`, true) : null}
+            {line(ka.checkout.delivery, formatGel(info.delivery_fee_tetri))}
+          </View>
+        </FadeIn>
+
+        <FadeIn index={3}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface, borderRadius: 20, padding: 14, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
+            <Icon name="lock" size={30} color={colors.brand} />
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.text }}>თქვენი გადახდები უსაფრთხოა</Text>
+              <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>ბარათის მონაცემებს აპი არ ინახავს</Text>
+            </View>
+          </View>
+        </FadeIn>
         {error ? <ErrorText>{error}</ErrorText> : null}
         {!enabled ? <ErrorText>{ka.payment.demoOff}</ErrorText> : null}
       </ScrollView>
 
-      <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, gap: 4, backgroundColor: theme.bg, borderTopWidth: 1, borderTopColor: theme.border }}>
-        <Button title={`${ka.payment.payBtn} · ${amount}`} onPress={pay} disabled={!enabled || phase === 'processing'} />
+      <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, gap: 4 }}>
+        <Button title={`${ka.payment.payBtn} · ${amount}`} onPress={pay} disabled={!enabled || phase === 'processing'} arrow />
         <Pressable accessibilityRole="button" onPress={() => router.replace('/home')} style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
           <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.muted }}>{ka.payment.cancelBack}</Text>
         </Pressable>
       </View>
       {phase ? <PayOverlay phase={phase} amount={amount} number={info.number} count={count} onTrack={() => router.replace({ pathname: '/order/[id]', params: { id: String(id) } })} onRetry={() => setPhase(null)} onMenu={() => router.replace('/home')} /> : null}
-    </Screen>
+    </Backdrop>
   );
 }

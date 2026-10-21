@@ -5,7 +5,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { formatGel, toOrderItems, type BranchOption } from '@gochits/shared';
 import { errorText, ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
-import { Body, Button, ErrorText, Header, Screen } from '../src/components/ui';
+import { Body, CtaBar, ErrorText, Header, Screen } from '../src/components/ui';
 import { supabase } from '../src/lib/supabase';
 import { useDemoMode } from '../src/lib/demo';
 import { registerForPush } from '../src/lib/push';
@@ -312,12 +312,12 @@ export default function Checkout() {
         {(error || promoMsg) && <ErrorText>{error ?? promoMsg}</ErrorText>}
       </ScrollView>
 
-      <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, gap: 10, backgroundColor: theme.bg, borderTopWidth: 1, borderTopColor: theme.border }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: theme.muted }}>{ka.checkout.total}</Text>
-          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 22, color: theme.text }}>{formatGel(Math.max(0, subtotal - discount - pickupDiscount) + (pickup ? 0 : (fee ?? 0)))}</Text>
+      <View style={{ paddingHorizontal: 20, paddingTop: 10, paddingBottom: 16, gap: 8 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingHorizontal: 6 }}>
+          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{ka.checkout.total}</Text>
+          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 24, color: theme.text }}>{formatGel(Math.max(0, subtotal - discount - pickupDiscount) + (pickup ? 0 : (fee ?? 0)))}</Text>
         </View>
-        <Button title={busy ? '...' : chosen === 'card' ? ka.checkout.pay : ka.checkout.place} onPress={place} disabled={!canPlace} />
+        <CtaBar title={busy ? '...' : chosen === 'card' ? ka.checkout.pay : ka.checkout.place} onPress={place} disabled={!canPlace} />
       </View>
     </Screen>
   );
