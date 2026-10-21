@@ -1,40 +1,61 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Platform, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { Image, ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { supabase } from '../src/supabase';
 import { gateFor } from '../src/gate';
-import { Btn, T, c } from '../src/ui';
-import { FadeIn } from '../src/fx';
+import { Badge, Bg, Btn, Icon, T, c, card } from '../src/ui';
+import { FadeIn, Glow, Pulse } from '../src/fx';
 
 export default function Pending() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [suspended, setSuspended] = useState(false);
-  const spin = useRef(new Animated.Value(0)).current;
-  useEffect(() => { const a = Animated.loop(Animated.timing(spin, { toValue: 1, duration: 2400, easing: Easing.linear, useNativeDriver: Platform.OS !== 'web' })); a.start(); return () => a.stop(); }, [spin]);
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  const check = useCallback(async () => {
+  const check = useCallback(async (manual = false) => {
+    setBusy(manual);
     const g = await gateFor();
-    if (g === 'home') router.replace('/'); else if (g === 'login') router.replace('/welcome'); else if (g === 'register') router.replace('/register'); else setSuspended(g === 'suspended');
+    setBusy(false);
+    if (g === 'home') router.replace('/'); else if (g === 'login') router.replace('/welcome'); else if (g === 'register') router.replace('/register');
+    else { setSuspended(g === 'suspended'); if (manual) setNote(g === 'suspended' ? 'ანგარიში შეჩერებულია' : 'განაცხადი ჯერ განხილვაშია. დამტკიცებისას აპი გაიხსნება.'); }
   }, [router]);
-  useEffect(() => { check(); const t = setInterval(check, 8000); return () => clearInterval(t); }, [check]);
+  useEffect(() => { check(); const t = setInterval(() => check(), 8000); return () => clearInterval(t); }, [check]);
+
+  const Row = ({ state, t, d }: { state: 'done' | 'now' | 'next'; t: string; d?: string }) => (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13, borderBottomWidth: state === 'next' ? 0 : 1, borderBottomColor: c.line }}>
+      {state === 'done' ? <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#1E9E6A', alignItems: 'center', justifyContent: 'center' }}><Icon name="check" size={18} color="#fff" /></View>
+        : state === 'now' ? <View style={{ width: 34, height: 34, alignItems: 'center', justifyContent: 'center' }}><Pulse size={14} color={c.brand} /></View>
+        : <View style={{ width: 34, height: 34, borderRadius: 17, borderWidth: 2, borderColor: c.line }} />}
+      <View style={{ flex: 1 }}><T size={14.5} weight={state === 'next' ? 'semibold' : 'extrabold'} color={state === 'next' ? c.muted : c.ink}>{t}</T>{d ? <T size={12} color={c.muted}>{d}</T> : null}</View>
+    </View>
+  );
 
   return (
-    <View style={{ flex: 1, backgroundColor: c.bg, alignItems: 'center' }}>
-      <View style={{ flex: 1, width: '100%', maxWidth: 480, paddingHorizontal: 24, paddingTop: insets.top, paddingBottom: insets.bottom + 24, justifyContent: 'center', alignItems: 'center', gap: 16 }}>
-        <FadeIn style={{ alignItems: 'center', gap: 16 }}>
-          <View style={{ width: 120, height: 120, borderRadius: 60, backgroundColor: suspended ? c.redSoft : c.brandSoft, alignItems: 'center', justifyContent: 'center' }}>
-            <Animated.Text style={{ fontSize: 52, transform: [{ rotate: suspended ? '0deg' : spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}>{suspended ? '⛔' : '⏳'}</Animated.Text>
-          </View>
-          <T size={26} weight="extrabold" style={{ textAlign: 'center' }}>{suspended ? 'ანგარიში შეჩერებულია' : 'განაცხადი მიღებულია'}</T>
-          <T size={16} color={c.muted} style={{ textAlign: 'center' }}>{suspended ? 'დაგვიკავშირდი დეტალებისთვის.' : 'ვამოწმებთ შენს მონაცემებს. დამტკიცებისას აპი თავისით გაიხსნება — ამ ეკრანზე დარჩენა აუცილებელი არ არის.'}</T>
+    <Bg>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 16, paddingTop: insets.top + 14, paddingBottom: insets.bottom + 16, gap: 14 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Image source={require('../assets/zyro-logo.png')} style={{ width: 100, height: 46 }} resizeMode="contain" />
+          <Badge>{suspended ? 'შეჩერებულია' : 'განხილვაში'}</Badge>
+        </View>
+        <FadeIn style={{ alignItems: 'center', gap: 14, marginTop: 20 }}>
+          <Glow size={150} color={suspended ? c.red : '#2FC4B6'}><Icon name={suspended ? 'out' : 'clock'} size={62} color={suspended ? c.red : '#2FC4B6'} /></Glow>
+          <T size={29} weight="extrabold" style={{ textAlign: 'center', lineHeight: 35 }}>{suspended ? 'ანგარიში\nშეჩერებულია' : 'განაცხადი\nგანიხილება'}</T>
+          <T size={14} color={c.muted} style={{ textAlign: 'center', lineHeight: 21, paddingHorizontal: 14 }}>{suspended ? 'დაგვიკავშირდი დეტალებისთვის.' : 'ჩვენი გუნდი ამოწმებს შენს მონაცემებს. დამტკიცებისას აპი თავისით გაიხსნება.'}</T>
         </FadeIn>
-        <FadeIn delay={200} style={{ width: '100%', gap: 10, paddingTop: 16 }}>
-          {!suspended ? <Btn title="სტატუსის შემოწმება" onPress={check} /> : null}
-          <Btn title="გასვლა" kind="soft" onPress={() => supabase.auth.signOut({ scope: 'local' })} />
-        </FadeIn>
-      </View>
-    </View>
+        {!suspended ? (
+          <FadeIn delay={200} style={{ ...card, paddingHorizontal: 18, paddingVertical: 6, marginTop: 6 }}>
+            <Row state="done" t="განაცხადი გაიგზავნა" />
+            <Row state="now" t="მონაცემების შემოწმება" d="ჩვეულებრივ 1-2 სამუშაო დღე" />
+            <Row state="next" t="აქტივაცია და პირველი შეკვეთა" />
+          </FadeIn>
+        ) : null}
+        {note ? <T size={14} color={c.muted} style={{ textAlign: 'center' }}>{note}</T> : null}
+        <View style={{ flex: 1 }} />
+        {!suspended ? <Btn title="სტატუსის შემოწმება" busy={busy} onPress={() => check(true)} /> : null}
+        <Btn title="გასვლა" kind="soft" onPress={() => supabase.auth.signOut({ scope: 'local' })} />
+      </ScrollView>
+    </Bg>
   );
 }

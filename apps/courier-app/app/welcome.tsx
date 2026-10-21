@@ -1,31 +1,46 @@
-import { Image, View, useWindowDimensions } from 'react-native';
+import { Image, ImageBackground, ScrollView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Btn, T, c } from '../src/ui';
-import { FadeIn, Pulse, SlideUp } from '../src/fx';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Badge, Bg, Btn, Icon, T, c, type IconName } from '../src/ui';
+import { FadeIn } from '../src/fx';
+
+const PERKS: [IconName, string][] = [['clock', 'თავისუფალი გრაფიკი'], ['wallet', 'გამჭვირვალე შემოსავალი და გადახდები'], ['shield', 'მხარდაჭერა ყოველ ნაბიჯზე']];
 
 export default function Welcome() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { height } = useWindowDimensions();
-  const photoH = Math.round(height * 0.6);
   return (
-    <View style={{ flex: 1, backgroundColor: c.bg, alignItems: 'center' }}>
-      <View style={{ flex: 1, width: '100%', maxWidth: 520, overflow: 'hidden', backgroundColor: c.sheet }}>
-        <Image source={require('../assets/courier.jpg')} style={{ position: 'absolute', top: 0, left: 0, right: 0, height: photoH + 40, width: '100%' }} resizeMode="cover" />
-        <FadeIn style={{ position: 'absolute', top: insets.top + 16, left: 18 }}>
-          <View style={{ backgroundColor: c.brand, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 6 }}><T size={13} weight="extrabold" color="#fff">ZYRO PARTNER</T></View>
+    <Bg>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 16, paddingTop: insets.top + 14, paddingBottom: insets.bottom + 16, gap: 18 }}>
+        <FadeIn style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Image source={require('../assets/zyro-logo.png')} style={{ width: 118, height: 54 }} resizeMode="contain" />
+          <Badge>PARTNER</Badge>
         </FadeIn>
-        <SlideUp k="w" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: c.sheet, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 22, paddingTop: 24, paddingBottom: insets.bottom + 22, gap: 12 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}><Pulse color={c.brand} size={12} /><T size={14} weight="semibold" color={c.brandDark}>მუშაობა როცა გინდა</T></View>
-          <T size={32} weight="extrabold" style={{ lineHeight: 40 }}>გახდი ZYRO კურიერი</T>
-          <T size={15} color={c.muted}>იმუშავე შენი გრაფიკით, მიიღე შეკვეთები რესტორნებიდან და გამოიმუშავე ყოველი მიტანიდან.</T>
-          <View style={{ gap: 10, paddingTop: 8 }}>
-            <Btn title="რეგისტრაცია" onPress={() => router.push('/register')} />
-            <Btn title="შესვლა" kind="soft" onPress={() => router.push('/login')} />
-          </View>
-        </SlideUp>
-      </View>
-    </View>
+        <FadeIn delay={100}>
+          <ImageBackground source={require('../assets/courier.jpg')} style={{ height: 270, borderRadius: 30, overflow: 'hidden' }} imageStyle={{ borderRadius: 30 }} resizeMode="cover">
+            <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,40,36,0.45)']} locations={[0.55, 1]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
+            <View style={{ position: 'absolute', left: 14, top: 14, backgroundColor: 'rgba(255,255,255,0.92)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 14 }}><T size={12} weight="extrabold">⚡ ახლავე დაიწყე</T></View>
+          </ImageBackground>
+        </FadeIn>
+        <FadeIn delay={200}>
+          <T size={31} weight="extrabold" style={{ lineHeight: 38 }}>იმუშავე როცა გინდა.{'\n'}<T size={31} weight="extrabold" color={c.brand}>იშოვე ყოველ შეკვეთაზე.</T></T>
+          <T size={14} color={c.muted} style={{ marginTop: 10, lineHeight: 21 }}>გახდი ZYRO Partner: აირჩიე შენთვის სასურველი დრო და მიიტანე შეკვეთები შენს ქალაქში.</T>
+        </FadeIn>
+        <View style={{ gap: 10 }}>
+          {PERKS.map(([ic, t], i) => (
+            <FadeIn key={t} delay={300 + i * 90} from={10} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(11,167,154,0.14)', alignItems: 'center', justifyContent: 'center' }}><Icon name={ic} size={19} color={c.brand} /></View>
+              <T size={14} weight="semibold">{t}</T>
+            </FadeIn>
+          ))}
+        </View>
+        <View style={{ flex: 1 }} />
+        <FadeIn delay={560} style={{ gap: 10 }}>
+          <Btn title="კურიერად რეგისტრაცია" arrow onPress={() => router.push('/register')} />
+          <Btn title="უკვე მაქვს ანგარიში · შესვლა" kind="soft" onPress={() => router.push('/login')} />
+        </FadeIn>
+      </ScrollView>
+    </Bg>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { Animated, Easing, Platform, Pressable, type StyleProp, type ViewStyle } from 'react-native';
+import { Animated, Easing, Platform, Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
 
 const nd = Platform.OS !== 'web';
 
@@ -50,5 +50,20 @@ export function Press({ children, onPress, disabled, style, ...rest }: { childre
     <Pressable {...rest} disabled={disabled} onPress={onPress} onPressIn={() => to(0.96)} onPressOut={() => to(1)}>
       <Animated.View style={[style, { transform: [{ scale: v }] }]}>{children}</Animated.View>
     </Pressable>
+  );
+}
+
+/** Expanding glow ring (pending screen, online dot). */
+export function Glow({ size, children, color }: { size: number; children: ReactNode; color: string }) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const a = Animated.loop(Animated.sequence([Animated.timing(v, { toValue: 1, duration: 1200, easing: Easing.inOut(Easing.quad), useNativeDriver: nd }), Animated.timing(v, { toValue: 0, duration: 1200, easing: Easing.inOut(Easing.quad), useNativeDriver: nd })]));
+    a.start(); return () => a.stop();
+  }, [v]);
+  return (
+    <Animated.View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <Animated.View style={{ position: 'absolute', width: size, height: size, borderRadius: size / 2, backgroundColor: color, opacity: v.interpolate({ inputRange: [0, 1], outputRange: [0.12, 0.3] }), transform: [{ scale: v.interpolate({ inputRange: [0, 1], outputRange: [1, 1.18] }) }] }} />
+      <View style={{ width: size, height: size, borderRadius: size / 2, borderWidth: 2, borderColor: color, backgroundColor: 'rgba(11,167,154,0.12)', alignItems: 'center', justifyContent: 'center' }}>{children}</View>
+    </Animated.View>
   );
 }
