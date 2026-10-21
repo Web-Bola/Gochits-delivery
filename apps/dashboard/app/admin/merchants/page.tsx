@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { ok, supabase } from '@/lib/supabase';
 import { Field, useAction, useLoad } from '@/components/bits';
 
-export interface Merchant { id: string | null; slug: string; name: string; kind: string; description: string | null; logo_path: string | null; cover_path: string | null; is_active: boolean; sort_order: number; branch_count?: number }
-export const KINDS: [string, string][] = [['restaurant', 'რესტორანი'], ['cafe', 'კაფე'], ['grocery', 'სუპერმარკეტი / მარკეტი'], ['pharmacy', 'აფთიაქი'], ['flowers', 'ყვავილები'], ['other', 'სხვა']];
+interface Merchant { id: string | null; slug: string; name: string; kind: string; description: string | null; logo_path: string | null; cover_path: string | null; is_active: boolean; sort_order: number; branch_count?: number }
+const KINDS: [string, string][] = [['restaurant', 'რესტორანი'], ['cafe', 'კაფე'], ['grocery', 'სუპერმარკეტი / მარკეტი'], ['pharmacy', 'აფთიაქი'], ['flowers', 'ყვავილები'], ['other', 'სხვა']];
 const EMPTY: Merchant = { id: null, slug: '', name: '', kind: 'restaurant', description: '', logo_path: '', cover_path: '', is_active: true, sort_order: 0 };
 
 function MerchantForm({ merchant, onSaved }: { merchant: Merchant; onSaved: () => void }) {
