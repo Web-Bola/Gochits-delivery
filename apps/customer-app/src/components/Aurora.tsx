@@ -9,7 +9,12 @@ function Glow({ size, color, top, left, dx, dy, duration, delay }: { size: numbe
   const x = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, dx, 0] });
   const y = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, dy, 0] });
   const s = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 1.15, 1] });
-  return <Animated.View pointerEvents="none" style={{ position: 'absolute', top, left, width: size, height: size, borderRadius: size / 2, backgroundColor: color, transform: [{ translateX: x }, { translateY: y }, { scale: s }] }} />;
+  // soft edge without blur: stacked circles, each one a little smaller, so the glow fades out
+  return (
+    <Animated.View pointerEvents="none" style={{ position: 'absolute', top, left, width: size, height: size, alignItems: 'center', justifyContent: 'center', transform: [{ translateX: x }, { translateY: y }, { scale: s }] }}>
+      {[1, 0.82, 0.66, 0.52, 0.4, 0.3, 0.2].map((k) => <View key={k} style={{ position: 'absolute', width: size * k, height: size * k, borderRadius: (size * k) / 2, backgroundColor: color }} />)}
+    </Animated.View>
+  );
 }
 
 const F = {
@@ -44,9 +49,9 @@ export function Aurora() {
   return (
     <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, overflow: 'hidden', backgroundColor: theme.bg }}>
       <LinearGradient colors={['#0B2233', '#08131F', '#060E18']} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
-      <Glow size={340} color="rgba(56,217,176,0.16)" top={-120} left={-80} dx={70} dy={50} duration={9000} delay={0} />
-      <Glow size={300} color="rgba(60,130,220,0.14)" top={260} left={140} dx={-60} dy={60} duration={11000} delay={800} />
-      <Glow size={260} color="rgba(255,113,133,0.07)" top={520} left={-90} dx={60} dy={-50} duration={13000} delay={400} />
+      <Glow size={340} color="rgba(56,217,176,0.06)" top={-120} left={-80} dx={70} dy={50} duration={9000} delay={0} />
+      <Glow size={300} color="rgba(60,130,220,0.05)" top={260} left={140} dx={-60} dy={60} duration={11000} delay={800} />
+      <Glow size={260} color="rgba(255,113,133,0.03)" top={520} left={-90} dx={60} dy={-50} duration={13000} delay={400} />
       {DOODLES.map((d, i) => <Doodle key={i} {...d} i={i} />)}
     </View>
   );
