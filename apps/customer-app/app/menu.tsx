@@ -8,7 +8,7 @@ import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Body, Button, CtaBar, StateView } from '../src/components/ui';
 import { Icon, categoryIcon } from '../src/components/Icon';
 import { Bump, Shimmer, SlideUp } from '../src/components/fx';
-import { DealsRow, PromoBanner } from '../src/components/Banners';
+import { DealsRow } from '../src/components/Banners';
 import { ProductRow, Scrim } from '../src/components/product';
 import { discountPercent, isSpicy, loadMenu, type Menu, type Product } from '../src/lib/menuData';
 import { photoOf } from '../src/components/product';
@@ -127,7 +127,7 @@ export default function MenuScreen() {
     const on = filter === id;
     return (
       <Pressable key={id} accessibilityRole="button" accessibilityState={{ selected: on }} onPress={() => setFilter(on ? null : id)}
-        style={{ height: 34, paddingHorizontal: 14, borderRadius: 17, justifyContent: 'center', backgroundColor: on ? colors.brand : theme.surface }}>
+        style={{ height: 38, paddingHorizontal: 16, borderRadius: 19, justifyContent: 'center', backgroundColor: on ? colors.brand : theme.surface, borderWidth: on ? 0 : 1, borderColor: theme.border }}>
         <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: on ? colors.onBrand : theme.muted }}>{label}</Text>
       </Pressable>
     );
@@ -142,45 +142,49 @@ export default function MenuScreen() {
   const openNow = state ? state.accepts_orders && state.is_open : null;
   const statusText = openNow ? ka.branch.open : '';
 
-  /** Cover photo, round logo, name, branch pill (tap to change), search and filter chips: the "venue page" top of the demo. */
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  /** Venue top: cover fading into the page, logo + name + status, search with filter button. */
   const header = (
     <View>
-      <View style={{ height: 190, backgroundColor: theme.surface }}>
+      <View style={{ height: 210, backgroundColor: theme.surface }}>
         <View style={{ flex: 1, overflow: 'hidden', backgroundColor: '#1E3A5F', alignItems: 'center', justifyContent: 'center' }}>
           {mer && merchantArt(mer.slug) ? <Image source={merchantArt(mer.slug)!.cover} style={{ position: 'absolute', width: '100%', height: '100%' }} resizeMode="cover" />
             : mer && !hasBundledArt(mer) ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 120, color: 'rgba(255,255,255,0.12)' }}>{initial(mer.name)}</Text>
             : <Image source={require('../assets/cover.jpg')} style={{ position: 'absolute', width: '100%', height: '100%' }} resizeMode="cover" />}
-          <Scrim side="top" height={70} max={0.35} />
-          <Scrim side="bottom" height={110} max={0.8} />
+          <Scrim side="top" height={70} max={0.4} />
+          <Scrim side="bottom" height={130} max={1} />
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel="უკან" onPress={() => router.replace('/home')}
-          style={{ position: 'absolute', left: 16, top: 16, width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(16,28,43,0.82)', alignItems: 'center', justifyContent: 'center' }}>
+          style={{ position: 'absolute', left: 16, top: 16, width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(6,14,24,0.7)', alignItems: 'center', justifyContent: 'center' }}>
           <Icon name="back" size={22} color={theme.text} />
         </Pressable>
       </View>
-      <View style={{ paddingHorizontal: 20, paddingTop: 0, paddingBottom: 12, gap: 10 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 14, marginTop: -36 }}>
-          <MerchantLogo m={{ slug: mer?.slug ?? 'gochits', name: mer?.name ?? branch?.merchantName ?? "Gochit's" }} size={86} />
-          <View style={{ flex: 1, paddingBottom: 4, gap: 2 }}>
-            <Text accessibilityRole="header" numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 24, color: theme.text, lineHeight: 30 }}>{mer ? (mer.slug === 'gochits' ? "Gochit's" : mer.name) : (branch?.merchantName ?? '')}</Text>
-            {mer?.description ? <Text numberOfLines={1} style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted }}>{mer.slug === 'gochits' ? ka.menu.tagline : mer.description}</Text> : null}
+      <View style={{ paddingHorizontal: 16, paddingBottom: 12, gap: 12 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 14, marginTop: -52 }}>
+          <MerchantLogo m={{ slug: mer?.slug ?? 'gochits', name: mer?.name ?? branch?.merchantName ?? "Gochit's" }} size={84} />
+          <View style={{ flex: 1, paddingBottom: 4, gap: 3 }}>
+            <Text accessibilityRole="header" numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 24, color: theme.text, lineHeight: 29 }}>{mer ? (mer.slug === 'gochits' ? "Gochit's" : mer.name) : (branch?.merchantName ?? '')}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: openNow ? colors.success : colors.red }} />
+              <Text numberOfLines={1} style={{ flexShrink: 1, fontFamily: fontFamily.semibold, fontSize: 13, color: theme.muted }}>{openNow ? ka.branch.open : ka.branch.closedNow}{branch?.name ? ` · ${branch.name}` : ''}</Text>
+            </View>
           </View>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 40, paddingHorizontal: 12, borderRadius: 20, backgroundColor: theme.surface, alignSelf: 'flex-start', maxWidth: '100%' }}>
-          <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: openNow ? colors.success : theme.muted }} />
-          <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: theme.text, flexShrink: 1 }}>{branch?.name}</Text>
-          {statusText ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: colors.success }}>· {statusText}</Text> : <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: colors.red }}>· {ka.branch.closedNow}</Text>}
-        </View>
-        {state?.address ? pill(state.address, <Icon name="pin" size={16} color={colors.brand} />) : null}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.surface, borderRadius: 24, paddingHorizontal: 16, minHeight: 50, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.surface, borderRadius: 25, paddingLeft: 16, paddingRight: 6, minHeight: 50, borderWidth: 1, borderColor: 'rgba(56,217,176,0.14)' }}>
           <Icon name="search" size={20} color={theme.muted} />
-          <TextInput accessibilityLabel={ka.menu.search} placeholder={ka.menu.search} placeholderTextColor={theme.muted} value={q} onChangeText={setQ}
+          <TextInput accessibilityLabel={ka.menu.search} placeholder="რას ეძებთ?" placeholderTextColor={theme.muted} value={q} onChangeText={setQ}
             style={[{ flex: 1, fontFamily: fontFamily.regular, fontSize: 15, color: theme.text, minWidth: 0 }, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
           {q ? <Pressable accessibilityRole="button" accessibilityLabel={ka.common.close} onPress={() => setQ('')}><Icon name="x" size={18} color={theme.muted} /></Pressable> : null}
+          <Pressable accessibilityRole="button" accessibilityLabel="ფილტრი" onPress={() => setFiltersOpen((v) => !v)}
+            style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: filtersOpen || filter ? colors.brand : 'rgba(56,217,176,0.14)', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="filter" size={20} color={filtersOpen || filter ? colors.onBrand : colors.brand} />
+          </Pressable>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={{ gap: 8 }}>
-          {chip('deals', ka.menu.discounts)}{chip('spicy', ka.menu.spicy)}{chip('price', ka.menu.priceAsc)}
-        </ScrollView>
+        {filtersOpen || filter ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerStyle={{ gap: 8 }}>
+            {chip('deals', ka.menu.discounts)}{chip('spicy', ka.menu.spicy)}{chip('price', ka.menu.priceAsc)}
+          </ScrollView>
+        ) : null}
         {menu?.products.some((p) => p.price_source === 'unapproved') ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 11, color: theme.muted }}>{ka.menu.unapprovedPrices}</Text> : null}
       </View>
     </View>
@@ -206,7 +210,6 @@ export default function MenuScreen() {
   }
 
   const mains = shown;
-  const maxOff = Math.max(0, ...menu.products.map((p) => discountPercent(p) ?? 0));
   const resultsTitle = needle ? ka.menu.search : filter === 'deals' ? ka.menu.discounts : filter === 'spicy' ? ka.menu.spicy : ka.menu.priceAsc;
 
   return (
@@ -215,7 +218,6 @@ export default function MenuScreen() {
         {header}
 
         <View style={{ gap: 14, paddingBottom: 6 }}>
-          {!flat && maxOff > 0 ? <PromoBanner maxPercent={maxOff} onPress={() => setFilter('deals')} /> : null}
           {!flat && deals.length > 0 ? (
             <View style={{ gap: 10, paddingTop: 4 }}>
               <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 20, color: theme.text, paddingHorizontal: 20 }}>{ka.menu.dealsTitle}</Text>
