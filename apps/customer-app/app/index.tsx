@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, Image, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Aurora } from '../src/components/Aurora';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
@@ -61,8 +62,7 @@ export default function Splash() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <Image source={art.splash!} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, width: '100%', height: '100%' }} resizeMode="cover" accessibilityElementsHidden />
-      <LinearGradient colors={['rgba(6,14,24,0.2)', 'rgba(6,14,24,0.45)', 'rgba(6,14,24,0.85)']} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none" />
+      <Aurora />
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 22 }}>
         <Animated.View style={{ width: 260, height: 130, alignItems: 'center', justifyContent: 'center', opacity: pop, transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.92, 1] }) }] }}>
           <Image source={require('../assets/zyro-logo.png')} style={{ width: 230, height: 106 }} resizeMode="contain" accessibilityLabel="ZYRO" />

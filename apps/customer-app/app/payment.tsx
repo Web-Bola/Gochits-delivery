@@ -24,6 +24,7 @@ export default function Payment() {
   const enabled = useDemoMode();
   const [info, setInfo] = useState<Info | null>(null);
   const [phase, setPhase] = useState<PayPhase | null>(null);
+  const [reason, setReason] = useState<'funds' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const busy = useRef(false);
 
@@ -41,7 +42,7 @@ export default function Payment() {
     await new Promise((r) => setTimeout(r, 1500));
     const { error: e } = await supabase.rpc('demo_pay_order', { p_order_id: id, p_success: true });
     busy.current = false;
-    if (e) { setError(errorText(e.message)); setPhase('fail'); return; }
+    if (e) { setError(errorText(e.message)); setReason(/insufficient|funds|nsf/i.test(e.message) ? 'funds' : null); setPhase('fail'); return; }
     setPhase('ok');
   }
 
@@ -110,7 +111,7 @@ export default function Payment() {
           <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.muted }}>{ka.payment.cancelBack}</Text>
         </Pressable>
       </View>
-      {phase ? <PayOverlay phase={phase} amount={amount} number={info.number} count={count} onTrack={() => router.replace({ pathname: '/order/[id]', params: { id: String(id) } })} onRetry={() => setPhase(null)} onMenu={() => router.replace('/home')} /> : null}
+      {phase ? <PayOverlay phase={phase} reason={reason} amount={amount} number={info.number} count={count} onTrack={() => router.replace({ pathname: '/order/[id]', params: { id: String(id) } })} onRetry={() => setPhase(null)} onMenu={() => router.replace('/home')} /> : null}
     </Backdrop>
   );
 }

@@ -5,7 +5,7 @@ import type { ImageSourcePropType } from 'react-native';
  * Screens already use these slots; with null they show the plain navy backdrop.
  */
 export const art: Record<'splash' | 'login' | 'otp' | 'success' | 'payment' | 'banner', ImageSourcePropType | null> = {
-  splash: require('../../assets/art/bg.jpg'), login: require('../../assets/art/bg.jpg'), otp: require('../../assets/art/bg.jpg'), success: require('../../assets/art/bg.jpg'), payment: require('../../assets/art/bg.jpg'), banner: null,
+  splash: null, login: null, otp: null, success: null, payment: null, banner: null,
 };
 
 /** Brand artwork per merchant slug (cover = wide header, card = square dish photo for list cards, logo). Merchants not listed here fall back to the initial-letter badge. */

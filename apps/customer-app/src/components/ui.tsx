@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors, fontFamily, minTouch, radius, theme } from '@gochits/ui-tokens';
 import { Float, ND, PressScale, useReduceMotion } from './fx';
 import { Icon } from './Icon';
+import { Aurora } from './Aurora';
 
 const logo = require('../../assets/zyro-logo.png');
 
@@ -165,12 +166,7 @@ export function TopBar({ right, noBack }: { right?: ReactNode; noBack?: boolean 
 export function Backdrop({ source, children, fade = 0.55 }: { source?: ImageSourcePropType; children: ReactNode; fade?: number }) {
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      {source ? <Image source={source} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '62%', width: '100%' }} resizeMode="cover" accessibilityElementsHidden /> : (
-        <>
-          <View style={{ position: 'absolute', right: -90, top: -60, width: 280, height: 280, borderRadius: 140, backgroundColor: 'rgba(56,217,176,0.10)' }} />
-          <View style={{ position: 'absolute', left: -110, top: 200, width: 260, height: 260, borderRadius: 130, backgroundColor: 'rgba(255,113,133,0.06)' }} />
-        </>
-      )}
+      {source ? <Image source={source} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '62%', width: '100%' }} resizeMode="cover" accessibilityElementsHidden /> : <Aurora />}
       <LinearGradient colors={['rgba(6,14,24,0.15)', `rgba(6,14,24,${fade})`, theme.bg]} locations={[0, 0.45, 0.8]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none" />
       {children}
     </View>

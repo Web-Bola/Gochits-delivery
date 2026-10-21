@@ -14,7 +14,7 @@ const AnimatedPath = Animated.createAnimatedComponent(Path);
 const BURST = ['#38D9B0', '#FF7185', '#F5C66B', '#7DF2D6'];
 
 /** Full-screen payment result: spinner while the provider answers, then ripple + tick + confetti (success) or shake + cross (failure). */
-export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onMenu }: { phase: PayPhase; amount: string; number: string; count: number; onTrack: () => void; onRetry: () => void; onMenu: () => void }) {
+export function PayOverlay({ phase, reason, amount, number, count, onTrack, onRetry, onMenu }: { phase: PayPhase; reason?: 'funds' | null; amount: string; number: string; count: number; onTrack: () => void; onRetry: () => void; onMenu: () => void }) {
   const reduce = false;
   const pop = useRef(new Animated.Value(0)).current;
   const spin = useRef(new Animated.Value(0)).current;
@@ -42,7 +42,9 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
       Animated.timing(pulseRing, { toValue: 1, duration: 1200, delay: 150, easing: Easing.out(Easing.cubic), useNativeDriver: ND }).start();
       Animated.timing(burst, { toValue: 1, duration: 1100, easing: Easing.out(Easing.cubic), useNativeDriver: ND }).start();
     } else {
-      Animated.sequence([-9, 9, -9, 9, 0].map((x) => Animated.timing(shake, { toValue: x, duration: 90, useNativeDriver: ND }))).start();
+      Animated.sequence([-14, 14, -12, 12, -8, 8, -4, 4, 0].map((x) => Animated.timing(shake, { toValue: x, duration: 70, useNativeDriver: ND }))).start();
+      pulseRing.setValue(0);
+      Animated.timing(pulseRing, { toValue: 1, duration: 1100, easing: Easing.out(Easing.cubic), useNativeDriver: ND }).start();
     }
   }, [phase, rise, tick, pulseRing, burst, shake]);
 
@@ -55,7 +57,7 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
   const title = phase === 'processing' ? ka.payment.processing : ok ? ka.payment.okTitle : ka.payment.failedTitle;
   const rise1 = phase === 'processing' ? {} : { opacity: rise, transform: [{ translateY: rise.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }) }] };
 
-  const heading = ok ? 'შეკვეთა\nმიღებულია!' : fail ? ka.payment.failedTitle : ka.payment.processing;
+  const heading = ok ? 'შეკვეთა\nმიღებულია!' : fail ? (reason === 'funds' ? 'თანხა\nარასაკმარისია' : ka.payment.failedTitle) : ka.payment.processing;
   const sub = ok ? 'შენი გემრიელი შეკვეთა\nგზაშია შენთან' : fail ? '' : `${amount} · №${number}`;
   return (
     <View accessibilityRole="alert" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 40 }}>
@@ -69,11 +71,11 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
             <Image source={require('../../assets/zyro-logo.png')} style={{ width: 130, height: 60 }} resizeMode="contain" accessibilityLabel="ZYRO" />
             <View style={{ width: 150, height: 150, alignItems: 'center', justifyContent: 'center', marginTop: 34 }}>
               {[0, 1].map((k) => (
-                <Animated.View key={k} pointerEvents="none" style={{ position: 'absolute', width: 140, height: 140, borderRadius: 70, borderWidth: 2, borderColor: colors.brand,
+                <Animated.View key={k} pointerEvents="none" style={{ position: 'absolute', width: 140, height: 140, borderRadius: 70, borderWidth: 2, borderColor: fail ? colors.red : colors.brand,
                   opacity: pulseRing.interpolate({ inputRange: [0, 0.15 + k * 0.1, 1], outputRange: [0, 0.6, 0] }),
                   transform: [{ scale: pulseRing.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1.4 + k * 0.25] }) }] }} />
               ))}
-              <Animated.View style={{ width: 132, height: 132, borderRadius: 66, backgroundColor: fail ? 'rgba(255,113,133,0.14)' : 'rgba(56,217,176,0.16)', borderWidth: 2, borderColor: fail ? 'rgba(255,113,133,0.7)' : 'rgba(125,242,214,0.7)', alignItems: 'center', justifyContent: 'center', shadowColor: colors.brand, shadowOpacity: 0.7, shadowRadius: 30, transform: [{ scale: pop }] }}>
+              <Animated.View style={{ width: 132, height: 132, borderRadius: 66, backgroundColor: fail ? 'rgba(255,113,133,0.14)' : 'rgba(56,217,176,0.16)', borderWidth: 2, borderColor: fail ? 'rgba(255,113,133,0.7)' : 'rgba(125,242,214,0.7)', alignItems: 'center', justifyContent: 'center', shadowColor: fail ? colors.red : colors.brand, shadowOpacity: 0.7, shadowRadius: 30, transform: [{ scale: pop }, { translateX: shake }] }}>
 {phase === 'processing' ? (
                   <>
                     <Animated.View style={{ position: 'absolute', transform: [{ rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}>
@@ -90,7 +92,7 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
             <Animated.View style={[{ alignSelf: 'stretch', alignItems: 'center', gap: 10, marginTop: 22 }, rise1]}>
               <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 30, lineHeight: 38, color: theme.text, textAlign: 'center' }}>{heading}</Text>
               {sub ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 15, lineHeight: 22, color: theme.muted, textAlign: 'center' }}>{sub}</Text> : null}
-              {fail ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.text, lineHeight: 20, backgroundColor: 'rgba(255,113,133,0.14)', borderWidth: 1, borderColor: 'rgba(255,113,133,0.4)', borderRadius: 14, padding: 12, textAlign: 'center' }}>{ka.payment.failedWhy}</Text> : null}
+              {fail ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.text, lineHeight: 20, backgroundColor: 'rgba(255,113,133,0.14)', borderWidth: 1, borderColor: 'rgba(255,113,133,0.4)', borderRadius: 14, padding: 12, textAlign: 'center' }}>{reason === 'funds' ? `ბარათზე ${amount}-ის გადასახდელად საკმარისი თანხა არ არის. თანხა არ ჩამოგეჭრა, შეკვეთა შენახულია — სცადე სხვა ბარათი.` : ka.payment.failedWhy}</Text> : null}
               {ok ? (
               <View style={{ alignSelf: 'stretch', backgroundColor: 'rgba(11,24,39,0.88)', borderRadius: 22, borderWidth: 1, borderColor: 'rgba(56,217,176,0.16)', marginTop: 8, paddingHorizontal: 16 }}>
                 {[['receipt', 'შეკვეთის ნომერი', `#${number}`], ['bag', 'პროდუქტი', `${count} ${ka.cart.items}`], ['wallet', 'ჯამი', amount]].map(([ic, k, v], i, arr) => (
