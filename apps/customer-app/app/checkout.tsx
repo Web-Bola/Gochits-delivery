@@ -132,7 +132,7 @@ export default function Checkout() {
   const showList = pickAddr || !picked;
   const eta = here ? 25 + here.extra_minutes : null;
   const tone = status?.tone;
-  const toneColor = tone === 'bad' ? '#D63A2F' : tone === 'ok' ? '#1E8E5A' : theme.muted;
+  const toneColor = tone === 'bad' ? '#D63A2F' : tone === 'ok' ? colors.success : theme.muted;
 
   const sectionTitle = (n: number, t: string) => (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 6 }}>
@@ -161,7 +161,7 @@ export default function Checkout() {
 
   return (
     <Screen scroll>
-      <Header back title={ka.checkout.title} subtitle={branch?.name} right={
+      <Header back title={ka.checkout.title} subtitle={branch?.name} right={!pickup ? undefined :
         <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/branches', params: branch?.merchantId ? { merchant: branch.merchantId } : {} })} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}>
           <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.brand }}>{ka.checkout.changeBranch}</Text>
         </Pressable>} />
@@ -205,7 +205,7 @@ export default function Checkout() {
                   ) : null}
                   {pb && pb.pickup_discount_percent > 0 ? (
                     <View style={{ backgroundColor: 'rgba(30,142,90,0.1)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9 }}>
-                      <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: '#1E8E5A' }}>თვითონ წამოღებაზე −{pb.pickup_discount_percent}%</Text>
+                      <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.success }}>თვითონ წამოღებაზე −{pb.pickup_discount_percent}%</Text>
                     </View>
                   ) : null}
                   <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: theme.muted }}>როდის მოხვალ?</Text>

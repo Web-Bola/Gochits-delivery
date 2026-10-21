@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Gochit's",
+    "name": "ZYRO",
     "slug": "gochits-customer",
     "scheme": "gochits",
     "version": "0.2.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "icon": "./assets/icon.png",
     "plugins": [
       "expo-router",
@@ -19,7 +19,7 @@
       [
         "expo-notifications",
         {
-          "color": "#FFCC02"
+          "color": "#38D9B0"
         }
       ]
     ],
@@ -31,7 +31,7 @@
       "package": "ge.gochits.customer",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFCC02"
+        "backgroundColor": "#101C2B"
       }
     },
     "web": {
@@ -42,7 +42,7 @@
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#FFCC02"
+      "backgroundColor": "#101C2B"
     }
   }
 }

@@ -5,7 +5,7 @@ import { colors, fontFamily, minTouch, radius, theme } from '@gochits/ui-tokens'
 import { Float, ND, PressScale, useReduceMotion } from './fx';
 import { Icon } from './Icon';
 
-const logo = require('../../assets/logo.png');
+const logo = require('../../assets/zyro-logo.png');
 
 /** On web (testing only) the app is shown at phone width, centered. On a phone it fills the screen. */
 export function AppFrame({ children }: { children: ReactNode }) {
@@ -66,7 +66,7 @@ export function Header({ title, subtitle, back, showLogo, right }: { title?: str
   return (
     <View style={[s.header, { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        {back ? <BackButton /> : showLogo ? <Image source={logo} style={{ height: 46, width: 70 }} resizeMode="contain" accessibilityLabel="Gochit's" /> : <View />}
+        {back ? <BackButton /> : showLogo ? <Image source={logo} style={{ height: 32, width: 70 }} resizeMode="contain" accessibilityLabel="ZYRO" /> : <View />}
         {right}
       </View>
       {title && <Text style={s.h1} accessibilityRole="header">{title}</Text>}
@@ -75,13 +75,14 @@ export function Header({ title, subtitle, back, showLogo, right }: { title?: str
   );
 }
 
-/** Yellow band with the logo and rounded bottom corners (login, otp); content sits on the dark page below, like the demo. */
+/** Login / OTP: navy page, big ZYRO logo that floats gently, tagline, content below. */
 export function Hero({ children, small }: { children: ReactNode; small?: boolean }) {
-  const size = small ? 110 : 150;
+  const w = small ? 150 : 200;
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <View style={{ height: small ? 170 : 210, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' }}>
-        <Float amplitude={6} duration={2200}><Image source={logo} style={{ width: size, height: size }} resizeMode="contain" accessibilityLabel="Gochit's" /></Float>
+      <View style={{ height: small ? 190 : 250, alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+        <Float amplitude={5} duration={2400}><Image source={logo} style={{ width: w, height: w * 0.46 }} resizeMode="contain" accessibilityLabel="ZYRO" /></Float>
+        <Text style={{ fontFamily: fontFamily.semibold, fontSize: 14, color: theme.muted, letterSpacing: 0.4 }}>ყველაფერი, მიტანით</Text>
       </View>
       <View style={{ flex: 1, padding: 20, gap: 14 }}>{children}</View>
     </View>
@@ -110,15 +111,15 @@ export function Card({ children, style, selected }: { children: ReactNode; style
 
 /** red = main action, ink = yellow secondary action, outline = quiet. */
 export function Button({ title, onPress, disabled, variant = 'red' }: { title: string; onPress: () => void; disabled?: boolean; variant?: 'red' | 'ink' | 'outline' | 'outlineDark' }) {
-  const bg = variant === 'red' ? colors.red : variant === 'ink' ? colors.brand : 'transparent';
-  const fg = variant === 'red' ? colors.white : variant === 'ink' ? colors.onBrand : variant === 'outlineDark' ? colors.onBrand : theme.text;
+  const bg = variant === 'red' || variant === 'ink' ? colors.brand : 'transparent';
+  const fg = variant === 'red' ? colors.onBrand : variant === 'ink' ? colors.onBrand : variant === 'outlineDark' ? colors.onBrand : theme.text;
   return (
     <PressScale accessibilityRole="button" accessibilityState={{ disabled: !!disabled }} onPress={onPress} disabled={disabled} scaleTo={0.97}
       style={{ ...s.btn, backgroundColor: bg, opacity: disabled ? 0.45 : 1,
-        ...(variant === 'red' && !disabled ? { shadowColor: colors.red, shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } } : {}),
+        ...(variant === 'red' && !disabled ? { shadowColor: colors.brand, shadowOpacity: 0.35, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } } : {}),
         ...(variant === 'ink' && !disabled ? { shadowColor: colors.brand, shadowOpacity: 0.3, shadowRadius: 14, shadowOffset: { width: 0, height: 6 } } : {}),
         ...(variant === 'outline' ? { borderWidth: 2, borderColor: theme.border } : {}),
-        ...(variant === 'outlineDark' ? { borderWidth: 2, borderColor: 'rgba(255,255,255,0.7)' } : {}) }}>
+        ...(variant === 'outlineDark' ? { borderWidth: 2, borderColor: 'rgba(11,23,36,0.45)' } : {}) }}>
       <Text style={[s.btnText, { color: fg }]}>{title}</Text>
     </PressScale>
   );

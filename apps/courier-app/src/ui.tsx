@@ -6,7 +6,7 @@ import { colors, fontFamily } from '@gochits/ui-tokens';
 /** Clean light courier palette (Glovo / Wolt style): white panels over a map, one yellow accent, green for "go". */
 export const c = {
   bg: '#F3F3F1', sheet: '#FFFFFF', ink: '#141414', muted: '#6F6F6B', line: '#E7E7E3', soft: '#F3F3F1',
-  yellow: colors.brand, yellowSoft: '#DDEFE8', green: '#12A150', greenSoft: '#E4F6EB', red: '#D92D20', redSoft: '#FDECEA',
+  yellow: colors.brand, yellowSoft: '#DDF7F0', green: '#12A150', greenSoft: '#E4F6EB', red: '#D92D20', redSoft: '#FDECEA',
 } as const;
 
 export const gel = (tetri: number) => `₾${(tetri / 100).toFixed(2)}`;
@@ -32,7 +32,7 @@ export function T({ children, size = 15, weight = 'regular', color = c.ink, styl
 
 export function Btn({ title, onPress, icon, kind = 'primary', busy, disabled, style }: { title: string; onPress: () => void; icon?: IconName; kind?: 'primary' | 'soft' | 'dark'; busy?: boolean; disabled?: boolean; style?: ViewStyle }) {
   const bg = kind === 'primary' ? c.yellow : kind === 'dark' ? c.ink : c.soft;
-  const fg = kind === 'soft' ? c.ink : '#fff';
+  const fg = kind === 'dark' ? '#fff' : c.ink;
   return (
     <Pressable accessibilityRole="button" onPress={onPress} disabled={busy || disabled} style={({ pressed }) => [{ minHeight: 58, borderRadius: 16, backgroundColor: bg, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, paddingHorizontal: 16, opacity: disabled ? 0.4 : pressed ? 0.85 : 1 }, style]}>
       {busy ? <ActivityIndicator color={fg} /> : (<>{icon ? <Icon name={icon} color={fg} size={22} /> : null}<T size={17} weight="extrabold" color={fg}>{title}</T></>)}
@@ -41,7 +41,7 @@ export function Btn({ title, onPress, icon, kind = 'primary', busy, disabled, st
 }
 
 /** Round icon button used on the map and next to the customer. */
-export function RoundBtn({ icon, onPress, label, bg = c.sheet, fg = bg === c.yellow ? '#fff' : c.ink, size = 48, disabled }: { icon: IconName; onPress: () => void; label: string; bg?: string; fg?: string; size?: number; disabled?: boolean }) {
+export function RoundBtn({ icon, onPress, label, bg = c.sheet, fg = c.ink, size = 48, disabled }: { icon: IconName; onPress: () => void; label: string; bg?: string; fg?: string; size?: number; disabled?: boolean }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label} disabled={disabled} onPress={onPress} style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: bg, alignItems: 'center', justifyContent: 'center', opacity: disabled ? 0.4 : 1, shadowColor: '#000', shadowOpacity: 0.16, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 4 }}>
       <Icon name={icon} color={fg} size={size * 0.45} />

@@ -124,7 +124,7 @@ export default function OrderScreen() {
       <View>
         <View style={{ position: 'absolute', left: 16, right: 16, top: 16, zIndex: 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <BackButton onPress={() => router.replace('/orders')} />
-          <Pressable accessibilityRole="text" delayLongPress={900} onLongPress={() => setDev((d) => !d)} style={{ backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 7 }}><Text style={{ color: colors.brand, fontFamily: fontFamily.extrabold, fontSize: 12 }}>№{row.number}</Text></Pressable>
+          <Pressable accessibilityRole="text" delayLongPress={900} onLongPress={() => setDev((d) => !d)} style={{ backgroundColor: 'rgba(11,23,36,0.16)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 7 }}><Text style={{ color: colors.brand, fontFamily: fontFamily.extrabold, fontSize: 12 }}>№{row.number}</Text></Pressable>
         </View>
         <TrackScene scene={scene} />
         <View style={{ paddingHorizontal: 20, paddingTop: 6, paddingBottom: 38 }}>
@@ -155,7 +155,7 @@ export default function OrderScreen() {
           )}
 
           {pk && row.status === 'ready_for_pickup' ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: 'rgba(30,142,90,0.1)', borderRadius: 18, padding: 14, borderWidth: 1.5, borderColor: '#1E8E5A' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: 'rgba(30,142,90,0.1)', borderRadius: 18, padding: 14, borderWidth: 1.5, borderColor: colors.success }}>
               <View style={{ width: 46, height: 46, borderRadius: 23, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}><Icon name="pin" size={22} color={ONB} /></View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>აიღე აქ: {row.branches?.name}</Text>

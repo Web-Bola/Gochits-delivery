@@ -1,6 +1,6 @@
 /** All UI text is Georgian. Keep strings here, not in screens. Wording is ours, not official brand copy. */
 export const ka = {
-  appName: "Gochit's",
+  appName: 'ZYRO',
   login: { title: 'შესვლა', phone: 'ტელეფონის ნომერი', send: 'კოდის გაგზავნა', invalid: 'შეიყვანე 9-ნიშნა ნომერი' },
   otp: { title: 'შეიყვანე კოდი', confirm: 'დადასტურება', resend: 'ხელახლა გაგზავნა', wrong: 'კოდი არასწორია' },
   address: { pickZone: 'აირჩიე უბანი', comment: 'კომენტარი მისამართზე', useLocation: 'ჩემი მდებარეობის გამოყენება', located: 'მდებარეობა დაფიქსირდა ✓', needLocation: 'ჯერ დააფიქსირე მდებარეობა', streetPh: 'მაგ. რუსთაველის გამზ. 12', hintLocation: 'მიტანის წერტილი მდებარეობით განისაზღვრება. იყავი იქ, სადაც მიტანა გინდა, ან შეასწორე მისამართი ხელით', title: 'მისამართი', street: 'ქუჩა და სახლის ნომერი', entrance: 'სადარბაზო', floor: 'სართული', apartment: 'ბინა', save: 'მისამართის შენახვა', outside: 'ამ მისამართზე მიტანა ჯერ არ არის', working: 'იძებნება...', locationDenied: 'მდებარეობაზე წვდომა არ არის დაშვებული', locationTimeout: 'მდებარეობა ვერ დადგინდა. სცადე თავიდან' },

@@ -22,7 +22,7 @@ function AuthGuard() {
 
 export default function Layout() {
   const [loaded] = useFonts({ NotoSansGeorgian_400Regular, NotoSansGeorgian_600SemiBold, NotoSansGeorgian_800ExtraBold });
-  if (!loaded) return <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#FFFFFF' }}><ActivityIndicator color={'#0E6B57'} /></View>;
+  if (!loaded) return <View style={{ flex: 1, justifyContent: 'center', backgroundColor: '#FFFFFF' }}><ActivityIndicator color={'#21BA96'} /></View>;
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />

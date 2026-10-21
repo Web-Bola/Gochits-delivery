@@ -83,7 +83,7 @@ export function FloatUp({ trigger, label = '+1' }: { trigger: number; label?: st
     Animated.timing(v, { toValue: 1, duration: 700, easing: Easing.out(Easing.cubic), useNativeDriver: ND }).start();
   }, [trigger, v]);
   return (
-    <Animated.Text pointerEvents="none" style={{ position: 'absolute', right: 6, top: 0, fontFamily: 'NotoSansGeorgian_800ExtraBold', fontSize: 20, color: colors.red,
+    <Animated.Text pointerEvents="none" style={{ position: 'absolute', right: 6, top: 0, fontFamily: 'NotoSansGeorgian_800ExtraBold', fontSize: 20, color: colors.brand,
       opacity: v.interpolate({ inputRange: [0, 0.2, 1], outputRange: [0, 1, 0] }), transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [0, -46] }) }] }}>{label}</Animated.Text>
   );
 }

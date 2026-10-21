@@ -30,7 +30,7 @@ export default function Login() {
     <View style={{ flex: 1, backgroundColor: c.sheet, alignItems: 'center' }}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, width: '100%', maxWidth: 480, paddingHorizontal: 20 }}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: insets.top, gap: 8 }}>
-          <Image source={require('../assets/logo.png')} style={{ width: 200, height: 106 }} resizeMode="contain" />
+          <Image source={require('../assets/zyro-logo-dark.png')} style={{ width: 200, height: 92 }} resizeMode="contain" />
           <T size={18} color={c.muted}>კურიერის აპი</T>
         </View>
         <View style={{ paddingBottom: insets.bottom + 28, gap: 12 }}>

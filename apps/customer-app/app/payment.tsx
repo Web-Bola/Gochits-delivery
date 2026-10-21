@@ -57,12 +57,12 @@ export default function Payment() {
   return (
     <Screen scroll>
       <View style={{ backgroundColor: colors.brand, borderBottomLeftRadius: 32, borderBottomRightRadius: 32, paddingHorizontal: 20, paddingTop: 18, paddingBottom: 28, alignItems: 'center', gap: 6 }}>
-        <Image source={require('../assets/logo.png')} style={{ width: 84, height: 54 }} resizeMode="contain" accessibilityLabel="Gochit's" />
+        <Image source={require('../assets/zyro-logo-dark.png')} style={{ width: 90, height: 42 }} resizeMode="contain" accessibilityLabel="ZYRO" />
         <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: colors.onBrand, opacity: 0.75, marginTop: 6 }}>{ka.payment.toPay}</Text>
         <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 40, color: colors.onBrand, lineHeight: 48 }}>{amount}</Text>
         <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
           <View style={{ backgroundColor: colors.onBrand, borderRadius: 16, paddingHorizontal: 12, paddingVertical: 5 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.brand }}>№{info.number}</Text></View>
-          <View style={{ backgroundColor: 'rgba(255,255,255,0.22)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 5 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.onBrand }}>{count} {ka.cart.items}</Text></View>
+          <View style={{ backgroundColor: 'rgba(11,23,36,0.16)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 5 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.onBrand }}>{count} {ka.cart.items}</Text></View>
         </View>
       </View>
 

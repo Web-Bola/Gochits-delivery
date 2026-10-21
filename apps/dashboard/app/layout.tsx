@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 
-export const metadata: Metadata = { title: "Gochit's ადმინ პანელი" };
+export const metadata: Metadata = { title: "ZYRO ადმინ პანელი" };
 
 export default function Root({ children }: { children: React.ReactNode }) {
   return (

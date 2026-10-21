@@ -86,8 +86,8 @@ export default function Orders() {
   }, [sound, waiting]);
   useEffect(() => {
     const n = orders.filter((o) => o.status === 'placed').length;
-    document.title = n > 0 ? `(${n}) ახალი შეკვეთა · Gochit's` : "Gochit's პანელი";
-    return () => { document.title = "Gochit's პანელი"; };
+    document.title = n > 0 ? `(${n}) ახალი შეკვეთა · ZYRO` : "ZYRO პანელი";
+    return () => { document.title = "ZYRO პანელი"; };
   }, [orders]);
 
   const move = (o: Order, to: string) => run(async () => {

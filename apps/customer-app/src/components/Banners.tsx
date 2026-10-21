@@ -3,16 +3,17 @@ import { formatGel } from '@gochits/shared';
 import { ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { AddButton, Photo } from './product';
+import { Icon } from './Icon';
 import { discountPercent, type Product } from '../lib/menuData';
 
 export const FRAME = Platform.OS === 'web' ? Math.min(430, Dimensions.get('window').width) : Dimensions.get('window').width;
 
-/** Yellow strip with the logo that opens the discounted items (the "ფასდაკლებული პროდუქტები" banner from the demo). */
+/** Mint strip with a flame badge that opens the discounted items (the "ფასდაკლებული პროდუქტები" banner from the demo). */
 export function PromoBanner({ maxPercent, onPress }: { maxPercent: number; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" onPress={onPress}
       style={{ marginHorizontal: 20, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 18, backgroundColor: colors.brand }}>
-      <Image source={require('../../assets/logo.png')} style={{ width: 54, height: 54 }} resizeMode="contain" />
+      <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.onBrand, alignItems: 'center', justifyContent: 'center' }}><Icon name="flame" size={24} color={colors.brand} /></View>
       <View style={{ flex: 1 }}>
         <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: colors.onBrand }}>{ka.menu.promoTitle}</Text>
         <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12.5, color: colors.onBrand }}>{ka.menu.promoSub.replace('{n}', String(maxPercent))}</Text>

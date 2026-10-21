@@ -72,8 +72,8 @@ export function ProductCard({ item, width, qty, fav, bumped, onAdd, onOpen, onFa
         ) : (
           <View style={{ position: 'absolute', right: 8, bottom: 8 }}>
             <PressScale accessibilityRole="button" accessibilityLabel={`${ka.menu.add}: ${item.name}`} onPress={onAdd} scaleTo={0.8}
-              style={{ minWidth: 44, height: 44, paddingHorizontal: qty > 0 ? 12 : 0, borderRadius: 22, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.4, shadowRadius: 8 }}>
-              <Text style={{ color: colors.white, fontSize: qty > 0 ? 16 : 24, fontFamily: fontFamily.extrabold, marginTop: qty > 0 ? 0 : -2 }}>{qty > 0 ? `${qty} +` : '+'}</Text>
+              style={{ minWidth: 44, height: 44, paddingHorizontal: qty > 0 ? 12 : 0, borderRadius: 22, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.4, shadowRadius: 8 }}>
+              <Text style={{ color: colors.onBrand, fontSize: qty > 0 ? 16 : 24, fontFamily: fontFamily.extrabold, marginTop: qty > 0 ? 0 : -2 }}>{qty > 0 ? `${qty} +` : '+'}</Text>
             </PressScale>
             <FloatUp trigger={bumped} />
           </View>
@@ -96,7 +96,7 @@ export function ProductCard({ item, width, qty, fav, bumped, onAdd, onOpen, onFa
 export function Ribbon({ off }: { off: number }) {
   return (
     <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 10, backgroundColor: colors.red, borderTopRightRadius: 6, borderBottomRightRadius: 6, paddingHorizontal: 9, paddingVertical: 3 }}>
-      <Text style={{ color: colors.white, fontFamily: fontFamily.extrabold, fontSize: 12 }}>-{off}%</Text>
+      <Text style={{ color: colors.onBrand, fontFamily: fontFamily.extrabold, fontSize: 12 }}>-{off}%</Text>
     </View>
   );
 }
@@ -105,8 +105,8 @@ export function Ribbon({ off }: { off: number }) {
 export function AddButton({ qty, onPress, label, size = 36 }: { qty: number; onPress: () => void; label: string; size?: number }) {
   return (
     <PressScale accessibilityRole="button" accessibilityLabel={label} onPress={onPress} scaleTo={0.8}
-      style={{ minWidth: size, height: size, paddingHorizontal: qty > 0 ? 8 : 0, borderRadius: size / 2, backgroundColor: qty > 0 ? colors.red : colors.white, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.45, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
-      {qty > 0 ? <Text style={{ color: colors.white, fontFamily: fontFamily.extrabold, fontSize: 15 }}>{qty}</Text> : <Icon name="plus" size={20} color="#0B1424" strokeWidth={2.4} />}
+      style={{ minWidth: size, height: size, paddingHorizontal: qty > 0 ? 8 : 0, borderRadius: size / 2, backgroundColor: qty > 0 ? colors.brand : colors.white, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.45, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
+      {qty > 0 ? <Text style={{ color: colors.onBrand, fontFamily: fontFamily.extrabold, fontSize: 15 }}>{qty}</Text> : <Icon name="plus" size={20} color="#0B1424" strokeWidth={2.4} />}
     </PressScale>
   );
 }

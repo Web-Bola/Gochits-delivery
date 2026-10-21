@@ -98,7 +98,7 @@ export default function Branches() {
               <Pressable accessibilityRole="button" accessibilityState={{ selected: on }} onPress={() => choose(r)}>
                 <Card selected={on} style={{ gap: 4 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: live ? '#1E8E5A' : colors.red }} />
+                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: live ? colors.success : colors.red }} />
                     <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text, flex: 1 }}>{r.name}</Text>
                     {r.id === nearestId ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.white, backgroundColor: colors.red, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 3, overflow: 'hidden' }}>{ka.branch.nearest}</Text> : null}
                     {on ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.onBrand, backgroundColor: colors.brand, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 3, overflow: 'hidden' }}>{ka.branch.current}</Text> : null}

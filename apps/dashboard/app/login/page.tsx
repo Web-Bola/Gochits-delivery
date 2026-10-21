@@ -23,7 +23,7 @@ export default function Login() {
   };
   return (
     <div className="login">
-      <div className="band"><img src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/logo.png`} alt="Gochit's" /></div>
+      <div className="band"><img src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/zyro-logo.png`} alt="ZYRO" /></div>
       <div className="body">
       <form onSubmit={submit} className="card stack">
         <div><h1>შესვლა</h1><p className="muted">გოჩიტ'ს პანელი</p></div>

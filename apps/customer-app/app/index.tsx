@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, Image, View } from 'react-native';
+import { Animated, Easing, Image, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { colors } from '@gochits/ui-tokens';
+import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { supabase } from '../src/lib/supabase';
 import { ND } from '../src/components/fx';
 
@@ -16,7 +16,7 @@ export default function Splash() {
   const bar = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.timing(pop, { toValue: 1, duration: 700, easing: Easing.out(Easing.cubic), useNativeDriver: ND }).start();
+    Animated.timing(pop, { toValue: 1, duration: 600, easing: Easing.out(Easing.cubic), useNativeDriver: ND }).start();
     Animated.timing(bar, { toValue: 1, duration: MIN_MS, easing: Easing.bezier(0.4, 0, 0.2, 1), useNativeDriver: ND }).start();
     const f = Animated.loop(Animated.sequence([
       Animated.timing(float, { toValue: 1, duration: 1700, easing: Easing.inOut(Easing.sin), useNativeDriver: ND }),
@@ -40,16 +40,17 @@ export default function Splash() {
   }, [router]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', gap: 40 }}>
-      <Animated.View style={{ width: 240, height: 240, alignItems: 'center', justifyContent: 'center', opacity: pop, transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.88, 1] }) }] }}>
-        <Animated.View pointerEvents="none" style={{ position: 'absolute', width: 190, height: 190, borderRadius: 95, borderWidth: 2, borderColor: 'rgba(255,255,255,0.35)',
+    <View style={{ flex: 1, backgroundColor: theme.bg, alignItems: 'center', justifyContent: 'center', gap: 36 }}>
+      <Animated.View style={{ width: 260, height: 200, alignItems: 'center', justifyContent: 'center', opacity: pop, transform: [{ translateY: pop.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }}>
+        <Animated.View pointerEvents="none" style={{ position: 'absolute', width: 200, height: 200, borderRadius: 100, borderWidth: 2, borderColor: 'rgba(56,217,176,0.35)',
           opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.8, 0] }), transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.75, 1.3] }) }] }} />
-        <Animated.View style={{ transform: [{ translateY: float.interpolate({ inputRange: [0, 1], outputRange: [0, -6] }) }] }}>
-          <Image source={require('../assets/logo.png')} style={{ width: 180, height: 180 }} resizeMode="contain" accessibilityLabel="Gochit's" />
+        <Animated.View style={{ transform: [{ translateY: float.interpolate({ inputRange: [0, 1], outputRange: [0, -5] }) }] }}>
+          <Image source={require('../assets/zyro-logo.png')} style={{ width: 220, height: 101 }} resizeMode="contain" accessibilityLabel="ZYRO" />
         </Animated.View>
       </Animated.View>
-      <View style={{ width: 150, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.28)', overflow: 'hidden' }}>
-        <Animated.View style={{ width: 150, height: 4, borderRadius: 2, backgroundColor: colors.onBrand, transform: [{ translateX: bar.interpolate({ inputRange: [0, 1], outputRange: [-150, 0] }) }] }} />
+      <Text style={{ fontFamily: fontFamily.semibold, fontSize: 15, color: theme.muted, marginTop: -20 }}>ყველაფერი, მიტანით</Text>
+      <View style={{ width: 150, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.12)', overflow: 'hidden' }}>
+        <Animated.View style={{ width: 150, height: 4, borderRadius: 2, backgroundColor: colors.brand, transform: [{ translateX: bar.interpolate({ inputRange: [0, 1], outputRange: [-150, 0] }) }] }} />
       </View>
     </View>
   );

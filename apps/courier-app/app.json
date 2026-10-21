@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Gochit's კურიერი",
+    "name": "ZYRO კურიერი",
     "slug": "gochits-courier",
     "scheme": "gochits-courier",
     "version": "0.1.0",
@@ -9,8 +9,8 @@
     "icon": "./assets/icon.png",
     "plugins": ["expo-router", "expo-secure-store"],
     "ios": { "bundleIdentifier": "ge.gochits.courier", "supportsTablet": false },
-    "android": { "package": "ge.gochits.courier", "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#FFCC02" } },
+    "android": { "package": "ge.gochits.courier", "adaptiveIcon": { "foregroundImage": "./assets/adaptive-icon.png", "backgroundColor": "#38D9B0" } },
     "web": { "bundler": "metro", "output": "single", "favicon": "./assets/logo.png" },
-    "splash": { "image": "./assets/logo.png", "resizeMode": "contain", "backgroundColor": "#FFCC02" }
+    "splash": { "image": "./assets/zyro-logo.png", "resizeMode": "contain", "backgroundColor": "#38D9B0" }
   }
 }

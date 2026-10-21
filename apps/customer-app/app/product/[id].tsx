@@ -157,9 +157,9 @@ export default function ProductScreen() {
         <Stepper value={qty} min={1} max={20} onMinus={() => setQty((q) => Math.max(1, q - 1))} onPlus={() => setQty((q) => Math.min(20, q + 1))} />
         <View style={{ flex: 1 }}>
           <PressScale accessibilityRole="button" accessibilityLabel={ka.product.addFor} accessibilityState={{ disabled: sold }} disabled={sold} scaleTo={0.97}
-            style={{ minHeight: 54, borderRadius: 27, backgroundColor: sold ? '#3A4A6B' : colors.red, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 }} onPress={addToCart}>
-            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.white }}>{sold ? ka.menu.soldOut : ka.product.addFor}</Text>
-            <Bump value={total}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.white }}>{formatGel(total)}</Text></Bump>
+            style={{ minHeight: 54, borderRadius: 27, backgroundColor: sold ? '#3A4A6B' : colors.brand, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 }} onPress={addToCart}>
+            <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: sold ? theme.muted : colors.onBrand }}>{sold ? ka.menu.soldOut : ka.product.addFor}</Text>
+            <Bump value={total}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: sold ? theme.muted : colors.onBrand }}>{formatGel(total)}</Text></Bump>
           </PressScale>
         </View>
       </View>

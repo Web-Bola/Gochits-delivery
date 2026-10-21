@@ -30,9 +30,13 @@ export default function Address() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!branch) { setZones([]); return; }
-    supabase.from('delivery_zones').select('id,name,fee_tetri,center_lat,center_lng').eq('branch_id', branch.id).eq('is_active', true).order('name')
-      .then(({ data }) => setZones(((data ?? []) as Zone[]).filter((z) => z.center_lat != null && z.center_lng != null)));
+    // with a branch chosen: its quarters; without one (new flow): every quarter we deliver to, one pill per name
+    let q = supabase.from('delivery_zones').select('id,name,fee_tetri,center_lat,center_lng').eq('is_active', true).order('name');
+    if (branch) q = q.eq('branch_id', branch.id);
+    q.then(({ data }) => {
+      const seen = new Set<string>();
+      setZones(((data ?? []) as Zone[]).filter((z) => z.center_lat != null && z.center_lng != null).filter((z) => (seen.has(z.name) ? false : (seen.add(z.name), true))));
+    });
   }, [branch]);
 
   function pickZone(z: Zone) {
@@ -85,7 +89,7 @@ export default function Address() {
         {zones && zones.length > 0 ? (
           <View style={{ gap: 10 }}>
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{ka.address.pickZone}</Text>
-            <Text style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{branch?.name}</Text>
+            {branch ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{branch.name}</Text> : null}
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {zones.map((z) => {
                 const on = zoneId === z.id;
