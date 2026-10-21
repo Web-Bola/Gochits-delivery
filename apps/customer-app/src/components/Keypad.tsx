@@ -12,7 +12,7 @@ export function Keypad({ onDigit, onBack, letters = 'ka', confirm }: { onDigit: 
   const cell = { flex: 1, height: 54, borderRadius: 14, alignItems: 'center' as const, justifyContent: 'center' as const };
   const key = (d: string) => (
     <Pressable key={d} accessibilityRole="button" accessibilityLabel={d} onPress={() => onDigit(d)}
-      style={({ pressed }) => ({ ...cell, backgroundColor: pressed ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: 'rgba(139,92,246,0.10)' })}>
+      style={({ pressed }) => ({ ...cell, backgroundColor: pressed ? theme.surface2 : theme.surface, borderWidth: 1, borderColor: 'rgba(255,122,26,0.10)' })}>
       <Text style={{ fontFamily: fontFamily.semibold, fontSize: 24, color: theme.text, lineHeight: 28 }}>{d}</Text>
       {sub[d] ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 9.5, color: theme.muted, letterSpacing: 1.2, marginTop: -1 }}>{sub[d]}</Text> : null}
     </Pressable>
@@ -31,7 +31,7 @@ export function Keypad({ onDigit, onBack, letters = 'ka', confirm }: { onDigit: 
         {key('0')}
         {confirm ? (
           <Pressable accessibilityRole="button" accessibilityLabel="გაგრძელება" disabled={!confirm.enabled} onPress={confirm.onPress} style={{ flex: 1, height: 54, borderRadius: 27, overflow: 'hidden', opacity: confirm.enabled ? 1 : 0.5 }}>
-            <LinearGradient colors={['#B79CFF', '#8B5CF6']} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><Icon name="arrow" size={24} color={colors.onBrand} /></LinearGradient>
+            <LinearGradient colors={['#FFA85C', '#FF7A1A']} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><Icon name="arrow" size={24} color={colors.onBrand} /></LinearGradient>
           </Pressable>
         ) : back}
       </View>

@@ -61,7 +61,7 @@ const catHit = (m: Merchant, id: string) => {
   return !!CATS.find((c) => c.id === id)?.re?.test(hay);
 };
 
-const TINT: Record<string, string> = { all: '#1C1630', restaurant: '#3A2E3C', cafe: '#3B3426', grocery: '#1F3B35', pharmacy: '#22384D', flowers: '#3B2A38', other: '#2B3345' };
+const TINT: Record<string, string> = { all: '#211A15', restaurant: '#3A2E3C', cafe: '#3B3426', grocery: '#1F3B35', pharmacy: '#22384D', flowers: '#3B2A38', other: '#2B3345' };
 
 export default function Home() {
   const router = useRouter();
@@ -172,7 +172,7 @@ export default function Home() {
     return (
       <Pressable key={id} accessibilityRole="button" accessibilityState={{ selected: on }} onPress={() => setKind(id)}>
         {on ? (
-          <LinearGradient colors={['#B79CFF', '#8B5CF6']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ height: 42, borderRadius: 21, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <LinearGradient colors={['#FFA85C', '#FF7A1A']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ height: 42, borderRadius: 21, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <Icon name={icon} size={18} color={colors.onBrand} />
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13.5, color: colors.onBrand }}>{label}</Text>
           </LinearGradient>
@@ -199,11 +199,11 @@ export default function Home() {
     return (
     <FadeIn key={m.id} index={i}>
       <Pressable accessibilityRole="button" accessibilityLabel={m.name} onPress={() => openMerchant(m)} style={{ opacity: dim ? 0.6 : 1 }}>
-        <View style={{ backgroundColor: theme.surface, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(139,92,246,0.14)' }}>
+        <View style={{ backgroundColor: theme.surface, borderRadius: 24, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,122,26,0.14)' }}>
           <View>
             <Cover m={m} height={172} />
-            <LinearGradient colors={['transparent', 'rgba(10,8,20,0.85)']} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 90 }} pointerEvents="none" />
-            {dim ? <View style={{ position: 'absolute', left: 12, top: 12, backgroundColor: 'rgba(10,8,20,0.8)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.red }}>დაკეტილია</Text></View> : null}
+            <LinearGradient colors={['transparent', 'rgba(11,9,7,0.85)']} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 90 }} pointerEvents="none" />
+            {dim ? <View style={{ position: 'absolute', left: 12, top: 12, backgroundColor: 'rgba(11,9,7,0.8)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: colors.red }}>დაკეტილია</Text></View> : null}
             <View style={{ position: 'absolute', left: 12, bottom: -22, borderRadius: 16, borderWidth: 2, borderColor: theme.surface, overflow: 'hidden' }}><MerchantLogo m={m} size={52} /></View>
           </View>
           <View style={{ paddingTop: 28, paddingHorizontal: 14, paddingBottom: 14, gap: 3 }}>
@@ -263,13 +263,13 @@ export default function Home() {
             <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text, flexShrink: 1 }}>{placeName}</Text>
             <Icon name="chev" size={16} color={theme.muted} />
           </Pressable>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.surface, borderRadius: 25, paddingLeft: 16, paddingRight: 6, minHeight: 50, borderWidth: 1, borderColor: 'rgba(139,92,246,0.14)' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.surface, borderRadius: 25, paddingLeft: 16, paddingRight: 6, minHeight: 50, borderWidth: 1, borderColor: 'rgba(255,122,26,0.14)' }}>
             <Icon name="search" size={20} color={theme.muted} />
             <TextInput accessibilityLabel="ძებნა" placeholder="რესტორანი, კერძი ან სამზარეულო…" placeholderTextColor={theme.muted} value={q} onChangeText={setQ}
               style={[{ flex: 1, fontFamily: fontFamily.regular, fontSize: 15, color: theme.text, minWidth: 0 }, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
             {q ? <Pressable accessibilityRole="button" accessibilityLabel={ka.common.close} onPress={() => setQ('')}><Icon name="x" size={18} color={theme.muted} /></Pressable> : null}
             <Pressable accessibilityRole="button" accessibilityLabel="ფილტრი" onPress={() => setFilterOpen((v) => !v)}
-              style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: filterOpen || mode === 'pickup' ? colors.brand : 'rgba(139,92,246,0.14)', alignItems: 'center', justifyContent: 'center' }}>
+              style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: filterOpen || mode === 'pickup' ? colors.brand : 'rgba(255,122,26,0.14)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="filter" size={20} color={filterOpen || mode === 'pickup' ? colors.onBrand : colors.brand} />
             </Pressable>
           </View>

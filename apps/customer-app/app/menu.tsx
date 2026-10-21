@@ -155,7 +155,7 @@ export default function MenuScreen() {
           <Scrim side="bottom" height={130} max={1} />
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel="უკან" onPress={() => router.replace('/home')}
-          style={{ position: 'absolute', left: 16, top: 16, width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(10,8,20,0.7)', alignItems: 'center', justifyContent: 'center' }}>
+          style={{ position: 'absolute', left: 16, top: 16, width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(11,9,7,0.7)', alignItems: 'center', justifyContent: 'center' }}>
           <Icon name="back" size={22} color={theme.text} />
         </Pressable>
       </View>
@@ -170,13 +170,13 @@ export default function MenuScreen() {
             </View>
           </View>
         </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.surface, borderRadius: 25, paddingLeft: 16, paddingRight: 6, minHeight: 50, borderWidth: 1, borderColor: 'rgba(139,92,246,0.14)' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: theme.surface, borderRadius: 25, paddingLeft: 16, paddingRight: 6, minHeight: 50, borderWidth: 1, borderColor: 'rgba(255,122,26,0.14)' }}>
           <Icon name="search" size={20} color={theme.muted} />
           <TextInput accessibilityLabel={ka.menu.search} placeholder="რას ეძებთ?" placeholderTextColor={theme.muted} value={q} onChangeText={setQ}
             style={[{ flex: 1, fontFamily: fontFamily.regular, fontSize: 15, color: theme.text, minWidth: 0 }, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
           {q ? <Pressable accessibilityRole="button" accessibilityLabel={ka.common.close} onPress={() => setQ('')}><Icon name="x" size={18} color={theme.muted} /></Pressable> : null}
           <Pressable accessibilityRole="button" accessibilityLabel="ფილტრი" onPress={() => setFiltersOpen((v) => !v)}
-            style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: filtersOpen || filter ? colors.brand : 'rgba(139,92,246,0.14)', alignItems: 'center', justifyContent: 'center' }}>
+            style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: filtersOpen || filter ? colors.brand : 'rgba(255,122,26,0.14)', alignItems: 'center', justifyContent: 'center' }}>
             <Icon name="filter" size={20} color={filtersOpen || filter ? colors.onBrand : colors.brand} />
           </Pressable>
         </View>
@@ -234,7 +234,7 @@ export default function MenuScreen() {
                 return (
                   <Pressable key={cat.id} accessibilityRole="tab" accessibilityState={{ selected: on }} onPress={() => goTo(cat.id)}
                     onLayout={(e: LayoutChangeEvent) => { tabX.current[cat.id] = e.nativeEvent.layout.x; }}
-                    style={{ height: 54, marginVertical: 8, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 18, backgroundColor: on ? colors.brand : theme.surface, borderWidth: on ? 0 : 1, borderColor: 'rgba(139,92,246,0.14)', ...(on ? { shadowColor: colors.brand, shadowOpacity: 0.5, shadowRadius: 12, shadowOffset: { width: 0, height: 3 } } : {}) }}>
+                    style={{ height: 54, marginVertical: 8, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 18, backgroundColor: on ? colors.brand : theme.surface, borderWidth: on ? 0 : 1, borderColor: 'rgba(255,122,26,0.14)', ...(on ? { shadowColor: colors.brand, shadowOpacity: 0.5, shadowRadius: 12, shadowOffset: { width: 0, height: 3 } } : {}) }}>
                     <Icon name={categoryIcon(cat.name_ka)} size={22} color={on ? colors.onBrand : colors.brand} />
                     <Text style={{ fontFamily: on ? fontFamily.extrabold : fontFamily.semibold, fontSize: 13.5, color: on ? colors.onBrand : theme.text }}>{cat.name_ka}</Text>
                   </Pressable>

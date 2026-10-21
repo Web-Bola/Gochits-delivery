@@ -156,7 +156,7 @@ export default function ProductScreen() {
         </View>
       </ScrollView>
 
-      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 18, backgroundColor: 'rgba(10,8,20,0.92)' }}>
+      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 18, backgroundColor: 'rgba(11,9,7,0.92)' }}>
         <CtaBar icon="bag" title={sold ? ka.menu.soldOut : 'კალათაში დამატება'} price={sold ? undefined : formatGel(total)} disabled={sold} onPress={addToCart} />
       </View>
     </KeyboardAvoidingView>

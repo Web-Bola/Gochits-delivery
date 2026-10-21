@@ -49,7 +49,7 @@ export default function Otp() {
         {Array.from({ length: 6 }).map((_, i) => {
           const on = i === code.length;
           return (
-            <View key={i} style={{ flex: 1, height: 60, borderRadius: 14, backgroundColor: 'rgba(19,15,34,0.85)', borderWidth: 1.5, borderColor: on ? colors.brand : theme.border, alignItems: 'center', justifyContent: 'center' }}>
+            <View key={i} style={{ flex: 1, height: 60, borderRadius: 14, backgroundColor: 'rgba(22,18,16,0.85)', borderWidth: 1.5, borderColor: on ? colors.brand : theme.border, alignItems: 'center', justifyContent: 'center' }}>
               {code[i] ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 24, color: theme.text }}>{code[i]}</Text> : <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: on ? colors.brand : theme.border }} />}
             </View>
           );
