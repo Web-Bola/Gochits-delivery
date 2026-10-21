@@ -131,7 +131,7 @@ export default function OrderScreen() {
         <View style={{ position: 'absolute', left: 16, right: 16, top: 16, zIndex: 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <BackButton onPress={() => router.replace('/orders')} />
           <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, alignItems: 'center' }}><Image source={require('../../assets/zyro-logo.png')} style={{ height: 44, width: 96 }} resizeMode="contain" accessibilityLabel="ZYRO" /></View>
-          <Pressable accessibilityRole="text" delayLongPress={900} onLongPress={() => setDev((d) => !d)} style={{ backgroundColor: 'rgba(255,122,26,0.14)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 7 }}><Text style={{ color: colors.brand, fontFamily: fontFamily.extrabold, fontSize: 12 }}>№{row.number}</Text></Pressable>
+          <Pressable accessibilityRole="text" delayLongPress={900} onLongPress={() => setDev((d) => !d)} style={{ backgroundColor: 'rgba(11,167,154,0.14)', borderRadius: 16, paddingHorizontal: 12, paddingVertical: 7 }}><Text style={{ color: colors.brand, fontFamily: fontFamily.extrabold, fontSize: 12 }}>№{row.number}</Text></Pressable>
         </View>
         <View style={{ paddingTop: 58 }}><TrackScene scene={scene} /></View>
         <View style={{ paddingHorizontal: 20, paddingTop: 6, paddingBottom: 38 }}>
@@ -182,7 +182,7 @@ export default function OrderScreen() {
             </View>
           ) : null}
           {!pk && out && courier?.full_name ? (
-            <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 14, gap: 12, borderWidth: 1, borderColor: 'rgba(255,122,26,0.14)' }}>
+            <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 14, gap: 12, borderWidth: 1, borderColor: 'rgba(11,167,154,0.14)' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
                 <View style={{ width: 64, height: 64, borderRadius: 32, borderWidth: 2, borderColor: colors.brand, backgroundColor: theme.surface2, alignItems: 'center', justifyContent: 'center' }}>
                   <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 26, color: colors.brand }}>{courier.full_name.trim()[0]?.toUpperCase()}</Text>
@@ -194,7 +194,7 @@ export default function OrderScreen() {
               </View>
               {courier.phone ? (
                 <PressScale accessibilityRole="button" onPress={() => Linking.openURL(`tel:${courier.phone!.replace(/\s/g, '')}`).catch(() => undefined)} scaleTo={0.97}
-                  style={{ minHeight: 48, borderRadius: 24, borderWidth: 1.5, borderColor: 'rgba(255,122,26,0.5)', backgroundColor: 'rgba(255,122,26,0.08)', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                  style={{ minHeight: 48, borderRadius: 24, borderWidth: 1.5, borderColor: 'rgba(11,167,154,0.5)', backgroundColor: 'rgba(11,167,154,0.08)', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                   <Icon name="phone" size={18} color={colors.brand} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.brand }}>დაუკავშირდი</Text>
                 </PressScale>
               ) : null}

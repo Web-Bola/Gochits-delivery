@@ -45,7 +45,7 @@ export default function Layout() {
   return (
     <CartProvider>
       <FavoritesProvider>
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
         <AppFrame>
           <AuthGuard />
           <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', contentStyle: { backgroundColor: theme.bg } }} />

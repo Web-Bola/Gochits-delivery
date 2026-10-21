@@ -71,7 +71,7 @@ export default function Profile() {
       <Header title={ka.profile.title} />
       <ScrollView contentContainerStyle={{ padding: 20, gap: 14, paddingBottom: 110 }} keyboardShouldPersistTaps="handled">
         <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-          <LinearGradient colors={['#FFA85C', '#E65C00']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 68, height: 68, borderRadius: 34, alignItems: 'center', justifyContent: 'center' }}>
+          <LinearGradient colors={['#2FC4B6', '#078A7F']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 68, height: 68, borderRadius: 34, alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 24, color: colors.onBrand }}>{(name.trim()[0] ?? '?').toUpperCase()}</Text>
           </LinearGradient>
           <View style={{ flex: 1 }}>
@@ -86,7 +86,7 @@ export default function Profile() {
         <Card style={{ paddingVertical: 2, paddingHorizontal: 14 }}>
           {[['receipt', ka.tabs.orders, () => router.push('/orders')], ['heart', 'ფავორიტები', () => router.push('/favorites')], ['phone', ka.profile.support, () => Linking.openURL(`tel:${SUPPORT_PHONE.replace(/\s/g, '')}`).catch(() => undefined)]].map(([ic, label, go], i, all) => (
             <Pressable key={String(label)} accessibilityRole="button" onPress={go as () => void} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 13, borderBottomWidth: i < all.length - 1 ? 1 : 0, borderBottomColor: theme.border }}>
-              <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(255,122,26,0.12)', alignItems: 'center', justifyContent: 'center' }}><Icon name={ic as string} size={20} color={colors.brand} /></View>
+              <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(11,167,154,0.12)', alignItems: 'center', justifyContent: 'center' }}><Icon name={ic as string} size={20} color={colors.brand} /></View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontFamily: fontFamily.semibold, fontSize: 15, color: theme.text }}>{label as string}</Text>
                 {ic === 'phone' ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{SUPPORT_PHONE}</Text> : null}

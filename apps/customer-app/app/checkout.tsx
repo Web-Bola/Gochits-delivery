@@ -147,7 +147,7 @@ export default function Checkout() {
 
   const sectionTitle = (n: number, t: string) => (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 8 }}>
-      <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,122,26,0.14)', alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(11,167,154,0.14)', alignItems: 'center', justifyContent: 'center' }}>
         <Icon name={(['pin', 'receipt', 'bag', 'card'] as const)[Math.min(n, 4) - 1] ?? 'pin'} size={17} color={colors.brand} />
       </View>
       <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{t}</Text>
@@ -161,7 +161,7 @@ export default function Checkout() {
       : { bg: '#14281E', node: <Icon name="cash" size={30} color="#9AD36A" /> };
     return (
       <Pressable key={title} accessibilityRole="radio" accessibilityState={{ selected: on, disabled: !enabled }} disabled={!enabled} onPress={() => m && setMethod(m)}
-        style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 12, borderRadius: 20, backgroundColor: on ? 'rgba(255,122,26,0.06)' : theme.surface, borderWidth: on ? 1.5 : 1, borderColor: on ? colors.brand : theme.border, opacity: enabled ? 1 : 0.55 }}>
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 12, borderRadius: 20, backgroundColor: on ? 'rgba(11,167,154,0.06)' : theme.surface, borderWidth: on ? 1.5 : 1, borderColor: on ? colors.brand : theme.border, opacity: enabled ? 1 : 0.55 }}>
         <View style={{ width: 96, height: 64, borderRadius: 12, backgroundColor: thumb.bg, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#2A3A4A' }}>{thumb.node}</View>
         <View style={{ flex: 1 }}>
           <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15.5, color: theme.text }}>{title}</Text>
@@ -198,7 +198,7 @@ export default function Checkout() {
         {pickup ? (
           <>
             {sectionTitle(1, 'ფილიალი და დრო')}
-            <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 14, gap: 12, borderWidth: 1, borderColor: 'rgba(255,122,26,0.14)' }}>
+            <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 14, gap: 12, borderWidth: 1, borderColor: 'rgba(11,167,154,0.14)' }}>
               {!branch ? (
                 <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 48, borderRadius: 24, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' }}>
                   <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: colors.onBrand }}>აირჩიე ფილიალი</Text>
@@ -245,7 +245,7 @@ export default function Checkout() {
         {!pickup && (!addrs ? <ActivityIndicator color={colors.brand} /> : (
           <>
             {picked && !showList ? (
-              <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 14, gap: 12, borderWidth: 1, borderColor: 'rgba(255,122,26,0.14)' }}>
+              <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 14, gap: 12, borderWidth: 1, borderColor: 'rgba(11,167,154,0.14)' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                   <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(14,107,87,0.12)', alignItems: 'center', justifyContent: 'center' }}><Icon name="pin" size={22} color={colors.brand} /></View>
                   <View style={{ flex: 1 }}>
@@ -299,14 +299,14 @@ export default function Checkout() {
         ))}
 
         {sectionTitle(2, 'დამატებითი ინფორმაცია')}
-        <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 12, gap: 6, borderWidth: 1, borderColor: 'rgba(255,122,26,0.14)' }}>
+        <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 12, gap: 6, borderWidth: 1, borderColor: 'rgba(11,167,154,0.14)' }}>
           <TextInput accessibilityLabel={ka.checkout.notes} value={notes} onChangeText={setNotes} multiline maxLength={300} placeholder="მაგ. კართან დადეთ, არ დარეკოთ…" placeholderTextColor={theme.muted}
             style={[{ minHeight: 64, borderRadius: 12, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 12, paddingTop: 10, paddingBottom: 10, fontFamily: fontFamily.regular, fontSize: 14, color: theme.text, textAlignVertical: 'top' }, Platform.OS === 'web' && ({ outlineStyle: 'none' } as object)]} />
           <Text style={{ alignSelf: 'flex-end', fontFamily: fontFamily.regular, fontSize: 11, color: theme.muted }}>{notes.length}/300 · არასავალდებულო</Text>
         </View>
 
         {sectionTitle(3, 'შეკვეთის შემაჯამებელი')}
-        <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 16, gap: 8, borderWidth: 1, borderColor: 'rgba(255,122,26,0.14)' }}>
+        <View style={{ backgroundColor: theme.surface, borderRadius: 20, padding: 16, gap: 8, borderWidth: 1, borderColor: 'rgba(11,167,154,0.14)' }}>
           {lines.map((l) => (
             <View key={l.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <Photo path={menu?.products.find((x) => x.id === l.productId)?.image_path ?? null} style={{ width: 62, height: 46 }} rounded={10} />

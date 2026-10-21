@@ -129,7 +129,7 @@ export function Button({ title, onPress, disabled, variant = 'red', arrow }: { t
         ...(variant === 'outline' ? { borderWidth: 1.5, borderColor: theme.border } : {}),
         ...(variant === 'outlineDark' ? { borderWidth: 2, borderColor: 'rgba(11,23,36,0.45)' } : {}) }}>
       {solid ? (
-        <LinearGradient colors={['#FFA85C', '#FF7A1A', '#E65C00']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>{inner}</LinearGradient>
+        <LinearGradient colors={['#2FC4B6', '#0BA79A', '#078A7F']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>{inner}</LinearGradient>
       ) : inner}
     </PressScale>
   );
@@ -140,7 +140,7 @@ export function CtaBar({ title, price, icon, onPress, disabled, divider }: { tit
   return (
     <PressScale accessibilityRole="button" accessibilityLabel={price ? `${title} ${price}` : title} accessibilityState={{ disabled: !!disabled }} onPress={onPress} disabled={disabled} scaleTo={0.98}
       style={{ height: 58, borderRadius: 29, overflow: 'hidden', opacity: disabled ? 0.45 : 1, shadowColor: colors.brand, shadowOpacity: disabled ? 0 : 0.4, shadowRadius: 16, shadowOffset: { width: 0, height: 6 } }}>
-      <LinearGradient colors={['#FFA85C', '#FF7A1A', '#E65C00']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', paddingLeft: 22, paddingRight: 10, gap: 12 }}>
+      <LinearGradient colors={['#2FC4B6', '#0BA79A', '#078A7F']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', paddingLeft: 22, paddingRight: 10, gap: 12 }}>
         {icon ? <Icon name={icon} size={24} color={colors.onBrand} /> : null}
         <Text numberOfLines={1} style={{ flex: 1, fontFamily: fontFamily.extrabold, fontSize: 16, color: colors.onBrand }}>{title}</Text>
         {divider ? <View style={{ width: 1, height: 26, backgroundColor: 'rgba(11,23,36,0.25)' }} /> : null}
@@ -167,7 +167,7 @@ export function Backdrop({ source, children, fade = 0.55 }: { source?: ImageSour
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       {source ? <Image source={source} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '62%', width: '100%' }} resizeMode="cover" accessibilityElementsHidden /> : <Aurora />}
-      <LinearGradient colors={['rgba(11,9,7,0.15)', `rgba(11,9,7,${fade})`, theme.bg]} locations={[0, 0.45, 0.8]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none" />
+      <LinearGradient colors={['rgba(249,248,245,0.15)', `rgba(249,248,245,${fade})`, theme.bg]} locations={[0, 0.45, 0.8]} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} pointerEvents="none" />
       {children}
     </View>
   );
@@ -202,7 +202,7 @@ const s = StyleSheet.create({
   h1: { fontFamily: fontFamily.extrabold, fontSize: 24, color: theme.text },
   sub: { fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted, lineHeight: 19 },
   body: { fontFamily: fontFamily.regular, fontSize: 15, color: theme.text, lineHeight: 22 },
-  card: { backgroundColor: theme.surface, borderRadius: radius.card, padding: 16, gap: 6, borderWidth: 1, borderColor: 'rgba(255,122,26,0.14)' },
+  card: { backgroundColor: theme.surface, borderRadius: radius.card, padding: 16, gap: 6, borderWidth: 1, borderColor: 'rgba(11,167,154,0.14)' },
   btn: { minHeight: 56, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 },
   btnText: { fontFamily: fontFamily.extrabold, fontSize: 17 },
   label: { fontFamily: fontFamily.semibold, fontSize: 13, color: theme.text },

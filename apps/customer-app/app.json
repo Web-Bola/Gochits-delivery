@@ -5,7 +5,7 @@
     "scheme": "gochits",
     "version": "0.2.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "icon": "./assets/icon.png",
     "plugins": [
       "expo-router",
@@ -19,7 +19,7 @@
       [
         "expo-notifications",
         {
-          "color": "#FF7A1A"
+          "color": "#0BA79A"
         }
       ]
     ],
@@ -31,7 +31,7 @@
       "package": "ge.gochits.customer",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0B0907"
+        "backgroundColor": "#F9F8F5"
       }
     },
     "web": {
@@ -42,7 +42,7 @@
     "splash": {
       "image": "./assets/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0B0907"
+      "backgroundColor": "#F9F8F5"
     }
   }
 }

@@ -116,7 +116,7 @@ function ProductRowImpl({ item, qty, bumped, onAdd, onOpen }: { item: Product; q
   const off = discountPercent(item);
   const sold = !item.available;
   return (
-    <View style={{ flexDirection: 'row', gap: 12, padding: 10, marginBottom: 10, backgroundColor: theme.surface, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,122,26,0.14)', alignItems: 'center' }}>
+    <View style={{ flexDirection: 'row', gap: 12, padding: 10, marginBottom: 10, backgroundColor: theme.surface, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(11,167,154,0.14)', alignItems: 'center' }}>
       <View style={{ width: 92, height: 92 }}>
         <Pressable accessibilityRole="button" accessibilityLabel={item.name} onPress={() => onOpen(item)} style={{ flex: 1, opacity: sold ? 0.45 : 1 }}>
           <Photo path={item.image_path} rounded={14} style={{ flex: 1 }} />

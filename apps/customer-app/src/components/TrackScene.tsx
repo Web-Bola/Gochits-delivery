@@ -12,8 +12,8 @@ function Disc({ icon, size = 92, spring = false }: { icon: IconName; size?: numb
   const v = useRef(new Animated.Value(spring ? 0 : 1)).current;
   useEffect(() => { if (spring) Animated.spring(v, { toValue: 1, friction: 5, tension: 90, useNativeDriver: ND }).start(); }, [spring, v]);
   return (
-    <Animated.View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: 'rgba(255,122,26,0.16)', borderWidth: 2, borderColor: 'rgba(255,168,92,0.7)', shadowColor: colors.brand, shadowOpacity: 0.6, shadowRadius: 22, alignItems: 'center', justifyContent: 'center', opacity: v, transform: [{ scale: v.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }] }}>
-      <Icon name={icon} size={Math.round(size * 0.46)} color="#FFA85C" strokeWidth={2.4} />
+    <Animated.View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: 'rgba(11,167,154,0.16)', borderWidth: 2, borderColor: 'rgba(47,196,182,0.7)', shadowColor: colors.brand, shadowOpacity: 0.6, shadowRadius: 22, alignItems: 'center', justifyContent: 'center', opacity: v, transform: [{ scale: v.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }] }}>
+      <Icon name={icon} size={Math.round(size * 0.46)} color="#2FC4B6" strokeWidth={2.4} />
     </Animated.View>
   );
 }
@@ -36,7 +36,7 @@ function Ride() {
   const R = 24; const B = 64; const track = Math.max(0, w - 2 * R - B);
   return (
     <View onLayout={(e) => setW(e.nativeEvent.layout.width)} style={{ alignSelf: 'stretch', height: B, justifyContent: 'center', paddingHorizontal: 20 }}>
-      <View style={{ position: 'absolute', left: 20 + R, right: 20 + R, top: B / 2 - 1.5, height: 0, borderTopWidth: 3, borderStyle: 'dashed', borderColor: 'rgba(255,122,26,0.4)' }} />
+      <View style={{ position: 'absolute', left: 20 + R, right: 20 + R, top: B / 2 - 1.5, height: 0, borderTopWidth: 3, borderStyle: 'dashed', borderColor: 'rgba(11,167,154,0.4)' }} />
       <View style={{ position: 'absolute', left: 20, top: (B - 2 * R) / 2, width: 2 * R, height: 2 * R, borderRadius: R, borderWidth: 3, borderColor: ONB, alignItems: 'center', justifyContent: 'center' }}><Icon name="store" size={20} color={ONB} /></View>
       <View style={{ position: 'absolute', right: 20, top: (B - 2 * R) / 2, width: 2 * R, height: 2 * R, borderRadius: R, borderWidth: 3, borderColor: ONB, alignItems: 'center', justifyContent: 'center' }}><Icon name="home" size={20} color={ONB} /></View>
       <Animated.View style={{ position: 'absolute', left: 20 + R, transform: [{ translateX: v.interpolate({ inputRange: [0, 1], outputRange: [0, track] }) }] }}>
@@ -55,7 +55,7 @@ export function TrackScene({ scene }: { scene: string }) {
           {scene === 'shop' ? <><Pulse size={110} color={ONB} /><Pulse size={110} color={ONB} delay={1300} /><Disc icon="receipt" /></> : null}
           {scene === 'cook' ? (
             <>
-              <Spin duration={9000} style={{ position: 'absolute', width: 140, height: 140, borderRadius: 70, borderWidth: 3, borderStyle: 'dashed', borderColor: 'rgba(255,122,26,0.4)' }} />
+              <Spin duration={9000} style={{ position: 'absolute', width: 140, height: 140, borderRadius: 70, borderWidth: 3, borderStyle: 'dashed', borderColor: 'rgba(11,167,154,0.4)' }} />
               <Disc icon="bag" />
             </>
           ) : null}

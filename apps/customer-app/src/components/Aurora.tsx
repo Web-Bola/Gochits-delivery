@@ -40,7 +40,7 @@ function Doodle({ n, x, y, size, rot, o, i }: D & { i: number }) {
   const r = v.interpolate({ inputRange: [0, 0.5, 1], outputRange: [`${rot}deg`, `${rot + 6}deg`, `${rot}deg`] });
   return (
     <Animated.View pointerEvents="none" style={{ position: 'absolute', left: x as `${number}%`, top: y as `${number}%`, transform: [{ translateY: dy }, { rotate: r }] }}>
-      <Image source={F[ORDER[i % ORDER.length]!]} style={{ width: size * 1.3, height: size * 1.3, opacity: Math.min(0.5, o * 2.6) }} resizeMode="contain" />
+      <Image source={F[ORDER[i % ORDER.length]!]} style={{ width: size * 1.3, height: size * 1.3, opacity: Math.min(0.85, o * 4.2) }} resizeMode="contain" />
     </Animated.View>
   );
 }
@@ -48,8 +48,8 @@ function Doodle({ n, x, y, size, rot, o, i }: D & { i: number }) {
 export function Aurora() {
   return (
     <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, overflow: 'hidden', backgroundColor: theme.bg }}>
-      <LinearGradient colors={['#241608', '#100D0A', '#0B0907']} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
-      <Glow size={340} color="rgba(255,122,26,0.06)" top={-120} left={-80} dx={70} dy={50} duration={9000} delay={0} />
+      <LinearGradient colors={['#E3F5F2', '#F9F8F5', '#F9F8F5']} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
+      <Glow size={340} color="rgba(11,167,154,0.06)" top={-120} left={-80} dx={70} dy={50} duration={9000} delay={0} />
       <Glow size={300} color="rgba(60,130,220,0.05)" top={260} left={140} dx={-60} dy={60} duration={11000} delay={800} />
       <Glow size={260} color="rgba(255,113,133,0.03)" top={520} left={-90} dx={60} dy={-50} duration={13000} delay={400} />
       {DOODLES.map((d, i) => <Doodle key={i} {...d} i={i} />)}
