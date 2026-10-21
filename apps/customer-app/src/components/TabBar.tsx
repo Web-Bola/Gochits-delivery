@@ -7,6 +7,7 @@ import { Icon } from './Icon';
 const TABS = [
   { path: '/home', icon: 'home', label: 'მთავარი' },
   { path: '/orders', icon: 'receipt', label: ka.tabs.orders },
+  { path: '/favorites', icon: 'heart', label: 'ფავორიტები' },
   { path: '/profile', icon: 'user', label: ka.tabs.profile },
 ] as const;
 

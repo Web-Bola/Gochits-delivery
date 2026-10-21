@@ -161,7 +161,7 @@ export default function Cart() {
               </View>
               <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.checkout.deliveryAtCheckout}</Text>
             </Card>
-            <Button title={`${ka.cart.checkout} · ${formatGel(subtotal - discount)}`} onPress={() => router.push('/checkout')} disabled={anyGone} />
+            <Button title={`შეკვეთის გაფორმება · ${formatGel(subtotal - discount)}`} onPress={() => router.push('/checkout')} disabled={anyGone} />
           </>
         )}
       </ScrollView>

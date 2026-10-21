@@ -99,7 +99,8 @@ export function PayOverlay({ phase, amount, number, count, onTrack, onRetry, onM
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7 }}><Icon name="check" size={15} color={colors.brand} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>{ka.payment.paidChip}</Text></View>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: theme.surface2, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7 }}><Icon name="bag" size={15} color={colors.brand} /><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 12, color: theme.text }}>{count} {ka.cart.items}</Text></View>
                 </View>
-                <Button title={ka.payment.viewOrder} onPress={onTrack} />
+                <Button title="შეკვეთის თვალყური" onPress={onTrack} />
+                <Button variant="outline" title="მთავარ გვერდზე დაბრუნება" onPress={onMenu} />
               </>
             ) : (
               <>

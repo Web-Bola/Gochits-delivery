@@ -42,6 +42,8 @@ async function currentPosition(): Promise<Pos> {
   return { lat: p.coords.latitude, lng: p.coords.longitude };
 }
 
+const TINT: Record<string, string> = { all: '#25384B', restaurant: '#3A2E3C', cafe: '#3B3426', grocery: '#1F3B35', pharmacy: '#22384D', flowers: '#3B2A38', other: '#2B3345' };
+
 export default function Home() {
   const router = useRouter();
   const { count, subtotal, branch, setBranch, address } = useCart();
@@ -151,8 +153,8 @@ export default function Home() {
     return (
       <Pressable key={id} accessibilityRole="button" accessibilityState={{ selected: on }} onPress={() => setKind(id)}
         style={{ width: 88, alignItems: 'center', gap: 8 }}>
-        <View style={{ width: 72, height: 72, borderRadius: 22, backgroundColor: on ? colors.brand : theme.surface, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: on ? colors.brand : theme.border }}>
-          <Icon name={icon} size={30} color={on ? colors.onBrand : theme.text} />
+        <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: on ? colors.brand : TINT[id] ?? theme.surface2, alignItems: 'center', justifyContent: 'center', borderWidth: on ? 0 : 1, borderColor: theme.border }}>
+          <Icon name={icon} size={28} color={on ? colors.onBrand : theme.text} />
         </View>
         <Text numberOfLines={1} style={{ fontFamily: on ? fontFamily.extrabold : fontFamily.semibold, fontSize: 12.5, color: on ? theme.text : theme.muted }}>{label}</Text>
       </Pressable>
@@ -213,11 +215,11 @@ export default function Home() {
         <View style={{ paddingHorizontal: 20, paddingTop: 24, gap: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <Image source={require('../assets/zyro-logo.png')} style={{ width: 92, height: 42 }} resizeMode="contain" accessibilityLabel="ZYRO" />
-            {branch ? (
-              <Pressable accessibilityRole="button" onPress={() => router.push('/menu')} style={{ minHeight: 44, justifyContent: 'center' }}>
-                <Text numberOfLines={1} style={{ fontFamily: fontFamily.semibold, fontSize: 12.5, color: colors.brand, maxWidth: 190 }}>{branch.merchantName ?? branch.name} ›</Text>
-              </Pressable>
-            ) : null}
+            <Pressable accessibilityRole="button" accessibilityLabel={ka.menu.viewCart} onPress={() => router.push('/cart')}
+              style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: theme.surface, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: theme.border }}>
+              <Icon name="bag" size={22} color={theme.text} />
+              {count > 0 ? <View style={{ position: 'absolute', top: -2, right: -2, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 11, color: colors.onBrand }}>{count}</Text></View> : null}
+            </Pressable>
           </View>
           <Pressable accessibilityRole="button" accessibilityLabel="მისამართის შეცვლა" onPress={() => router.push('/address')}
             style={{ flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start', maxWidth: '100%', minHeight: 40 }}>
@@ -234,6 +236,13 @@ export default function Home() {
           <View accessibilityRole="tablist" style={{ flexDirection: 'row', backgroundColor: theme.surface, borderRadius: 24, padding: 4, borderWidth: 1, borderColor: theme.border }}>
             {seg('delivery', 'მიტანა', 'bike')}{seg('pickup', 'წამოღება', 'bag')}
           </View>
+        </View>
+
+        <View style={{ marginHorizontal: 20, marginTop: 20, borderRadius: 20, backgroundColor: colors.brand, padding: 18, overflow: 'hidden', minHeight: 110, justifyContent: 'center' }}>
+          <View style={{ position: 'absolute', right: -24, top: -24, width: 120, height: 120, borderRadius: 60, backgroundColor: 'rgba(255,255,255,0.18)' }} />
+          <View style={{ position: 'absolute', right: 30, bottom: -40, width: 90, height: 90, borderRadius: 45, backgroundColor: 'rgba(11,23,36,0.10)' }} />
+          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 22, lineHeight: 28, color: colors.onBrand }}>ყველაფერი,{'\n'}მიტანით</Text>
+          <Text style={{ fontFamily: fontFamily.semibold, fontSize: 13, color: colors.onBrand, marginTop: 4 }}>რესტორნები, მაღაზიები და სხვა — ერთ აპში</Text>
         </View>
 
         {kinds.length > 1 ? (

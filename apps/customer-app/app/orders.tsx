@@ -24,6 +24,7 @@ export default function Orders() {
   const [failed, setFailed] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [tab, setTab] = useState<'active' | 'past'>('active');
 
   const load = useCallback(() => supabase.from('orders').select('id,number,status,total_tetri,created_at,branches(name),order_items(name_snapshot,quantity)').order('created_at', { ascending: false }).limit(50)
     .then(({ data, error }) => { if (error) { setFailed(true); setRows((r) => r ?? []); } else { setFailed(false); setRows((data ?? []) as unknown as Row[]); } }), []);
@@ -72,10 +73,16 @@ export default function Orders() {
           {failed && <StateView tone="error" icon="clock" title={ka.errors.network} actionTitle={ka.common.retry} onAction={load} />}
           {msg && <ErrorText>{msg}</ErrorText>}
           {rows.length === 0 && !failed && <StateView icon="receipt" title={ka.orders.empty} hint={ka.orders.emptyHint} actionTitle={ka.orders.toMenu} onAction={() => router.replace('/home')} />}
-          {current.length > 0 && <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{ka.orders.active}</Text>}
-          {current.map(card)}
-          {past.length > 0 && <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text, marginTop: 6 }}>{ka.orders.past}</Text>}
-          {past.map((r, i) => card(r, i + current.length))}
+          <View accessibilityRole="tablist" style={{ flexDirection: 'row', backgroundColor: theme.surface, borderRadius: 14, padding: 4 }}>
+            {([['active', 'აქტიური'], ['past', 'დასრულებული']] as const).map(([id, label]) => (
+              <Pressable key={id} accessibilityRole="tab" accessibilityState={{ selected: tab === id }} onPress={() => setTab(id)}
+                style={{ flex: 1, minHeight: 40, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: tab === id ? colors.brand : 'transparent' }}>
+                <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: tab === id ? colors.onBrand : theme.muted }}>{label}</Text>
+              </Pressable>
+            ))}
+          </View>
+          {(tab === 'active' ? current : past).map(card)}
+          {rows.length > 0 && (tab === 'active' ? current : past).length === 0 ? <StateView icon="receipt" title={tab === 'active' ? 'აქტიური შეკვეთა არ გაქვს' : 'დასრულებული შეკვეთა ჯერ არ გაქვს'} /> : null}
         </ScrollView>
       )}
       <TabBar />
