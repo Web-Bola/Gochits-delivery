@@ -153,19 +153,23 @@ export default function Checkout() {
       <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 16, color: theme.text }}>{t}</Text>
     </View>
   );
-  const tile = (m: Method, icon: string, title: string, enabled: boolean, hint?: string) => {
-    const on = chosen === m;
+  const pm = (m: Method | null, title: string, hint: string, enabled: boolean, kind: 'card' | 'apple' | 'google' | 'cash') => {
+    const on = !!m && chosen === m;
+    const thumb = kind === 'card' ? { bg: '#10161E', node: <Icon name="card" size={30} color={colors.brand} /> }
+      : kind === 'apple' ? { bg: '#000', node: <Text style={{ fontFamily: fontFamily.semibold, fontSize: 20, color: '#fff' }}> Pay</Text> }
+      : kind === 'google' ? { bg: '#fff', node: <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 18 }}><Text style={{ color: '#4285F4' }}>G</Text><Text style={{ color: '#5F6368' }}> Pay</Text></Text> }
+      : { bg: '#14281E', node: <Icon name="cash" size={30} color="#9AD36A" /> };
     return (
-      <Pressable key={m} accessibilityRole="radio" accessibilityState={{ selected: on, disabled: !enabled }} disabled={!enabled} onPress={() => setMethod(m)}
-        style={{ flex: 1, minHeight: 112, borderRadius: 18, padding: 14, gap: 8, backgroundColor: on ? 'rgba(14,107,87,0.08)' : theme.surface, borderWidth: 2, borderColor: on ? colors.brand : 'transparent', opacity: enabled ? 1 : 0.4 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Icon name={icon} size={26} color={colors.brand} />
-          <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: on ? colors.brand : theme.border, alignItems: 'center', justifyContent: 'center' }}>
-            {on && <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: colors.brand }} />}
-          </View>
+      <Pressable key={title} accessibilityRole="radio" accessibilityState={{ selected: on, disabled: !enabled }} disabled={!enabled} onPress={() => m && setMethod(m)}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 12, borderRadius: 20, backgroundColor: on ? 'rgba(56,217,176,0.06)' : theme.surface, borderWidth: on ? 1.5 : 1, borderColor: on ? colors.brand : theme.border, opacity: enabled ? 1 : 0.55 }}>
+        <View style={{ width: 96, height: 64, borderRadius: 12, backgroundColor: thumb.bg, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#2A3A4A' }}>{thumb.node}</View>
+        <View style={{ flex: 1 }}>
+          <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15.5, color: theme.text }}>{title}</Text>
+          <Text numberOfLines={2} style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted, marginTop: 2 }}>{hint}</Text>
         </View>
-        <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{title}</Text>
-        {hint ? <Text numberOfLines={3} style={{ fontFamily: fontFamily.regular, fontSize: 11.5, color: theme.muted, lineHeight: 16 }}>{hint}</Text> : null}
+        <View style={{ width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: on ? colors.brand : '#5A6E80', alignItems: 'center', justifyContent: 'center' }}>
+          {on ? <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: colors.brand }} /> : null}
+        </View>
       </Pressable>
     );
   };
@@ -322,9 +326,11 @@ export default function Checkout() {
           {!pickup && untilFree > 0 ? <Text style={{ fontFamily: fontFamily.semibold, fontSize: 12, color: colors.brand }}>{ka.checkout.freeFrom} {formatGel(untilFree)}</Text> : null}
         </View>
         {sectionTitle(4, ka.checkout.payment)}
-        <View style={{ flexDirection: 'row', gap: 12 }}>
-          {tile('card', 'card', ka.checkout.card, cardOk, cardOk ? ka.payment.note : ka.payment.demoOff)}
-          {tile('cash', 'cash', pickup ? 'ადგილზე' : ka.checkout.cash, cashOk, pickup ? 'გადაიხდი ფილიალში' : cashOk ? undefined : ka.checkout.cashOff)}
+        <View style={{ gap: 10 }}>
+          {pm('card', 'ბარათით გადახდა', cardOk ? 'ახალი ბარათის დამატება და გადახდა უსაფრთხო გვერდზე' : ka.payment.demoOff, cardOk, 'card')}
+          {pm(null, 'Apple Pay', 'მალე დაემატება', false, 'apple')}
+          {pm(null, 'Google Pay', 'მალე დაემატება', false, 'google')}
+          {pm('cash', pickup ? 'ადგილზე გადახდა' : ka.checkout.cash, pickup ? 'გადაიხდი ფილიალში' : cashOk ? 'კურიერთან გადახდა' : ka.checkout.cashOff, cashOk, 'cash')}
         </View>
 
         {(error || promoMsg) && <ErrorText>{error ?? promoMsg}</ErrorText>}
