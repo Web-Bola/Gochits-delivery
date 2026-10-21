@@ -15,7 +15,7 @@ const ICON: Record<string, string> = {
 };
 const NAV_R = [['/restaurant', 'შეკვეთები', 'bag'], ['/restaurant/history', 'ისტორია', 'home'], ['/restaurant/menu', 'მენიუ და მარაგი', 'tag']] as const;
 const NAV_A = [
-  ['/admin', 'მთავარი', 'home'], ['/admin/branches', 'ფილიალები', 'store'], ['/admin/zones', 'ზონები და მიტანა', 'pin'],
+  ['/admin', 'მთავარი', 'home'], ['/admin/merchants', 'ბიზნესები', 'store'], ['/admin/branches', 'ფილიალები', 'store'], ['/admin/zones', 'ზონები და მიტანა', 'pin'],
   ['/admin/products', 'პროდუქტები და ფასები', 'bag'], ['/admin/promos', 'პრომო კოდები', 'tag'], ['/admin/staff', 'თანამშრომლები', 'user'], ['/admin/settings', 'პარამეტრები', 'cog'],
 ] as const;
 

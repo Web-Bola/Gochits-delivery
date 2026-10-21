@@ -5,7 +5,7 @@ import { gel } from '@/lib/format';
 import { useAction, useLoad } from '@/components/bits';
 import { useBranch } from '@/components/branchctx';
 
-interface Cat { id: string; name_ka: string; sort_order: number }
+interface Cat { id: string; name_ka: string; sort_order: number; merchant_id: string }
 interface Prod { id: string; category_id: string; name: string; price_tetri: number; is_active: boolean }
 interface BP { product_id: string; is_available: boolean }
 
@@ -13,12 +13,13 @@ export default function RestaurantMenu() {
   const { branch } = useBranch();
   const { data, error, reload } = useLoad(async () => {
     if (!branch) return null;
-    const [cats, prods, bps] = await Promise.all([
-      supabase.from('categories').select('id,name_ka,sort_order').order('sort_order').then(ok<Cat[]>),
+    const [cats, prods, bps, br] = await Promise.all([
+      supabase.from('categories').select('id,name_ka,sort_order,merchant_id').order('sort_order').then(ok<Cat[]>),
       supabase.from('products').select('id,category_id,name,price_tetri,is_active').eq('is_active', true).order('sort_order').then(ok<Prod[]>),
       supabase.from('branch_products').select('product_id,is_available').eq('branch_id', branch.id).then(ok<BP[]>),
+      supabase.from('branches').select('merchant_id').eq('id', branch.id).single().then(ok<{ merchant_id: string }>),
     ]);
-    return { cats, prods, bps };
+    return { cats: cats.filter((c) => c.merchant_id === br.merchant_id), prods, bps };
   });
   const [q, setQ] = useState('');
   const { busy, run, note } = useAction();

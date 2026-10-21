@@ -4,12 +4,13 @@ import { ok, supabase } from '@/lib/supabase';
 import { WEEK } from '@/lib/format';
 import { Field, useAction, useLoad } from '@/components/bits';
 
-interface Br { id: string | null; code: string; name: string; address: string | null; phone: string | null; lat: number | null; lng: number | null; is_active: boolean; accepts_orders: boolean; cod_enabled: boolean; pickup_enabled: boolean; pickup_discount_percent: number }
+interface Br { id: string | null; code: string; name: string; address: string | null; phone: string | null; lat: number | null; lng: number | null; is_active: boolean; accepts_orders: boolean; cod_enabled: boolean; pickup_enabled: boolean; pickup_discount_percent: number; merchant_id: string | null }
+interface Mer { id: string; name: string }
 interface Hr { branch_id: string; weekday: number; opens: string; closes: string }
-const EMPTY: Br = { id: null, code: '', name: '', address: '', phone: '', lat: null, lng: null, is_active: true, accepts_orders: false, cod_enabled: false, pickup_enabled: true, pickup_discount_percent: 0 };
+const EMPTY: Br = { id: null, code: '', name: '', address: '', phone: '', lat: null, lng: null, is_active: true, accepts_orders: false, cod_enabled: false, pickup_enabled: true, pickup_discount_percent: 0, merchant_id: null };
 const hhmm = (t: string) => t.slice(0, 5);
 
-function BranchForm({ branch, hours, onSaved }: { branch: Br; hours: Hr[]; onSaved: () => void }) {
+function BranchForm({ branch, hours, merchants, onSaved }: { branch: Br; hours: Hr[]; merchants: Mer[]; onSaved: () => void }) {
   const [b, setB] = useState(branch);
   const [lat, setLat] = useState(branch.lat?.toString() ?? '');
   const [lng, setLng] = useState(branch.lng?.toString() ?? '');
@@ -27,7 +28,7 @@ function BranchForm({ branch, hours, onSaved }: { branch: Br; hours: Hr[]; onSav
     if (!b.name.trim()) throw new Error('სახელი აუცილებელია');
     if (!(b.pickup_discount_percent >= 0 && b.pickup_discount_percent <= 50)) throw new Error('ფასდაკლება: 0–50%');
     if (!b.id && !/^[A-Za-z0-9]{1,6}$/.test(b.code.trim())) throw new Error('კოდი: 1–6 ლათინური ასო/ციფრი (მაგ. B1)');
-    const id = ok(await supabase.rpc('admin_save_branch', { p_id: b.id, p_code: b.code, p_name: b.name.trim(), p_address: b.address ?? '', p_phone: b.phone ?? '', p_lat: la, p_lng: lo, p_is_active: b.is_active, p_accepts_orders: b.accepts_orders, p_cod_enabled: b.cod_enabled, p_pickup_enabled: b.pickup_enabled, p_pickup_discount_percent: Math.round(Number(b.pickup_discount_percent) || 0) })) as string;
+    const id = ok(await supabase.rpc('admin_save_branch', { p_id: b.id, p_code: b.code, p_name: b.name.trim(), p_address: b.address ?? '', p_phone: b.phone ?? '', p_lat: la, p_lng: lo, p_is_active: b.is_active, p_accepts_orders: b.accepts_orders, p_cod_enabled: b.cod_enabled, p_pickup_enabled: b.pickup_enabled, p_pickup_discount_percent: Math.round(Number(b.pickup_discount_percent) || 0), p_merchant_id: b.merchant_id ?? merchants[0]?.id ?? null })) as string;
     ok(await supabase.rpc('admin_save_hours', { p_branch: id, p_hours: week.map((w, d) => (w.open ? { weekday: d, opens: w.opens, closes: w.closes } : null)).filter(Boolean) }));
     onSaved();
   });
@@ -36,6 +37,7 @@ function BranchForm({ branch, hours, onSaved }: { branch: Br; hours: Hr[]; onSav
     <div className="card stack">
       <h2>{b.id ? b.name || 'ფილიალი' : 'ახალი ფილიალი'}</h2>
       <div className="grid2">
+        <Field label="ბიზნესი"><select value={b.merchant_id ?? merchants[0]?.id ?? ''} onChange={(e) => set('merchant_id', e.target.value)}>{merchants.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}</select></Field>
         <Field label="კოდი (შეკვეთის ნომრის პრეფიქსი)"><input value={b.code} disabled={!!b.id} onChange={(e) => set('code', e.target.value)} placeholder="B1" /></Field>
         <Field label="სახელი"><input value={b.name} onChange={(e) => set('name', e.target.value)} placeholder="გოჩიტ'ს დიღომი" /></Field>
         <Field label="მისამართი"><input value={b.address ?? ''} onChange={(e) => set('address', e.target.value)} /></Field>
@@ -79,11 +81,12 @@ function BranchForm({ branch, hours, onSaved }: { branch: Br; hours: Hr[]; onSav
 
 export default function Branches() {
   const { data, error, reload } = useLoad(async () => {
-    const [branches, hours] = await Promise.all([
+    const [branches, hours, merchants] = await Promise.all([
       supabase.rpc('admin_branches').then(ok<Br[]>),
       supabase.from('branch_hours').select('*').then(ok<Hr[]>),
+      supabase.rpc('admin_merchants').then(ok<Mer[]>),
     ]);
-    return { branches, hours };
+    return { branches, hours, merchants };
   });
   const [adding, setAdding] = useState(false);
   return (
@@ -93,8 +96,8 @@ export default function Branches() {
         <button onClick={() => setAdding(true)} disabled={adding}>+ ახალი ფილიალი</button>
       </div>
       {error ? <div className="err">{error}</div> : null}
-      {adding ? <BranchForm branch={EMPTY} hours={[]} onSaved={() => { setAdding(false); reload(); }} /> : null}
-      {data?.branches.map((b) => <BranchForm key={b.id} branch={b} hours={data.hours.filter((h) => h.branch_id === b.id)} onSaved={reload} />)}
+      {adding ? <BranchForm branch={EMPTY} hours={[]} merchants={data?.merchants ?? []} onSaved={() => { setAdding(false); reload(); }} /> : null}
+      {data?.branches.map((b) => <BranchForm key={b.id} branch={b} hours={data.hours.filter((h) => h.branch_id === b.id)} merchants={data.merchants} onSaved={reload} />)}
       {data && data.branches.length === 0 && !adding ? <p className="muted">ფილიალი ჯერ არ არის.</p> : null}
     </div>
   );
