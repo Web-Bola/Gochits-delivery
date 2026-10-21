@@ -5,12 +5,12 @@ import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Icon } from './Icon';
 
 const TABS = [
-  { path: '/menu', icon: 'store', label: ka.tabs.menu },
+  { path: '/home', icon: 'home', label: 'მთავარი' },
   { path: '/orders', icon: 'receipt', label: ka.tabs.orders },
   { path: '/profile', icon: 'user', label: ka.tabs.profile },
 ] as const;
 
-/** Bottom navigation shown on the three main screens (line icons, active one in yellow). */
+/** Bottom navigation shown on the three main screens (line icons, active one in the brand color). */
 export function TabBar() {
   const router = useRouter();
   const path = usePathname();

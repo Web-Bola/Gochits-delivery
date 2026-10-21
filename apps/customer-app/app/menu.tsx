@@ -6,17 +6,18 @@ import { ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Body, Button, StateView } from '../src/components/ui';
 import { Icon, categoryIcon } from '../src/components/Icon';
-import { TabBar } from '../src/components/TabBar';
 import { Bump, Shimmer, SlideUp } from '../src/components/fx';
 import { DealsRow, PromoBanner } from '../src/components/Banners';
 import { ProductRow, Scrim } from '../src/components/product';
 import { discountPercent, isSpicy, loadMenu, type Menu, type Product } from '../src/lib/menuData';
 import { photoOf } from '../src/components/product';
+import { hasBundledArt, initial, loadMerchants, type Merchant } from '../src/lib/merchants';
+import { MerchantLogo } from '../src/components/MerchantLogo';
 import { supabase } from '../src/lib/supabase';
 import { useCart } from '../src/state/cart';
 
 type Filter = 'deals' | 'spicy' | 'price' | null;
-interface BranchState { is_open: boolean; accepts_orders: boolean; address: string | null }
+interface BranchState { is_open: boolean; accepts_orders: boolean; address: string | null; merchant_id?: string }
 
 export default function MenuScreen() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function MenuScreen() {
   const [menu, setMenu] = useState<Menu | null>(null);
   const [failed, setFailed] = useState(false);
   const [state, setState] = useState<BranchState | null>(null);
+  const [mer, setMer] = useState<Merchant | null>(null);
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState<Filter>(null);
   const [active, setActive] = useState<string>('');
@@ -43,14 +45,16 @@ export default function MenuScreen() {
     try {
       setMenu(await loadMenu(branch.id));
       const { data } = await supabase.rpc('list_branches');
-      const me = ((data ?? []) as { id: string; is_open: boolean; accepts_orders: boolean; address: string | null }[]).find((b) => b.id === branch.id);
-      setState(me ? { is_open: me.is_open, accepts_orders: me.accepts_orders, address: me.address } : null);
+      const me = ((data ?? []) as { id: string; is_open: boolean; accepts_orders: boolean; address: string | null; merchant_id: string }[]).find((b) => b.id === branch.id);
+      setState(me ? { is_open: me.is_open, accepts_orders: me.accepts_orders, address: me.address, merchant_id: me.merchant_id } : null);
+      const ms = await loadMerchants().catch(() => [] as Merchant[]);
+      setMer(ms.find((m) => m.id === (branch.merchantId ?? me?.merchant_id)) ?? null);
     } catch (e) { console.warn('menu load failed', e); setFailed(true); }
   }, [branch]);
 
   useEffect(() => {
     if (!ready) return;
-    if (!branch) { router.replace('/branches'); return; }
+    if (!branch) { router.replace('/home'); return; }
     load();
   }, [ready, branch, load, router]);
 
@@ -141,19 +145,24 @@ export default function MenuScreen() {
   const header = (
     <View>
       <View style={{ height: 190, backgroundColor: theme.surface }}>
-        <View style={{ flex: 1, overflow: 'hidden' }}>
-          <Image source={require('../assets/cover.jpg')} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+        <View style={{ flex: 1, overflow: 'hidden', backgroundColor: '#1E3A5F', alignItems: 'center', justifyContent: 'center' }}>
+          {mer && !hasBundledArt(mer) ? <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 120, color: 'rgba(255,255,255,0.12)' }}>{initial(mer.name)}</Text>
+            : <Image source={require('../assets/cover.jpg')} style={{ position: 'absolute', width: '100%', height: '100%' }} resizeMode="cover" />}
           <Scrim side="top" height={70} max={0.35} />
           <Scrim side="bottom" height={110} max={0.8} />
         </View>
-        <View style={{ position: 'absolute', left: 20, bottom: -30, width: 76, height: 76, borderRadius: 38, backgroundColor: colors.brand, borderWidth: 4, borderColor: theme.bg, alignItems: 'center', justifyContent: 'center' }}>
-          <Image source={require('../assets/logo.png')} style={{ width: 56, height: 40 }} resizeMode="contain" accessibilityLabel="Gochit's" />
+        <Pressable accessibilityRole="button" accessibilityLabel="უკან" onPress={() => router.replace('/home')}
+          style={{ position: 'absolute', left: 16, top: 16, width: 42, height: 42, borderRadius: 21, backgroundColor: 'rgba(11,20,36,0.78)', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon name="back" size={22} color={colors.onBrand} />
+        </Pressable>
+        <View style={{ position: 'absolute', left: 20, bottom: -34, width: 80, height: 80 }}>
+          <MerchantLogo m={{ slug: mer?.slug ?? 'gochits', name: mer?.name ?? branch?.merchantName ?? "Gochit's" }} size={80} />
         </View>
       </View>
-      <View style={{ paddingHorizontal: 20, paddingTop: 42, paddingBottom: 12, gap: 10 }}>
-        <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 25, color: theme.text, lineHeight: 31 }}>Gochit's • გოჩიტ'ს</Text>
-        <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted, marginTop: -6 }}>{ka.menu.tagline}</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel={ka.branch.change} onPress={() => router.push('/branches')}
+      <View style={{ paddingHorizontal: 20, paddingTop: 46, paddingBottom: 12, gap: 10 }}>
+        <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 25, color: theme.text, lineHeight: 31 }}>{mer ? (mer.slug === 'gochits' ? "Gochit's • გოჩიტ'ს" : mer.name) : (branch?.merchantName ?? '')}</Text>
+        {mer?.description ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 13, color: theme.muted, marginTop: -6 }}>{mer.slug === 'gochits' ? ka.menu.tagline : mer.description}</Text> : null}
+        <Pressable accessibilityRole="button" accessibilityLabel={ka.branch.change} onPress={() => router.push({ pathname: '/branches', params: branch?.merchantId ?? state?.merchant_id ? { merchant: (branch?.merchantId ?? state?.merchant_id) as string } : {} })}
           style={{ flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 40, paddingHorizontal: 12, borderRadius: 20, backgroundColor: theme.surface, alignSelf: 'flex-start', maxWidth: '100%' }}>
           <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: openNow ? '#1E8E5A' : theme.muted }} />
           <Text numberOfLines={1} style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: theme.text, flexShrink: 1 }}>{branch?.name}</Text>
@@ -182,7 +191,6 @@ export default function MenuScreen() {
         <View style={{ padding: 20, paddingTop: 50, gap: 14 }}>
           {[0, 1, 2, 3].map((i) => <View key={i} style={{ flexDirection: 'row', gap: 14 }}><View style={{ flex: 1, gap: 10, paddingTop: 6 }}><Shimmer style={{ height: 14, borderRadius: 7, backgroundColor: theme.surface2 }} /><Shimmer style={{ height: 12, width: '60%', borderRadius: 6, backgroundColor: theme.surface2 }} /></View><Shimmer style={{ width: 104, height: 104, borderRadius: 14, backgroundColor: theme.surface2 }} /></View>)}
         </View>
-        <TabBar />
       </View>
     );
   }
@@ -191,7 +199,6 @@ export default function MenuScreen() {
       <View style={{ flex: 1, backgroundColor: theme.bg }}>
         {header}
         <View style={{ padding: 20 }}><StateView tone="error" icon="clock" title={ka.menu.loadFail} hint={ka.errors.network} actionTitle={ka.common.retry} onAction={load} /></View>
-        <TabBar />
       </View>
     );
   }
@@ -202,7 +209,7 @@ export default function MenuScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <ScrollView ref={scroller} stickyHeaderIndices={[2]} onScroll={onScroll} scrollEventThrottle={32} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 190 }}>
+      <ScrollView ref={scroller} stickyHeaderIndices={[2]} onScroll={onScroll} scrollEventThrottle={32} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
         {header}
 
         <View style={{ gap: 14, paddingBottom: 6 }}>
@@ -251,7 +258,7 @@ export default function MenuScreen() {
       </ScrollView>
 
       {count > 0 && (
-        <SlideUp style={{ position: 'absolute', left: 16, right: 16, bottom: 70 }}>
+        <SlideUp style={{ position: 'absolute', left: 16, right: 16, bottom: 20 }}>
           <Bump value={count}>
             <Pressable accessibilityRole="button" onPress={() => router.push('/cart')}
               style={{ minHeight: 54, borderRadius: 27, backgroundColor: colors.brand, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18, shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 20, shadowOffset: { width: 0, height: 8 } }}>
@@ -262,7 +269,6 @@ export default function MenuScreen() {
           </Bump>
         </SlideUp>
       )}
-      <TabBar />
     </View>
   );
 }

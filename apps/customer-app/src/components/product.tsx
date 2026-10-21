@@ -106,7 +106,7 @@ export function AddButton({ qty, onPress, label, size = 36 }: { qty: number; onP
   return (
     <PressScale accessibilityRole="button" accessibilityLabel={label} onPress={onPress} scaleTo={0.8}
       style={{ minWidth: size, height: size, paddingHorizontal: qty > 0 ? 8 : 0, borderRadius: size / 2, backgroundColor: qty > 0 ? colors.red : colors.white, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.45, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } }}>
-      {qty > 0 ? <Text style={{ color: colors.white, fontFamily: fontFamily.extrabold, fontSize: 15 }}>{qty}</Text> : <Icon name="plus" size={20} color={colors.onBrand} strokeWidth={2.4} />}
+      {qty > 0 ? <Text style={{ color: colors.white, fontFamily: fontFamily.extrabold, fontSize: 15 }}>{qty}</Text> : <Icon name="plus" size={20} color="#0B1424" strokeWidth={2.4} />}
     </PressScale>
   );
 }

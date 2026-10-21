@@ -26,7 +26,9 @@ export async function loadMenu(branchId: string): Promise<Menu> {
       return { ...p, price_tetri: r.price_override_tetri ?? p.price_tetri, available: r.is_available };
     })
     .sort((a, b) => a.sort_order - b.sort_order);
-  return { categories: (c.data ?? []) as Category[], products };
+  // categories belong to one business each: keep only the ones this branch actually offers
+  const used = new Set(products.map((p) => p.category_id));
+  return { categories: ((c.data ?? []) as Category[]).filter((x) => used.has(x.id)), products };
 }
 
 export function discountPercent(p: Pick<Product, 'price_tetri' | 'old_price_tetri'>): number | null {

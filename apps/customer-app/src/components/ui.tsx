@@ -11,7 +11,7 @@ const logo = require('../../assets/logo.png');
 export function AppFrame({ children }: { children: ReactNode }) {
   if (Platform.OS !== 'web') return <>{children}</>;
   return (
-    <View style={{ flex: 1, backgroundColor: '#EAE4D8', alignItems: 'center' }}>
+    <View style={{ flex: 1, backgroundColor: '#050A14', alignItems: 'center' }}>
       <View style={{ flex: 1, width: '100%', maxWidth: 430, backgroundColor: theme.bg, overflow: 'hidden' }}>{children}</View>
     </View>
   );
@@ -118,7 +118,7 @@ export function Button({ title, onPress, disabled, variant = 'red' }: { title: s
         ...(variant === 'red' && !disabled ? { shadowColor: colors.red, shadowOpacity: 0.4, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } } : {}),
         ...(variant === 'ink' && !disabled ? { shadowColor: colors.brand, shadowOpacity: 0.3, shadowRadius: 14, shadowOffset: { width: 0, height: 6 } } : {}),
         ...(variant === 'outline' ? { borderWidth: 2, borderColor: theme.border } : {}),
-        ...(variant === 'outlineDark' ? { borderWidth: 2, borderColor: '#E8DDB8' } : {}) }}>
+        ...(variant === 'outlineDark' ? { borderWidth: 2, borderColor: 'rgba(255,255,255,0.7)' } : {}) }}>
       <Text style={[s.btnText, { color: fg }]}>{title}</Text>
     </PressScale>
   );

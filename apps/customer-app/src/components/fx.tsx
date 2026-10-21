@@ -114,7 +114,7 @@ export function Confetti({ count = 28 }: { count?: number }) {
   const reduce = useReduceMotion();
   const pieces = useMemo(() => Array.from({ length: count }).map((_, i) => ({
     left: (i / count) * 100 + (Math.random() * 6 - 3), drift: Math.random() * 120 - 60, delay: Math.random() * 500,
-    size: 8 + Math.random() * 8, color: [colors.brand, colors.red, colors.orange, '#1B2420'][i % 4]!, spin: Math.random() * 720 - 360, round: i % 3 === 0,
+    size: 8 + Math.random() * 8, color: [colors.brand, colors.red, colors.orange, '#F1F5FB'][i % 4]!, spin: Math.random() * 720 - 360, round: i % 3 === 0,
   })), [count]);
   const v = useRef(new Animated.Value(0)).current;
   useEffect(() => { if (!reduce) Animated.timing(v, { toValue: 1, duration: 2600, easing: Easing.out(Easing.quad), useNativeDriver: ND }).start(); }, [v, reduce]);

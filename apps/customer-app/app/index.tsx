@@ -34,7 +34,7 @@ export default function Splash() {
       let signedIn = false;
       try { signedIn = !!(await supabase.auth.getSession()).data.session; } catch { signedIn = false; }
       const wait = Math.max(0, MIN_MS + 200 - (Date.now() - started));
-      setTimeout(() => { if (alive) router.replace(signedIn ? '/menu' : '/login'); }, wait);
+      setTimeout(() => { if (alive) router.replace(signedIn ? '/home' : '/login'); }, wait);
     })();
     return () => { alive = false; };
   }, [router]);

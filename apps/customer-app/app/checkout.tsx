@@ -162,7 +162,7 @@ export default function Checkout() {
   return (
     <Screen scroll>
       <Header back title={ka.checkout.title} subtitle={branch?.name} right={
-        <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}>
+        <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/branches', params: branch?.merchantId ? { merchant: branch.merchantId } : {} })} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}>
           <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.brand }}>{ka.checkout.changeBranch}</Text>
         </Pressable>} />
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: 20, gap: 14, paddingBottom: 24 }}>
@@ -196,7 +196,7 @@ export default function Checkout() {
                       <Text numberOfLines={2} style={{ fontFamily: fontFamily.extrabold, fontSize: 15, color: theme.text }}>{branch.name}</Text>
                       {pb?.address ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12.5, color: theme.muted }}>{pb.address}</Text> : null}
                     </View>
-                    <Pressable accessibilityRole="button" onPress={() => router.push('/branches')} style={{ minHeight: 40, justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.brand }}>{ka.branch.change}</Text></Pressable>
+                    <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/branches', params: branch?.merchantId ? { merchant: branch.merchantId } : {} })} style={{ minHeight: 40, justifyContent: 'center', paddingHorizontal: 6 }}><Text style={{ fontFamily: fontFamily.extrabold, fontSize: 13, color: colors.brand }}>{ka.branch.change}</Text></Pressable>
                   </View>
                   {pb && !pickupReady ? (
                     <View style={{ backgroundColor: 'rgba(232,85,61,0.12)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 9 }}>

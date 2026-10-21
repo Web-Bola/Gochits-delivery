@@ -4,7 +4,7 @@ import { errorText } from '@gochits/i18n';
 import { loadJson, saveJson } from '../lib/storage';
 import { supabase } from '../lib/supabase';
 
-export interface PickedBranch { id: string; name: string }
+export interface PickedBranch { id: string; name: string; merchantId?: string; merchantName?: string }
 export interface DeliveryAddress { id: string; street: string; lat: number; lng: number; entrance?: string | null; floor?: string | null; apartment?: string | null }
 export interface AppliedPromo { code: string; discountTetri: number }
 

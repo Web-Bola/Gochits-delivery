@@ -95,11 +95,11 @@ export default function Payment() {
 
       <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, gap: 4, backgroundColor: theme.bg, borderTopWidth: 1, borderTopColor: theme.border }}>
         <Button title={`${ka.payment.payBtn} · ${amount}`} onPress={pay} disabled={!enabled || phase === 'processing'} />
-        <Pressable accessibilityRole="button" onPress={() => router.replace('/menu')} style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
+        <Pressable accessibilityRole="button" onPress={() => router.replace('/home')} style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
           <Text style={{ fontFamily: fontFamily.extrabold, fontSize: 14, color: theme.muted }}>{ka.payment.cancelBack}</Text>
         </Pressable>
       </View>
-      {phase ? <PayOverlay phase={phase} amount={amount} number={info.number} count={count} onTrack={() => router.replace({ pathname: '/order/[id]', params: { id: String(id) } })} onRetry={() => setPhase(null)} onMenu={() => router.replace('/menu')} /> : null}
+      {phase ? <PayOverlay phase={phase} amount={amount} number={info.number} count={count} onTrack={() => router.replace({ pathname: '/order/[id]', params: { id: String(id) } })} onRetry={() => setPhase(null)} onMenu={() => router.replace('/home')} /> : null}
     </Screen>
   );
 }

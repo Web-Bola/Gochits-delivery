@@ -1,19 +1,23 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import * as Location from 'expo-location';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { nearestOrderable, sortBranchOptions, type BranchOption } from '@gochits/shared';
 import { ka } from '@gochits/i18n';
 import { colors, fontFamily, theme } from '@gochits/ui-tokens';
 import { Body, Button, Card, ErrorText, FadeIn, Header, Screen } from '../src/components/ui';
 import { supabase } from '../src/lib/supabase';
 import { useCart } from '../src/state/cart';
+import { loadMerchants } from '../src/lib/merchants';
 
-interface Row { id: string; name: string; address: string | null; phone: string | null; accepts_orders: boolean; is_open: boolean }
+interface Row { id: string; name: string; address: string | null; phone: string | null; accepts_orders: boolean; is_open: boolean; merchant_id: string }
 
 /** Branch picker. The menu and sold-out items depend on the branch. "Nearest" works through delivery zones (server side), so it needs the zones to be filled in. */
 export default function Branches() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ merchant?: string; auto?: string }>();
+  const only = typeof params.merchant === 'string' && params.merchant ? params.merchant : null;
+  const [mname, setMname] = useState<Record<string, string>>({});
   const { branch, setBranch, count, ready } = useCart();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [failed, setFailed] = useState(false);
@@ -26,15 +30,26 @@ export default function Branches() {
     setFailed(false);
     const { data, error } = await supabase.rpc('list_branches');
     if (error) { console.warn('list_branches failed', error); setFailed(true); setRows([]); return; }
-    setRows((data ?? []) as Row[]);
-  }, []);
+    setRows(((data ?? []) as Row[]).filter((r) => !only || r.merchant_id === only));
+    loadMerchants().then((ms) => setMname(Object.fromEntries(ms.map((m) => [m.id, m.name])))).catch(() => undefined);
+  }, [only]);
   useEffect(() => { load(); }, [load]);
 
   const choose = useCallback((r: Row, force = false) => {
     if (branch && branch.id !== r.id && count > 0 && !force) { setPending(r); return; }
-    setBranch({ id: r.id, name: r.name });
+    setBranch({ id: r.id, name: r.name, merchantId: r.merchant_id, merchantName: mname[r.merchant_id] });
     router.replace('/menu');
-  }, [branch, count, setBranch, router]);
+  }, [branch, count, setBranch, router, mname]);
+
+  // a business with a single branch opens straight away
+  const autoDone = useRef(false);
+  useEffect(() => {
+    if (autoDone.current || params.auto !== '1' || !rows || rows.length !== 1 || !ready) return;
+    const r = rows[0]!;
+    if (branch && branch.id !== r.id && count > 0) return;
+    autoDone.current = true;
+    choose(r);
+  }, [rows, ready, params.auto, branch, count, choose]);
 
   async function locate() {
     setLocating(true); setNote(null);
@@ -47,7 +62,7 @@ export default function Branches() {
       ]);
       const { data, error } = await supabase.rpc('resolve_branches', { p_lat: pos.coords.latitude, p_lng: pos.coords.longitude });
       if (error) throw error;
-      const best = nearestOrderable(sortBranchOptions((data ?? []) as BranchOption[]));
+      const best = nearestOrderable(sortBranchOptions(((data ?? []) as (BranchOption & { merchant_id?: string })[]).filter((o) => !only || o.merchant_id === only)));
       if (!best) { setNote(ka.branch.locateFail); return; }
       setNearestId(best.branch_id);
       const row = rows?.find((r) => r.id === best.branch_id);
@@ -59,13 +74,14 @@ export default function Branches() {
   }
 
   if (!rows || !ready) return <Screen><ActivityIndicator color={colors.brand} /></Screen>;
-  const first = !branch;
+  const first = !branch && !only;
   return (
     <Screen scroll>
       <Header back={!first} showLogo={first} title={first ? ka.branch.pickTitle : ka.branch.title} subtitle={ka.branch.pickHint} />
       <ScrollView contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: 40 }}>
         <Button title={locating ? ka.branch.locating : ka.branch.locate} onPress={locate} disabled={locating} variant="ink" />
         {note ? <ErrorText>{note}</ErrorText> : null}
+        {!failed && rows.length === 0 ? <Body muted>ამ ბიზნესს ჯერ ფილიალი არ აქვს დამატებული.</Body> : null}
         {failed ? <><Body>{ka.errors.network}</Body><Button title={ka.common.retry} onPress={load} variant="outline" /></> : null}
         {pending ? (
           <Card style={{ borderColor: colors.red, gap: 10 }}>

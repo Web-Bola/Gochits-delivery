@@ -71,7 +71,7 @@ export default function Orders() {
         <ScrollView contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: 110 }}>
           {failed && <StateView tone="error" icon="clock" title={ka.errors.network} actionTitle={ka.common.retry} onAction={load} />}
           {msg && <ErrorText>{msg}</ErrorText>}
-          {rows.length === 0 && !failed && <StateView icon="receipt" title={ka.orders.empty} hint={ka.orders.emptyHint} actionTitle={ka.orders.toMenu} onAction={() => router.replace('/menu')} />}
+          {rows.length === 0 && !failed && <StateView icon="receipt" title={ka.orders.empty} hint={ka.orders.emptyHint} actionTitle={ka.orders.toMenu} onAction={() => router.replace('/home')} />}
           {current.length > 0 && <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text }}>{ka.orders.active}</Text>}
           {current.map(card)}
           {past.length > 0 && <Text accessibilityRole="header" style={{ fontFamily: fontFamily.extrabold, fontSize: 17, color: theme.text, marginTop: 6 }}>{ka.orders.past}</Text>}

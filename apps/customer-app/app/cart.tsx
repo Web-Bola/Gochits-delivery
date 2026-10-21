@@ -71,7 +71,7 @@ export default function Cart() {
           </Card>
         ) : null}
 
-        {lines.length === 0 && <StateView icon="bag" title={ka.cart.empty} hint={ka.cart.emptyHint} actionTitle={ka.orders.toMenu} onAction={() => router.replace('/menu')} />}
+        {lines.length === 0 && <StateView icon="bag" title={ka.cart.empty} hint={ka.cart.emptyHint} actionTitle={ka.orders.toMenu} onAction={() => router.replace('/home')} />}
 
         {lines.map((l, i) => (
           <FadeIn key={l.key} index={i}>

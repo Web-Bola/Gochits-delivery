@@ -34,6 +34,7 @@ const PATHS: Record<string, string> = {
   cash: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>',
   chev: '<path d="m6 9 6 6 6-6"/>',
   bag: '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/>',
+  cross: '<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/>',
   clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
 };
 
@@ -53,7 +54,7 @@ function parse(name: string) {
 
 const TAG = { path: Path, circle: Circle, rect: Rect } as const;
 
-export function Icon({ name, size = 22, color = '#1B2420', fill, strokeWidth = 2 }: { name: IconName; size?: number; color?: string; fill?: string; strokeWidth?: number }) {
+export function Icon({ name, size = 22, color = '#F1F5FB', fill, strokeWidth = 2 }: { name: IconName; size?: number; color?: string; fill?: string; strokeWidth?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill={fill ?? 'none'} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" {...(Platform.OS === 'web' ? {} : { accessibilityElementsHidden: true, importantForAccessibility: 'no-hide-descendants' as const })}>
       {parse(name).map((e, i) => createElement(TAG[e.tag] as never, { key: i, ...camel(e.props) }))}

@@ -196,7 +196,7 @@ export default function OrderScreen() {
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 {[1, 2, 3, 4, 5].map((n) => (
                   <PressScale key={n} accessibilityRole="button" accessibilityLabel={`${n}`} disabled={rated} onPress={() => setStars(n)} scaleTo={0.8}>
-                    <Icon name="star" size={34} color={n <= stars ? colors.brand : '#D5CBBE'} fill={n <= stars ? colors.brand : '#D5CBBE'} strokeWidth={1} />
+                    <Icon name="star" size={34} color={n <= stars ? colors.brand : '#3A4A6B'} fill={n <= stars ? colors.brand : '#3A4A6B'} strokeWidth={1} />
                   </PressScale>
                 ))}
               </View>
@@ -252,7 +252,7 @@ export default function OrderScreen() {
           ) : null}
           {!canCancel && !finished && row.status !== 'pending_payment' ? <Text style={{ fontFamily: fontFamily.regular, fontSize: 12, color: theme.muted }}>{ka.order.cannotCancel}</Text> : null}
           {finished ? <Button title={ka.orders.reorder} onPress={again} disabled={busy} variant="red" /> : null}
-          <Button variant={fin ? 'red' : 'outline'} title={fin ? ka.order.newOrder : ka.order.back} onPress={() => router.replace('/menu')} />
+          <Button variant={fin ? 'red' : 'outline'} title={fin ? ka.order.newOrder : ka.order.back} onPress={() => router.replace('/home')} />
         </ScrollView>
       </View>
       {fin && <Confetti />}
