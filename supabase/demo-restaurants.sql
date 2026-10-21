@@ -31,7 +31,7 @@ begin
 end $$;
 
 -- menus: (merchant slug, category, product, description, price in tetri, image key)
-create temp table demo_menu(slug text, cat text, name text, descr text, price int, img text) on commit drop;
+create temp table demo_menu(slug text, cat text, name text, descr text, price int, img text);
 insert into demo_menu values
   ('burger-club','ბურგერები','კლასიკური ბურგერი','საქონლის ხორცი, ჩედარი, სალათი, პომიდორი',2590,'demo/burger-classic.jpg'),
   ('burger-club','ბურგერები','ბეკონ ბურგერი','საქონლის ხორცი, ბეკონი, ჩედარი, ხახვი',2490,'demo/burger-cheese.jpg'),
