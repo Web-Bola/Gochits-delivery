@@ -21,7 +21,7 @@ export default function Login() {
     setBusy(true); setError(null);
     const { error: e } = await supabase.auth.signInWithOtp({ phone: `+995${digits}` });
     setBusy(false);
-    if (e) { console.warn('signInWithOtp failed', e); setError(__DEV__ ? `${ka.errors.generic} (${e.message})` : ka.errors.generic); return; }
+    if (e) { console.warn('signInWithOtp failed', e); setError(/rate limit|too many|seconds/i.test(e.message) ? 'ძალიან ბევრი მცდელობაა. სცადე რამდენიმე წუთში' : `${ka.errors.generic} (${e.message})`); return; }
     router.push({ pathname: '/otp', params: { phone: digits } });
   }
 
